@@ -6,6 +6,7 @@ import { toneText } from "@/lib/tone";
 import { funil, projetosConcluidos, atencao } from "@/lib/mock-data";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { gerarResumoDia } from "@/lib/ai/resumo";
 
 const card = "rounded-xl border border-line bg-card";
 const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as const;
@@ -41,6 +42,19 @@ export default async function DashboardPage() {
     .reduce((sum, a) => sum + Number(a.valor), 0);
   const aReceber30d = (recebimentos ?? []).reduce((sum, r) => sum + Number(r.valor), 0);
 
+  const resumo = await gerarResumoDia({
+    projetosAtivos,
+    leadsAtivos,
+    aReceber30d: formatMoney(aReceber30d),
+    mrr: formatMoney(mrr),
+  });
+
+  const dataHoje = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(hoje);
+
   const kpis = [
     { label: "PROJETOS ATIVOS", value: String(projetosAtivos), delta: "dados reais", tone: "ok" as const },
     { label: "LEADS ATIVOS", value: String(leadsAtivos), delta: "dados reais", tone: "ok" as const },
@@ -55,7 +69,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Dashboard</h1>
-        <span className="text-[11.5px] text-mut">terça, 8 de julho</span>
+        <span className="text-[11.5px] text-mut">{dataHoje}</span>
         <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
           + Novo
         </button>
@@ -64,11 +78,8 @@ export default async function DashboardPage() {
       {/* Resumo do dia (IA) */}
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
-        <div className="min-w-0">
-          <div className="text-[12.5px] font-semibold text-ink">Bom dia, Rafael. Hoje pede atenção ao caixa.</div>
-          <div className="mt-0.5 text-[12px] text-mut">
-            Você tem <b className="text-ink">2 entregas</b> esta semana, <b className="text-ink">R$ 6,3k a receber</b> em 7 dias e a proposta da Nordic AS está <b className="text-ink">5 dias sem resposta</b> — sugeri um follow-up abaixo.
-          </div>
+        <div className="min-w-0 text-[12.5px] leading-[1.5] text-ink">
+          <RichText text={resumo} />
         </div>
         <Link
           href="/assistente"

@@ -5,7 +5,15 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { drafts as draftCatalog } from "@/lib/mock-data";
 import { IaBadge } from "./ia-badge";
 
-type Ctx = { openDraft: (key: string) => void; toast: (msg: string) => void };
+export type DraftSpec = { tipo: "cobranca" | "mensagem_cliente"; clienteId: string; recebimentoId?: string };
+
+type ActiveDraft = { title: string; cta?: string; done?: string };
+
+type Ctx = {
+  openDraft: (key: string) => void;
+  openAiDraft: (spec: DraftSpec, fallbackTitle: string) => void;
+  toast: (msg: string) => void;
+};
 const AppCtx = React.createContext<Ctx | null>(null);
 
 export function useApp() {
@@ -15,13 +23,12 @@ export function useApp() {
 }
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
-  const [draftKey, setDraftKey] = React.useState<string | null>(null);
-  const [editing, setEditing] = React.useState(false);
+  const [active, setActive] = React.useState<ActiveDraft | null>(null);
   const [text, setText] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
   const [toastMsg, setToastMsg] = React.useState<string | null>(null);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const draft = draftKey ? draftCatalog[draftKey] : null;
 
   const showToast = React.useCallback((msg: string) => {
     setToastMsg(msg);
@@ -32,27 +39,51 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const openDraft = React.useCallback((key: string) => {
     const d = draftCatalog[key];
     if (!d) return;
-    setDraftKey(key);
+    setActive({ title: d.title, cta: d.cta, done: d.done });
     setEditing(false);
+    setLoading(false);
     setText(d.body);
   }, []);
 
+  const openAiDraft = React.useCallback(async (spec: DraftSpec, fallbackTitle: string) => {
+    setActive({ title: fallbackTitle });
+    setEditing(false);
+    setLoading(true);
+    setText("");
+    try {
+      const res = await fetch("/api/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(spec),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
+      setActive({ title: data.title ?? fallbackTitle });
+      setText(data.body);
+    } catch {
+      showToast("Não foi possível gerar o rascunho. Tente novamente.");
+      setActive(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast]);
+
   const approve = () => {
-    const done = draft?.done ?? "✓ Enviado e registrado no histórico do cliente";
-    setDraftKey(null);
+    const done = active?.done ?? "✓ Enviado e registrado no histórico do cliente";
+    setActive(null);
     showToast(done);
   };
 
   return (
-    <AppCtx.Provider value={{ openDraft, toast: showToast }}>
+    <AppCtx.Provider value={{ openDraft, openAiDraft, toast: showToast }}>
       {children}
 
-      <Dialog open={!!draft} onOpenChange={(o) => !o && setDraftKey(null)}>
+      <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="w-[480px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[480px]">
-          {draft && (
+          {active && (
             <>
               <DialogTitle className="pr-6 text-[14.5px] font-bold text-ink">
-                {draft.title}
+                {active.title}
               </DialogTitle>
               <div className="mb-2.5 mt-2.5 flex items-center gap-2">
                 <IaBadge />
@@ -60,7 +91,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                   Gerado por IA · revise antes de enviar
                 </span>
               </div>
-              {editing ? (
+              {loading ? (
+                <div className="flex min-h-[150px] items-center justify-center rounded-[10px] border border-line bg-soft p-3 text-[12.5px] italic text-mut">
+                  Gerando rascunho…
+                </div>
+              ) : editing ? (
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
@@ -74,15 +109,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
               <div className="mt-3.5 flex justify-end gap-2">
                 <button
                   onClick={() => setEditing((v) => !v)}
-                  className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+                  disabled={loading}
+                  className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand disabled:opacity-50"
                 >
                   {editing ? "Salvar edição" : "Editar"}
                 </button>
                 <button
                   onClick={approve}
-                  className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+                  disabled={loading}
+                  className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                 >
-                  {draft.cta ?? "✓ Aprovar e enviar"}
+                  {active.cta ?? "✓ Aprovar e enviar"}
                 </button>
               </div>
             </>

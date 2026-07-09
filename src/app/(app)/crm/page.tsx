@@ -1,5 +1,5 @@
 import { IaBadge } from "@/components/ia-badge";
-import { DraftButton } from "@/components/draft-button";
+import { AiDraftButton } from "@/components/ai-draft-button";
 import { NewClienteDialog } from "@/components/new-cliente-dialog";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
@@ -32,16 +32,6 @@ const statusTone: Record<Enums<"cliente_status">, Tone> = {
   recorrente: "ok",
   frio: "mut",
   perdido: "danger",
-};
-
-// draft pronto no catálogo mock (Fase 2 troca por geração real via IA)
-const draftByNome: Record<string, string> = {
-  "Acme Co.": "upsellAcme",
-  "Nordic AS": "followupNordic",
-  "Bloom GmbH": "reviewBloom",
-  "Lex Advocacia": "reengajarLex",
-  "Hudson Media": "retainerHudson",
-  "Vela Fitness": "callVela",
 };
 
 function scoreTone(score: number | null): Tone {
@@ -90,7 +80,6 @@ export default async function CrmPage() {
               </div>
             )}
             {contatos?.map((c) => {
-              const draftKey = draftByNome[c.nome];
               return (
                 <div
                   key={c.id}
@@ -118,15 +107,12 @@ export default async function CrmPage() {
                   <b className={`text-[13px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
                   <span className="text-[11.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>
                   <span className="text-[11.5px] text-ia">{c.proxima_acao_ia ?? "—"}</span>
-                  {draftKey ? (
-                    <DraftButton
-                      draftKey={draftKey}
-                      label="Rascunhar"
-                      className="justify-self-start px-2.5 py-1 text-[11px]"
-                    />
-                  ) : (
-                    <span />
-                  )}
+                  <AiDraftButton
+                    spec={{ tipo: "mensagem_cliente", clienteId: c.id }}
+                    fallbackTitle={`Mensagem — ${c.nome}`}
+                    label="Rascunhar"
+                    className="justify-self-start px-2.5 py-1 text-[11px]"
+                  />
                 </div>
               );
             })}

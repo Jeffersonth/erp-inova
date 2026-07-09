@@ -1,5 +1,5 @@
 import { IaBadge } from "@/components/ia-badge";
-import { DraftButton } from "@/components/draft-button";
+import { AiDraftButton } from "@/components/ai-draft-button";
 import { toneText, riskPill } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
 import { lucroCliente } from "@/lib/mock-data";
@@ -8,11 +8,6 @@ import { createClient } from "@/lib/supabase/server";
 
 const card = "rounded-xl border border-line bg-card";
 const recCols = "grid-cols-[1.6fr_0.8fr_0.8fr_0.9fr_1fr]";
-
-const draftByNome: Record<string, { key: string; label: string; solid?: boolean }> = {
-  "Acme Co.": { key: "cobrancaAcme", label: "Enviar lembrete" },
-  "Lex Advocacia": { key: "cobrancaLex", label: "Cobrança IA", solid: true },
-};
 
 function riscoTone(risco: number | null): Tone {
   if (risco == null) return "mut";
@@ -126,8 +121,8 @@ export default async function FinanceiroPage() {
             )}
             {recebimentos?.map((r) => {
               const nome = r.clientes?.nome ?? "Cliente";
-              const draft = draftByNome[nome];
               const atrasado = r.status === "atrasado";
+              const jaPago = r.status === "pago";
               return (
                 <div
                   key={r.id}
@@ -146,8 +141,14 @@ export default async function FinanceiroPage() {
                       {riscoTone(r.risco_ia) === "ok" ? "baixo" : riscoTone(r.risco_ia) === "amber" ? "médio" : "alto"} · {r.risco_ia ?? 0}%
                     </span>
                   </span>
-                  {draft ? (
-                    <DraftButton draftKey={draft.key} label={draft.label} solid={draft.solid} className="justify-self-end" />
+                  {r.cliente_id && !jaPago ? (
+                    <AiDraftButton
+                      spec={{ tipo: "cobranca", clienteId: r.cliente_id, recebimentoId: r.id }}
+                      fallbackTitle={`Cobrança — ${nome}`}
+                      label={atrasado ? "Cobrança IA" : "Enviar lembrete"}
+                      solid={atrasado}
+                      className="justify-self-end"
+                    />
                   ) : (
                     <span className="justify-self-end text-[11px] text-mut">em dia</span>
                   )}

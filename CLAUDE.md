@@ -82,19 +82,46 @@ now() where email = '...'`).
 
 **Dados reais vs. ilustrativos (Fase 1):** CRM, Projetos (kanban com persistência de status
 ao arrastar) e Financeiro (contas a receber, assinaturas/MRR) leem do Supabase de verdade.
-Dashboard mistura KPIs reais (projetos ativos, leads ativos, a receber 30d, MRR) com
-conteúdo narrativo de IA ainda ilustrativo (resumo do dia, anomalia, previsão de caixa,
-lucro por cliente) — isso é proposital, veja Fase 3 no roadmap. Anotações tem CRUD real
-(insert/update client-side). O catálogo de rascunhos de IA (`src/lib/mock-data.ts` →
-`drafts`) continua estático até a Fase 2; a ligação cliente→draft é por nome (os 6 clientes
-seedados usam os mesmos nomes do catálogo original).
+Dashboard mistura KPIs reais (projetos ativos, leads ativos, a receber 30d, MRR) com gráficos
+de IA ainda ilustrativos (previsão de caixa, lucro por cliente) — isso é proposital, veja
+Fase 3 no roadmap. Anotações tem CRUD real (insert/update client-side).
+
+## IA real (Fase 2) — Anthropic API
+
+Usa `@anthropic-ai/sdk` server-only (`src/lib/ai/client.ts`), lendo `ANTHROPIC_API_KEY` de
+`.env.local` (nunca exposta ao browser). Estratégia de custo do próprio spec do produto:
+**Opus 4.8** para assistente conversacional e geração de rascunhos (qualidade), **Haiku 4.5**
+para o resumo diário (tarefa rotineira).
+
+- **Assistente** (`src/app/(app)/assistente/page.tsx` + `POST /api/assistente`): chat real
+  com *tool calling* — `src/lib/ai/tools.ts` define 4 tools (`buscar_clientes`,
+  `buscar_projetos`, `buscar_financeiro`, `buscar_anotacoes`) que consultam o Postgres via o
+  client autenticado da requisição (RLS restringe tudo a `auth.uid()`). Loop manual de
+  tool-use, capado em 4 iterações.
+- **Rascunhos** (`POST /api/draft` + `src/components/ai-draft-button.tsx` +
+  `openAiDraft` em `app-providers.tsx`): gera cobranças/mensagens reais com os dados do
+  cliente/recebimento, abre no mesmo modal "Rascunho da IA" de sempre. Usado em CRM
+  (`tipo: "mensagem_cliente"`) e Financeiro (`tipo: "cobranca"`).
+- **Resumo diário** (`src/lib/ai/resumo.ts`, chamado direto do Server Component do
+  Dashboard): 1 parágrafo curto via Haiku a partir dos KPIs reais.
+- O catálogo estático antigo (`src/lib/mock-data.ts` → `drafts`, usado por
+  `src/components/draft-button.tsx` / `DraftButton`) continua servindo os botões sem dados
+  reais modelados ainda: `anomalia` (Dashboard), `prazosIA` e `contrato` (Projetos — exigem
+  mais contexto/escrita de volta no banco que ainda não foi implementada).
+- Toda função de IA tem fallback silencioso em caso de erro (`try/catch` retornando texto
+  padrão ou toast) — a tela nunca quebra se a API da Anthropic falhar ou o saldo da conta
+  estiver baixo.
+- **Não implementado ainda:** busca semântica (pgvector) — exige tabela `biblioteca` +
+  pipeline de embeddings, e não há conteúdo para indexar ainda; ficou para quando houver uso
+  real da Biblioteca.
 
 ## Roadmap
 
 - **Fase 1 (concluída):** Dashboard, CRM + histórico, Projetos (kanban/checklist),
-  Financeiro básico, Login — agora com Supabase real (Auth + Postgres + RLS), não mais só
-  dados mockados. *(previsões/resumos de IA ainda ilustrativos — ver Fase 3)*
-- **Fase 2:** Assistente global com tools, resumo diário, geração de propostas/cobranças, busca semântica.
+  Financeiro básico, Login — Supabase real (Auth + Postgres + RLS), não mais só dados
+  mockados.
+- **Fase 2 (parcial):** Assistente global com tools ✅, geração de propostas/cobranças ✅,
+  resumo diário ✅ — busca semântica ainda não implementada (ver seção "IA real" acima).
 - **Fase 3:** Previsões (receita, atraso, inadimplência), lead scoring, automações, lucro por cliente.
 - **Fase 4:** WhatsApp, portal do cliente, controle de horas, prospecção por CNPJ.
 
