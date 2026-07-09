@@ -1,39 +1,33 @@
 import { IaBadge } from "@/components/ia-badge";
 import { AiDraftButton } from "@/components/ai-draft-button";
-import { toneText, riskPill } from "@/lib/tone";
-import type { Tone } from "@/lib/mock-data";
+import {
+  NewRecebimentoDialog,
+  EditRecebimentoButton,
+} from "@/components/recebimento-dialogs";
+import { toneText } from "@/lib/tone";
 import { formatMoney, relativeDate } from "@/lib/format";
+import { pagamentoInfo } from "@/lib/recebimento";
 import { createClient } from "@/lib/supabase/server";
 
 const card = "rounded-xl border border-line bg-card";
-const recCols = "grid-cols-[1.6fr_0.8fr_0.8fr_0.9fr_1fr]";
-
-function riscoTone(risco: number | null): Tone {
-  if (risco == null) return "mut";
-  if (risco < 30) return "ok";
-  if (risco < 60) return "amber";
-  return "danger";
-}
-
-function vencTone(vencimento: string | null, atrasado: boolean): Tone {
-  if (atrasado) return "danger";
-  if (!vencimento) return "mut";
-  return "amber";
-}
+const recCols = "grid-cols-[1.7fr_0.9fr_0.9fr_0.9fr_0.8fr_0.9fr_0.7fr]";
 
 export default async function FinanceiroPage() {
   const supabase = createClient();
 
-  const [{ data: recebimentos }, { data: assinaturas }] = await Promise.all([
-    supabase
-      .from("recebimentos")
-      .select("*, clientes(nome, ramo)")
-      .order("vencimento", { ascending: true }),
-    supabase
-      .from("assinaturas")
-      .select("*, clientes(nome)")
-      .order("created_at", { ascending: true }),
-  ]);
+  const [{ data: recebimentos }, { data: assinaturas }, { data: clientes }, { data: projetos }] =
+    await Promise.all([
+      supabase
+        .from("recebimentos")
+        .select("*, clientes(nome, ramo), projetos(titulo)")
+        .order("data_pagamento", { ascending: false, nullsFirst: false }),
+      supabase.from("assinaturas").select("*, clientes(nome)").order("created_at", { ascending: true }),
+      supabase.from("clientes").select("id, nome").order("nome"),
+      supabase.from("projetos").select("id, titulo, cliente_id").order("titulo"),
+    ]);
+
+  const clientesList = clientes ?? [];
+  const projetosList = projetos ?? [];
 
   const mrr = (assinaturas ?? [])
     .filter((a) => a.status === "ativa")
@@ -44,6 +38,11 @@ export default async function FinanceiroPage() {
     .filter((a) => a.status === "inadimplente")
     .sort((a, b) => (b.churn_score ?? 0) - (a.churn_score ?? 0))[0];
 
+  // Totais das vendas (em BRL, moeda base da visão)
+  const brl = (recebimentos ?? []).filter((r) => r.moeda === "BRL");
+  const recebido = brl.reduce((s, r) => s + Number(r.valor_pago), 0);
+  const aReceber = brl.reduce((s, r) => s + Math.max(0, Number(r.valor) - Number(r.valor_pago)), 0);
+
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}
@@ -52,55 +51,87 @@ export default async function FinanceiroPage() {
         <span className="rounded-full border border-line bg-card px-2.5 py-[3px] text-[10.5px] font-semibold text-mut">
           R$ · US$ · €
         </span>
+        <NewRecebimentoDialog clientes={clientesList} projetos={projetosList} />
       </div>
 
-      {/* Contas a receber */}
+      {/* Resumo das vendas */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RECEBIDO · BRL</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-ok">{formatMoney(recebido)}</div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">A RECEBER · BRL</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-warn">{formatMoney(aReceber)}</div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">VENDAS</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-ink">{recebimentos?.length ?? 0}</div>
+        </div>
+      </div>
+
+      {/* Vendas / contas a receber */}
       <div className={`${card} overflow-hidden`}>
         <div className="thin-scroll overflow-x-auto">
-          <div className="min-w-[720px]">
+          <div className="min-w-[860px]">
             <div className={`grid ${recCols} gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut`}>
-              <span>CONTAS A RECEBER</span>
+              <span>VENDA</span>
               <span>VALOR</span>
-              <span>VENCIMENTO</span>
-              <span>RISCO · IA</span>
+              <span>PAGO</span>
+              <span>SALDO</span>
+              <span>STATUS</span>
+              <span>DATA PAGTO</span>
               <span />
             </div>
             {!recebimentos?.length && (
-              <div className="px-3.5 py-8 text-center text-[12.5px] text-mut">Nenhuma conta a receber cadastrada.</div>
+              <div className="px-3.5 py-8 text-center text-[12.5px] text-mut">
+                Nenhuma venda registrada. Clique em &ldquo;+ Nova venda&rdquo; para começar.
+              </div>
             )}
             {recebimentos?.map((r) => {
-              const nome = r.clientes?.nome ?? "Cliente";
-              const atrasado = r.status === "atrasado";
-              const jaPago = r.status === "pago";
+              const nome = r.clientes?.nome ?? "Sem cliente";
+              const info = pagamentoInfo(Number(r.valor), Number(r.valor_pago));
+              const sub = r.projetos?.titulo ?? r.descricao ?? r.clientes?.ramo ?? "";
               return (
                 <div
                   key={r.id}
                   className={`grid ${recCols} items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft`}
                 >
-                  <div>
+                  <div className="min-w-0">
                     <b className="text-[12.5px] text-ink">{nome}</b>
-                    <div className="text-[11px] text-mut">{r.descricao ?? r.clientes?.ramo}</div>
+                    {sub && <div className="truncate text-[11px] text-mut">{sub}</div>}
                   </div>
                   <b className="text-[12.5px] text-ink">{formatMoney(Number(r.valor), r.moeda)}</b>
-                  <span className={`text-[11.5px] font-semibold ${toneText[vencTone(r.vencimento, atrasado)]}`}>
-                    {atrasado ? `${Math.abs(diffOrZero(r.vencimento))} dias atrás` : relativeDate(r.vencimento)}
+                  <span className="text-[12px] text-ok">{formatMoney(Number(r.valor_pago), r.moeda)}</span>
+                  <span className={`text-[12px] font-semibold ${info.saldo > 0 ? "text-warn" : "text-mut"}`}>
+                    {formatMoney(info.saldo, r.moeda)}
                   </span>
-                  <span>
-                    <span className={`rounded-full border px-[9px] py-0.5 text-[10.5px] font-bold ${riskPill[riscoTone(r.risco_ia)]}`}>
-                      {riscoTone(r.risco_ia) === "ok" ? "baixo" : riscoTone(r.risco_ia) === "amber" ? "médio" : "alto"} · {r.risco_ia ?? 0}%
-                    </span>
-                  </span>
-                  {r.cliente_id && !jaPago ? (
-                    <AiDraftButton
-                      spec={{ tipo: "cobranca", clienteId: r.cliente_id, recebimentoId: r.id }}
-                      fallbackTitle={`Cobrança — ${nome}`}
-                      label={atrasado ? "Cobrança IA" : "Enviar lembrete"}
-                      solid={atrasado}
-                      className="justify-self-end"
+                  <span className={`text-[11.5px] font-semibold ${toneText[info.tone]}`}>● {info.label}</span>
+                  <span className="text-[11.5px] text-mut">{relativeDate(r.data_pagamento)}</span>
+                  <div className="flex items-center justify-self-end gap-1.5">
+                    {r.cliente_id && info.saldo > 0 && (
+                      <AiDraftButton
+                        spec={{ tipo: "cobranca", clienteId: r.cliente_id, recebimentoId: r.id }}
+                        fallbackTitle={`Cobrança — ${nome}`}
+                        label="Cobrar"
+                        className="px-2.5 py-1 text-[11px]"
+                      />
+                    )}
+                    <EditRecebimentoButton
+                      recebimento={{
+                        id: r.id,
+                        clienteId: r.cliente_id,
+                        projetoId: r.projeto_id,
+                        descricao: r.descricao,
+                        valor: Number(r.valor),
+                        valorPago: Number(r.valor_pago),
+                        moeda: r.moeda,
+                        dataPagamento: r.data_pagamento,
+                      }}
+                      clientes={clientesList}
+                      projetos={projetosList}
                     />
-                  ) : (
-                    <span className="justify-self-end text-[11px] text-mut">em dia</span>
-                  )}
+                  </div>
                 </div>
               );
             })}
@@ -148,12 +179,4 @@ export default async function FinanceiroPage() {
       </div>
     </div>
   );
-}
-
-function diffOrZero(vencimento: string | null) {
-  if (!vencimento) return 0;
-  const d = new Date(vencimento + "T00:00:00");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((d.getTime() - today.getTime()) / 86_400_000);
 }

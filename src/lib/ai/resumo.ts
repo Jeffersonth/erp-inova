@@ -10,7 +10,7 @@ Escreva 1 parágrafo curto (2–3 frases), em português, direto e prático — 
 export async function gerarResumoDia(input: {
   projetosAtivos: number;
   leadsAtivos: number;
-  aReceber30d: string;
+  aReceber: string;
   mrr: string;
   nome?: string;
 }): Promise<string> {
@@ -24,7 +24,7 @@ export async function gerarResumoDia(input: {
       messages: [
         {
           role: "user",
-          content: `Dados de hoje:\n- Projetos ativos: ${input.projetosAtivos}\n- Leads ativos: ${input.leadsAtivos}\n- A receber nos próximos 30 dias: ${input.aReceber30d}\n- MRR (receita recorrente ativa): ${input.mrr}`,
+          content: `Dados de hoje:\n- Projetos ativos: ${input.projetosAtivos}\n- Leads ativos: ${input.leadsAtivos}\n- A receber (saldo em aberto): ${input.aReceber}\n- MRR (receita recorrente ativa): ${input.mrr}`,
         },
       ],
     });

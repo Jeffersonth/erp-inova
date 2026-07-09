@@ -12,10 +12,6 @@ const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as c
 export default async function DashboardPage() {
   const supabase = createClient();
   const hoje = new Date();
-  const em30dias = new Date(hoje);
-  em30dias.setDate(em30dias.getDate() + 30);
-  const hojeIso = hoje.toISOString().slice(0, 10);
-  const em30Iso = em30dias.toISOString().slice(0, 10);
 
   const {
     data: { user },
@@ -26,13 +22,7 @@ export default async function DashboardPage() {
       supabase.from("projetos").select("status"),
       supabase.from("clientes").select("status"),
       supabase.from("assinaturas").select("valor, status"),
-      supabase
-        .from("recebimentos")
-        .select("valor, moeda, status, vencimento")
-        .eq("moeda", "BRL")
-        .neq("status", "pago")
-        .gte("vencimento", hojeIso)
-        .lte("vencimento", em30Iso),
+      supabase.from("recebimentos").select("valor, valor_pago, moeda, status").eq("moeda", "BRL").neq("status", "pago"),
       user ? supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
 
@@ -45,12 +35,15 @@ export default async function DashboardPage() {
   const mrr = (assinaturas ?? [])
     .filter((a) => a.status === "ativa")
     .reduce((sum, a) => sum + Number(a.valor), 0);
-  const aReceber30d = (recebimentos ?? []).reduce((sum, r) => sum + Number(r.valor), 0);
+  const aReceber = (recebimentos ?? []).reduce(
+    (sum, r) => sum + Math.max(0, Number(r.valor) - Number(r.valor_pago)),
+    0,
+  );
 
   const resumo = await gerarResumoDia({
     projetosAtivos,
     leadsAtivos,
-    aReceber30d: formatMoney(aReceber30d),
+    aReceber: formatMoney(aReceber),
     mrr: formatMoney(mrr),
     nome: primeiroNome,
   });
@@ -64,7 +57,7 @@ export default async function DashboardPage() {
   const kpis = [
     { label: "PROJETOS ATIVOS", value: String(projetosAtivos), delta: "dados reais", tone: "ok" as const },
     { label: "LEADS ATIVOS", value: String(leadsAtivos), delta: "dados reais", tone: "ok" as const },
-    { label: "A RECEBER · 30D", value: formatMoney(aReceber30d), delta: "dados reais", tone: "ok" as const },
+    { label: "A RECEBER", value: formatMoney(aReceber), delta: "dados reais", tone: "ok" as const },
     { label: "MRR · ASAAS", value: formatMoney(mrr), delta: "dados reais", tone: "ok" as const },
   ];
 

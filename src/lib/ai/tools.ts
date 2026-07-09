@@ -96,9 +96,9 @@ export async function executeTool(
       const [{ data: recebimentos, error: e1 }, { data: assinaturas, error: e2 }] = await Promise.all([
         supabase
           .from("recebimentos")
-          .select("valor, moeda, vencimento, status, risco_ia, clientes(nome)")
+          .select("valor, valor_pago, moeda, data_pagamento, status, clientes(nome), projetos(titulo)")
           .neq("status", "pago")
-          .order("vencimento"),
+          .order("data_pagamento", { nullsFirst: false }),
         supabase.from("assinaturas").select("valor, status, churn_score, clientes(nome)"),
       ]);
       if (e1 || e2) return { erro: (e1 ?? e2)?.message };
@@ -108,10 +108,12 @@ export async function executeTool(
       return {
         contas_a_receber: (recebimentos ?? []).map((r) => ({
           cliente: r.clientes?.nome ?? null,
-          valor: formatMoney(Number(r.valor), r.moeda),
-          vencimento: relativeDate(r.vencimento),
+          projeto: r.projetos?.titulo ?? null,
+          valor_servico: formatMoney(Number(r.valor), r.moeda),
+          valor_pago: formatMoney(Number(r.valor_pago), r.moeda),
+          saldo_em_aberto: formatMoney(Math.max(0, Number(r.valor) - Number(r.valor_pago)), r.moeda),
+          ultimo_pagamento: relativeDate(r.data_pagamento),
           status: r.status,
-          risco_inadimplencia_pct: r.risco_ia,
         })),
         mrr_ativo: formatMoney(mrr),
         assinaturas_com_problema: (assinaturas ?? [])

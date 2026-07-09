@@ -540,6 +540,7 @@ export type Database = {
         Row: {
           cliente_id: string | null
           created_at: string
+          data_pagamento: string | null
           descricao: string | null
           id: string
           moeda: Database["public"]["Enums"]["moeda"]
@@ -548,11 +549,13 @@ export type Database = {
           status: Database["public"]["Enums"]["recebimento_status"]
           user_id: string
           valor: number
+          valor_pago: number
           vencimento: string | null
         }
         Insert: {
           cliente_id?: string | null
           created_at?: string
+          data_pagamento?: string | null
           descricao?: string | null
           id?: string
           moeda?: Database["public"]["Enums"]["moeda"]
@@ -561,11 +564,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["recebimento_status"]
           user_id: string
           valor: number
+          valor_pago?: number
           vencimento?: string | null
         }
         Update: {
           cliente_id?: string | null
           created_at?: string
+          data_pagamento?: string | null
           descricao?: string | null
           id?: string
           moeda?: Database["public"]["Enums"]["moeda"]
@@ -574,6 +579,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["recebimento_status"]
           user_id?: string
           valor?: number
+          valor_pago?: number
           vencimento?: string | null
         }
         Relationships: [
@@ -711,6 +717,7 @@ export type Database = {
         | "atrasado"
         | "pago"
         | "recorrente"
+        | "parcial"
       risco_nivel: "baixo" | "medio" | "alto"
       tarefa_tipo: "dev" | "design" | "conteudo" | "reuniao" | "bug"
       user_role: "admin" | "gestor" | "colaborador"
