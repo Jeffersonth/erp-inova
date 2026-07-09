@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
+  ListTodo,
   Users,
   FolderKanban,
   Wallet,
@@ -21,6 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
   { href: "/crm", label: "CRM", icon: Users },
   { href: "/projetos", label: "Projetos", icon: FolderKanban },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },

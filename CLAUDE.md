@@ -56,7 +56,7 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-Dashboard · CRM · Projetos (quadro de tarefas) · Financeiro · Assistente IA · Anotações · Configurações.
+Dashboard · Tarefas do dia · CRM · Projetos (quadro de tarefas) · Financeiro · Assistente IA · Anotações · Configurações.
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
@@ -67,11 +67,14 @@ Projeto real ativo (`stktqyttljgdopsdupcj`, região `sa-east-1`). Tabelas: `usua
 `clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (colunas do quadro do
 projeto; `final = true` marca a etapa de conclusão), `tarefas` (cards do quadro, com `tipo`
 e `concluida`), `checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do
-Asaas), `custos`, `anotacoes`, `leads_pipeline`, `eventos_agenda`. Migrações em
+Asaas), `custos` (despesas, com coluna `data`), `anotacoes`, `leads_pipeline`,
+`eventos_agenda`, `tarefas_dia` (lista "Tarefas do dia": status
+pendente/em_andamento/concluida, `data_finalizar`, `ordem` para drag-reorder). Migrações em
 `supabase/migrations/` (`0001_init`, `0002_handle_new_user` — trigger que cria a linha em
 `usuarios` no cadastro, `0003_restrict_handle_new_user_rpc`, `0004`/`0005` avatars storage,
-`0006_tarefas_kanban_projeto` — quadro de tarefas + backfill de etapas). RLS dono-por-linha
-(`user_id = auth.uid()`);
+`0006_tarefas_kanban_projeto` — quadro de tarefas + backfill de etapas,
+`0007_recebimentos_pagamento_parcial` — vendas com valor_pago/data_pagamento,
+`0008_custos_data`, `0009_tarefas_dia`). RLS dono-por-linha (`user_id = auth.uid()`);
 `historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
 `src/lib/supabase/database.types.ts`.
 

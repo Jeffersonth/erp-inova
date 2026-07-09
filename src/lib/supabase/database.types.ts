@@ -653,6 +653,39 @@ export type Database = {
           },
         ]
       }
+      tarefas_dia: {
+        Row: {
+          concluida_em: string | null
+          created_at: string
+          data_finalizar: string | null
+          id: string
+          ordem: number
+          status: Database["public"]["Enums"]["tarefa_dia_status"]
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          concluida_em?: string | null
+          created_at?: string
+          data_finalizar?: string | null
+          id?: string
+          ordem?: number
+          status?: Database["public"]["Enums"]["tarefa_dia_status"]
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          concluida_em?: string | null
+          created_at?: string
+          data_finalizar?: string | null
+          id?: string
+          ordem?: number
+          status?: Database["public"]["Enums"]["tarefa_dia_status"]
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usuarios: {
         Row: {
           avatar_url: string | null
@@ -722,6 +755,7 @@ export type Database = {
         | "recorrente"
         | "parcial"
       risco_nivel: "baixo" | "medio" | "alto"
+      tarefa_dia_status: "pendente" | "em_andamento" | "concluida"
       tarefa_tipo: "dev" | "design" | "conteudo" | "reuniao" | "bug"
       user_role: "admin" | "gestor" | "colaborador"
     }
