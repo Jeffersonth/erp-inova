@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
+import { EditProjetoDialog, type EditableProjeto } from "@/components/edit-projeto-dialog";
 
 export type KanbanCard = {
   id: string;
@@ -12,6 +13,11 @@ export type KanbanCard = {
   progress: number;
   risk: number | null;
   done: boolean;
+  // dados brutos, usados só para abrir o dialog de edição
+  clienteId: string | null;
+  valorRaw: number | null;
+  moeda: Enums<"moeda">;
+  dataEntrega: string | null;
 };
 
 export type KanbanColumn = {
@@ -20,9 +26,17 @@ export type KanbanColumn = {
   cards: KanbanCard[];
 };
 
-export function KanbanBoard({ initialColumns }: { initialColumns: KanbanColumn[] }) {
+export function KanbanBoard({
+  initialColumns,
+  clientes,
+}: {
+  initialColumns: KanbanColumn[];
+  clientes: { id: string; nome: string }[];
+}) {
   const [cols, setCols] = useState<KanbanColumn[]>(initialColumns);
+  const [editing, setEditing] = useState<{ card: KanbanCard; status: Enums<"projeto_status"> } | null>(null);
   const drag = useRef<{ cardId: string; from: Enums<"projeto_status"> } | null>(null);
+  const dragging = useRef(false);
   const supabase = createClient();
 
   async function onDrop(toId: Enums<"projeto_status">) {
@@ -45,61 +59,90 @@ export function KanbanBoard({ initialColumns }: { initialColumns: KanbanColumn[]
     await supabase.from("projetos").update({ status: toId }).eq("id", d.cardId);
   }
 
+  const editableProjeto: EditableProjeto | null = editing
+    ? {
+        id: editing.card.id,
+        titulo: editing.card.title,
+        clienteId: editing.card.clienteId,
+        valor: editing.card.valorRaw,
+        moeda: editing.card.moeda,
+        dataEntrega: editing.card.dataEntrega,
+        status: editing.status,
+        progresso: editing.card.progress,
+      }
+    : null;
+
   return (
-    <div className="thin-scroll overflow-x-auto pb-1">
-      <div className="grid min-w-[1100px] grid-cols-7 items-start gap-2">
-        {cols.map((col) => (
-          <div
-            key={col.id}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => onDrop(col.id)}
-            className="flex min-h-[280px] flex-col gap-2 rounded-[10px] border border-line bg-soft-2 p-2"
-          >
-            <div className="flex items-center gap-1.5 px-0.5 pt-0.5 text-[10px] font-bold uppercase tracking-[0.07em] text-mut">
-              <span>{col.name}</span>
-              <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px]">{col.cards.length}</span>
-            </div>
+    <>
+      <div className="thin-scroll overflow-x-auto pb-1">
+        <div className="grid min-w-[1100px] grid-cols-7 items-start gap-2">
+          {cols.map((col) => (
+            <div
+              key={col.id}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => onDrop(col.id)}
+              className="flex min-h-[280px] flex-col gap-2 rounded-[10px] border border-line bg-soft-2 p-2"
+            >
+              <div className="flex items-center gap-1.5 px-0.5 pt-0.5 text-[10px] font-bold uppercase tracking-[0.07em] text-mut">
+                <span>{col.name}</span>
+                <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px]">{col.cards.length}</span>
+              </div>
 
-            {col.cards.map((c) => (
-              <div
-                key={c.id}
-                draggable
-                onDragStart={() => (drag.current = { cardId: c.id, from: col.id })}
-                className="flex cursor-grab flex-col gap-1.5 rounded-[9px] border border-line bg-card p-2.5 shadow-[0_1px_2px_rgba(10,26,51,.05)] transition-colors hover:border-brand active:cursor-grabbing"
-              >
-                <b className="text-[12px] leading-tight text-ink">{c.title}</b>
-                {c.progress > 0 && (
-                  <div className="h-[5px] overflow-hidden rounded-full bg-soft-2">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${c.progress}%`, background: c.done ? "#0E9F6E" : "#1D5BFF" }}
-                    />
+              {col.cards.map((c) => (
+                <div
+                  key={c.id}
+                  draggable
+                  onDragStart={() => {
+                    dragging.current = true;
+                    drag.current = { cardId: c.id, from: col.id };
+                  }}
+                  onDragEnd={() => (dragging.current = false)}
+                  onClick={() => {
+                    if (dragging.current) return;
+                    setEditing({ card: c, status: col.id });
+                  }}
+                  className="flex cursor-grab flex-col gap-1.5 rounded-[9px] border border-line bg-card p-2.5 shadow-[0_1px_2px_rgba(10,26,51,.05)] transition-colors hover:border-brand active:cursor-grabbing"
+                >
+                  <b className="text-[12px] leading-tight text-ink">{c.title}</b>
+                  {c.progress > 0 && (
+                    <div className="h-[5px] overflow-hidden rounded-full bg-soft-2">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${c.progress}%`, background: c.done ? "#0E9F6E" : "#1D5BFF" }}
+                      />
+                    </div>
+                  )}
+                  <div className="text-[10.5px] text-mut">
+                    {c.valor} · {c.prazo}
                   </div>
-                )}
-                <div className="text-[10.5px] text-mut">
-                  {c.valor} · {c.prazo}
+                  {c.risk != null && (
+                    <span className="self-start whitespace-nowrap rounded-full border border-danger/40 bg-danger/[0.08] px-[7px] py-0.5 text-[9.5px] font-bold text-danger">
+                      ⚠ {c.risk}% risco de atraso
+                    </span>
+                  )}
+                  {c.done && (
+                    <span className="self-start rounded-full border border-ok/35 bg-ok/[0.08] px-[7px] py-0.5 text-[9.5px] font-bold text-ok">
+                      ✓ entregue e pago
+                    </span>
+                  )}
                 </div>
-                {c.risk != null && (
-                  <span className="self-start whitespace-nowrap rounded-full border border-danger/40 bg-danger/[0.08] px-[7px] py-0.5 text-[9.5px] font-bold text-danger">
-                    ⚠ {c.risk}% risco de atraso
-                  </span>
-                )}
-                {c.done && (
-                  <span className="self-start rounded-full border border-ok/35 bg-ok/[0.08] px-[7px] py-0.5 text-[9.5px] font-bold text-ok">
-                    ✓ entregue e pago
-                  </span>
-                )}
-              </div>
-            ))}
+              ))}
 
-            {col.cards.length === 0 && (
-              <div className="flex min-h-[52px] items-center justify-center rounded-lg border-[1.5px] border-dashed border-line text-[10.5px] text-mut">
-                solte aqui
-              </div>
-            )}
-          </div>
-        ))}
+              {col.cards.length === 0 && (
+                <div className="flex min-h-[52px] items-center justify-center rounded-lg border-[1.5px] border-dashed border-line text-[10.5px] text-mut">
+                  solte aqui
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <EditProjetoDialog
+        projeto={editableProjeto}
+        clientes={clientes}
+        onOpenChange={(open) => !open && setEditing(null)}
+      />
+    </>
   );
 }

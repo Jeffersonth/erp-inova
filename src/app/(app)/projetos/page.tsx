@@ -71,6 +71,10 @@ export default async function ProjetosPage() {
         progress: p.progresso,
         risk: p.risco_atraso,
         done: p.status === "concluido",
+        clienteId: p.cliente_id,
+        valorRaw: p.valor != null ? Number(p.valor) : null,
+        moeda: p.moeda,
+        dataEntrega: p.data_entrega,
       })),
   }));
 
@@ -90,7 +94,7 @@ export default async function ProjetosPage() {
         <NewProjetoDialog clientes={clientes ?? []} />
       </div>
 
-      <KanbanBoard initialColumns={cols} />
+      <KanbanBoard initialColumns={cols} clientes={clientes ?? []} />
 
       {destaque && (
         <>

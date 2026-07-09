@@ -1,6 +1,7 @@
 import { IaBadge } from "@/components/ia-badge";
 import { AiDraftButton } from "@/components/ai-draft-button";
 import { NewClienteDialog } from "@/components/new-cliente-dialog";
+import { EditClienteDialog } from "@/components/edit-cliente-dialog";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
 import { distribuicao } from "@/lib/mock-data";
@@ -107,12 +108,15 @@ export default async function CrmPage() {
                   <b className={`text-[13px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
                   <span className="text-[11.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>
                   <span className="text-[11.5px] text-ia">{c.proxima_acao_ia ?? "—"}</span>
-                  <AiDraftButton
-                    spec={{ tipo: "mensagem_cliente", clienteId: c.id }}
-                    fallbackTitle={`Mensagem — ${c.nome}`}
-                    label="Rascunhar"
-                    className="justify-self-start px-2.5 py-1 text-[11px]"
-                  />
+                  <div className="flex items-center gap-1.5 justify-self-start">
+                    <AiDraftButton
+                      spec={{ tipo: "mensagem_cliente", clienteId: c.id }}
+                      fallbackTitle={`Mensagem — ${c.nome}`}
+                      label="Rascunhar"
+                      className="px-2.5 py-1 text-[11px]"
+                    />
+                    <EditClienteDialog cliente={c} />
+                  </div>
                 </div>
               );
             })}
