@@ -276,6 +276,7 @@ export type Database = {
           categoria: string | null
           cliente_id: string | null
           created_at: string
+          data: string
           descricao: string | null
           id: string
           recorrente: boolean
@@ -286,6 +287,7 @@ export type Database = {
           categoria?: string | null
           cliente_id?: string | null
           created_at?: string
+          data?: string
           descricao?: string | null
           id?: string
           recorrente?: boolean
@@ -296,6 +298,7 @@ export type Database = {
           categoria?: string | null
           cliente_id?: string | null
           created_at?: string
+          data?: string
           descricao?: string | null
           id?: string
           recorrente?: boolean

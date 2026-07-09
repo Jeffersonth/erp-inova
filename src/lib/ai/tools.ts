@@ -38,7 +38,7 @@ export const assistantTools: Anthropic.Tool[] = [
   {
     name: "buscar_financeiro",
     description:
-      "Busca contas a receber pendentes e o resumo das assinaturas recorrentes (MRR, retry de cartão, churn previsto). Use para perguntas sobre cobrança, faturamento ou receita recorrente.",
+      "Busca contas a receber pendentes (com valor pago e saldo em aberto), resumo das assinaturas recorrentes (MRR, retry de cartão, churn previsto) e despesas do negócio (total + recentes). Use para perguntas sobre cobrança, faturamento, despesas, lucro ou receita recorrente.",
     input_schema: { type: "object", properties: {} },
   },
   {
@@ -93,18 +93,21 @@ export async function executeTool(
     }
 
     case "buscar_financeiro": {
-      const [{ data: recebimentos, error: e1 }, { data: assinaturas, error: e2 }] = await Promise.all([
-        supabase
-          .from("recebimentos")
-          .select("valor, valor_pago, moeda, data_pagamento, status, clientes(nome), projetos(titulo)")
-          .neq("status", "pago")
-          .order("data_pagamento", { nullsFirst: false }),
-        supabase.from("assinaturas").select("valor, status, churn_score, clientes(nome)"),
-      ]);
-      if (e1 || e2) return { erro: (e1 ?? e2)?.message };
+      const [{ data: recebimentos, error: e1 }, { data: assinaturas, error: e2 }, { data: custos, error: e3 }] =
+        await Promise.all([
+          supabase
+            .from("recebimentos")
+            .select("valor, valor_pago, moeda, data_pagamento, status, clientes(nome), projetos(titulo)")
+            .neq("status", "pago")
+            .order("data_pagamento", { nullsFirst: false }),
+          supabase.from("assinaturas").select("valor, status, churn_score, clientes(nome)"),
+          supabase.from("custos").select("descricao, categoria, valor, data, recorrente").order("data", { ascending: false }).limit(30),
+        ]);
+      if (e1 || e2 || e3) return { erro: (e1 ?? e2 ?? e3)?.message };
       const mrr = (assinaturas ?? [])
         .filter((a) => a.status === "ativa")
         .reduce((sum, a) => sum + Number(a.valor), 0);
+      const totalDespesas = (custos ?? []).reduce((sum, c) => sum + Number(c.valor), 0);
       return {
         contas_a_receber: (recebimentos ?? []).map((r) => ({
           cliente: r.clientes?.nome ?? null,
@@ -119,6 +122,14 @@ export async function executeTool(
         assinaturas_com_problema: (assinaturas ?? [])
           .filter((a) => a.status !== "ativa")
           .map((a) => ({ cliente: a.clientes?.nome ?? null, status: a.status, churn_score: a.churn_score })),
+        despesas_total: formatMoney(totalDespesas),
+        despesas_recentes: (custos ?? []).slice(0, 10).map((c) => ({
+          descricao: c.descricao,
+          categoria: c.categoria,
+          valor: formatMoney(Number(c.valor)),
+          data: relativeDate(c.data),
+          recorrente: c.recorrente,
+        })),
       };
     }
 

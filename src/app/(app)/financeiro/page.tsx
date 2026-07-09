@@ -4,6 +4,7 @@ import {
   NewRecebimentoDialog,
   EditRecebimentoButton,
 } from "@/components/recebimento-dialogs";
+import { NewCustoDialog, EditCustoButton } from "@/components/custo-dialogs";
 import { toneText } from "@/lib/tone";
 import { formatMoney, relativeDate } from "@/lib/format";
 import { pagamentoInfo } from "@/lib/recebimento";
@@ -15,7 +16,7 @@ const recCols = "grid-cols-[1.7fr_0.9fr_0.9fr_0.9fr_0.8fr_0.9fr_0.7fr]";
 export default async function FinanceiroPage() {
   const supabase = createClient();
 
-  const [{ data: recebimentos }, { data: assinaturas }, { data: clientes }, { data: projetos }] =
+  const [{ data: recebimentos }, { data: assinaturas }, { data: clientes }, { data: projetos }, { data: custos }] =
     await Promise.all([
       supabase
         .from("recebimentos")
@@ -24,6 +25,7 @@ export default async function FinanceiroPage() {
       supabase.from("assinaturas").select("*, clientes(nome)").order("created_at", { ascending: true }),
       supabase.from("clientes").select("id, nome").order("nome"),
       supabase.from("projetos").select("id, titulo, cliente_id").order("titulo"),
+      supabase.from("custos").select("*, clientes(nome)").order("data", { ascending: false }),
     ]);
 
   const clientesList = clientes ?? [];
@@ -38,10 +40,12 @@ export default async function FinanceiroPage() {
     .filter((a) => a.status === "inadimplente")
     .sort((a, b) => (b.churn_score ?? 0) - (a.churn_score ?? 0))[0];
 
-  // Totais das vendas (em BRL, moeda base da visão)
+  // Totais das vendas e despesas (em BRL, moeda base da visão)
   const brl = (recebimentos ?? []).filter((r) => r.moeda === "BRL");
   const recebido = brl.reduce((s, r) => s + Number(r.valor_pago), 0);
   const aReceber = brl.reduce((s, r) => s + Math.max(0, Number(r.valor) - Number(r.valor_pago)), 0);
+  const despesas = (custos ?? []).reduce((s, c) => s + Number(c.valor), 0);
+  const lucro = recebido - despesas;
 
   return (
     <div className="flex flex-col gap-3">
@@ -54,8 +58,8 @@ export default async function FinanceiroPage() {
         <NewRecebimentoDialog clientes={clientesList} projetos={projetosList} />
       </div>
 
-      {/* Resumo das vendas */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      {/* Resumo: receita, despesas e lucro */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
           <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RECEBIDO · BRL</div>
           <div className="mt-0.5 text-[17px] font-extrabold text-ok">{formatMoney(recebido)}</div>
@@ -65,8 +69,14 @@ export default async function FinanceiroPage() {
           <div className="mt-0.5 text-[17px] font-extrabold text-warn">{formatMoney(aReceber)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">VENDAS</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-ink">{recebimentos?.length ?? 0}</div>
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">DESPESAS · BRL</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-danger">{formatMoney(despesas)}</div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">LUCRO · BRL</div>
+          <div className={`mt-0.5 text-[17px] font-extrabold ${lucro >= 0 ? "text-ok" : "text-danger"}`}>
+            {formatMoney(lucro)}
+          </div>
         </div>
       </div>
 
@@ -135,6 +145,73 @@ export default async function FinanceiroPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* Despesas */}
+      <div className={`${card} overflow-hidden`}>
+        <div className="flex items-center gap-2 px-3.5 pt-3">
+          <b className="text-[12.5px] text-ink">Despesas</b>
+          <span className="text-[11px] text-mut">custos do negócio (BRL)</span>
+          <div className="ml-auto">
+            <NewCustoDialog clientes={clientesList} />
+          </div>
+        </div>
+        <div className="thin-scroll mt-2 overflow-x-auto">
+          <div className="min-w-[680px]">
+            <div className="grid grid-cols-[1.8fr_0.8fr_0.8fr_0.9fr_1fr_0.4fr] gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut">
+              <span>DESPESA</span>
+              <span>VALOR</span>
+              <span>DATA</span>
+              <span>TIPO</span>
+              <span>CLIENTE</span>
+              <span />
+            </div>
+            {!custos?.length && (
+              <div className="px-3.5 py-6 text-center text-[12.5px] text-mut">
+                Nenhuma despesa registrada.
+              </div>
+            )}
+            {custos?.map((c) => (
+              <div
+                key={c.id}
+                className="grid grid-cols-[1.8fr_0.8fr_0.8fr_0.9fr_1fr_0.4fr] items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft"
+              >
+                <div className="min-w-0">
+                  <b className="text-[12.5px] text-ink">{c.descricao ?? "Despesa"}</b>
+                  {c.categoria && <div className="truncate text-[11px] text-mut">{c.categoria}</div>}
+                </div>
+                <b className="text-[12.5px] text-danger">{formatMoney(Number(c.valor))}</b>
+                <span className="text-[11.5px] text-mut">{relativeDate(c.data)}</span>
+                <span>
+                  {c.recorrente ? (
+                    <span className="rounded-full border border-warn/35 bg-warn/[0.08] px-2 py-[2px] text-[10.5px] font-semibold text-warn">
+                      ⟳ recorrente
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[10.5px] font-semibold text-mut">
+                      única
+                    </span>
+                  )}
+                </span>
+                <span className="truncate text-[11.5px] text-mut">{c.clientes?.nome ?? "—"}</span>
+                <div className="justify-self-end">
+                  <EditCustoButton
+                    custo={{
+                      id: c.id,
+                      descricao: c.descricao,
+                      categoria: c.categoria,
+                      valor: Number(c.valor),
+                      data: c.data,
+                      recorrente: c.recorrente,
+                      clienteId: c.cliente_id,
+                    }}
+                    clientes={clientesList}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
