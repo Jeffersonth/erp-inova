@@ -20,7 +20,7 @@ export default function AssistentePage() {
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       who: "ai",
-      text: "Oi Rafael! Posso consultar seus clientes, projetos, financeiro e anotações de verdade — e rascunhar mensagens para você aprovar. Experimente os atalhos acima ou pergunte algo.",
+      text: "Oi! Posso consultar seus clientes, projetos, financeiro e anotações de verdade — e rascunhar mensagens para você aprovar. Experimente os atalhos acima ou pergunte algo.",
     },
   ]);
   const logRef = useRef<HTMLDivElement>(null);

@@ -3,9 +3,12 @@ import { anthropic, MODEL_STRONG } from "@/lib/ai/client";
 import { createClient } from "@/lib/supabase/server";
 import { formatMoney, relativeDate } from "@/lib/format";
 
-const SYSTEM = `Você escreve mensagens curtas em nome de Rafael, um desenvolvedor freelancer (inova labs) que presta serviços de sites/apps para clientes no Brasil e no exterior.
+function systemPrompt(nome?: string) {
+  const emNome = nome ? `em nome de ${nome}, um desenvolvedor freelancer` : "em nome de um desenvolvedor freelancer";
+  return `Você escreve mensagens curtas ${emNome} (inova labs) que presta serviços de sites/apps para clientes no Brasil e no exterior.
 
 Escreva SOMENTE o corpo da mensagem, pronta para copiar e enviar por WhatsApp ou e-mail. Sem saudação de e-mail formal tipo "Prezado(a)", sem assinatura ao final, sem comentários sobre a tarefa. Tom direto e cordial. Se o cliente tiver nome em outro idioma/país, pode escrever em inglês quando fizer mais sentido. Nunca invente valores ou datas — use apenas os dados fornecidos.`;
+}
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -15,6 +18,9 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
+
+  const { data: perfil } = await supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle();
+  const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0] || undefined;
 
   const { tipo, clienteId, recebimentoId } = await request.json();
   if (!clienteId) {
@@ -76,7 +82,7 @@ export async function POST(request: Request) {
     const response = await anthropic.messages.create({
       model: MODEL_STRONG,
       max_tokens: 400,
-      system: SYSTEM,
+      system: systemPrompt(primeiroNome),
       messages: [
         {
           role: "user",

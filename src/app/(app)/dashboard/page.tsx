@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
-import { DraftButton } from "@/components/draft-button";
 import { RichText } from "@/components/rich-text";
 import { toneText } from "@/lib/tone";
-import { funil, projetosConcluidos, atencao } from "@/lib/mock-data";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { gerarResumoDia } from "@/lib/ai/resumo";
@@ -19,7 +17,11 @@ export default async function DashboardPage() {
   const hojeIso = hoje.toISOString().slice(0, 10);
   const em30Iso = em30dias.toISOString().slice(0, 10);
 
-  const [{ data: projetos }, { data: clientes }, { data: assinaturas }, { data: recebimentos }] =
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data: projetos }, { data: clientes }, { data: assinaturas }, { data: recebimentos }, { data: perfil }] =
     await Promise.all([
       supabase.from("projetos").select("status"),
       supabase.from("clientes").select("status"),
@@ -31,7 +33,10 @@ export default async function DashboardPage() {
         .neq("status", "pago")
         .gte("vencimento", hojeIso)
         .lte("vencimento", em30Iso),
+      user ? supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
+
+  const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0] || undefined;
 
   const projetosAtivos = (projetos ?? []).filter((p) => p.status !== "concluido").length;
   const leadsAtivos = (clientes ?? []).filter((c) =>
@@ -47,6 +52,7 @@ export default async function DashboardPage() {
     leadsAtivos,
     aReceber30d: formatMoney(aReceber30d),
     mrr: formatMoney(mrr),
+    nome: primeiroNome,
   });
 
   const dataHoje = new Intl.DateTimeFormat("pt-BR", {
@@ -60,8 +66,6 @@ export default async function DashboardPage() {
     { label: "LEADS ATIVOS", value: String(leadsAtivos), delta: "dados reais", tone: "ok" as const },
     { label: "A RECEBER · 30D", value: formatMoney(aReceber30d), delta: "dados reais", tone: "ok" as const },
     { label: "MRR · ASAAS", value: formatMoney(mrr), delta: "dados reais", tone: "ok" as const },
-    { label: "RECEITA · JUL", value: "R$ 18.240", delta: "▲ 12% vs jun", tone: "ok" as const },
-    { label: "HORAS · SEMANA", value: "31h", delta: "= média", tone: "mut" as const },
   ];
 
   return (
@@ -89,19 +93,8 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Anomalia */}
-      <div className="flex items-center gap-2.5 rounded-xl border border-line border-l-[3px] border-l-warn bg-card px-3.5 py-2.5">
-        <span className="text-[15px]">⚠</span>
-        <div className="min-w-0 text-[12px]">
-          <b className="text-[12.5px] text-ink">Anomalia detectada:</b>{" "}
-          <span className="text-mut">gasto com &ldquo;Ferramentas &amp; SaaS&rdquo; está 3,2× acima da média (R$ 918 vs R$ 287/mês).</span>
-        </div>
-        <IaBadge className="ml-auto" />
-        <DraftButton draftKey="anomalia" label="Revisar" />
-      </div>
-
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {kpis.map((k) => (
           <div
             key={k.label}
@@ -114,116 +107,6 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-        {/* Receita mensal */}
-        <div className={`${card} px-3.5 py-3`}>
-          <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Receita mensal</b>
-            <span className="text-[10.5px] font-semibold text-ia">previsão IA ┅</span>
-          </div>
-          <svg width="100%" height="110" viewBox="0 0 440 110" preserveAspectRatio="none" className="mt-2">
-            <line x1="0" y1="90" x2="440" y2="90" stroke="#DCE4F0" />
-            <line x1="0" y1="50" x2="440" y2="50" stroke="#DCE4F0" strokeDasharray="2 4" />
-            <path d="M0,78 L62,70 L124,74 L186,58 L248,46 L290,40" fill="none" stroke="#1D5BFF" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M0,78 L62,70 L124,74 L186,58 L248,46 L290,40 L290,90 L0,90 Z" fill="rgba(29,91,255,.07)" />
-            <path d="M290,40 L350,34 L440,22" fill="none" stroke="#00D1FF" strokeWidth="2.5" strokeDasharray="6 6" strokeLinecap="round" />
-            <circle cx="290" cy="40" r="3.5" fill="#1D5BFF" />
-          </svg>
-          <div className="mt-1 flex justify-between text-[10px] text-mut">
-            {["fev", "mar", "abr", "mai", "jun", "jul", "ago*", "set*"].map((m) => (
-              <span key={m}>{m}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Funil de leads */}
-        <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Funil de leads</b>
-          <div className="mt-2.5 flex flex-col gap-[7px]">
-            {funil.map((f) => (
-              <div key={f.name} className="grid grid-cols-[78px_1fr_34px] items-center gap-2 text-[11.5px]">
-                <span className="text-mut">{f.name}</span>
-                <div className="h-3.5 rounded" style={{ width: `${f.width}%`, background: f.fill }} />
-                <b className="text-ink">{f.value}</b>
-              </div>
-            ))}
-          </div>
-          <div className="mt-2.5 text-[11px] text-mut">
-            Conversão contato → fechado: <b className="text-ink">17%</b>
-          </div>
-        </div>
-
-        {/* Projetos concluídos */}
-        <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Projetos concluídos</b>
-          <div className="mt-2.5 flex h-[84px] items-end gap-3.5 px-1">
-            {projetosConcluidos.map((p) => (
-              <div key={p.mes} className="flex h-full flex-1 items-end">
-                <div
-                  className="w-full rounded-t"
-                  style={{ height: `${p.h}%`, background: p.on ? "#1D5BFF" : "rgba(29,91,255,.3)" }}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-1 flex justify-between px-1 text-[10px] text-mut">
-            {projetosConcluidos.map((p) => (
-              <span key={p.mes}>{p.mes}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Fluxo de caixa */}
-        <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Fluxo de caixa · 30 dias</b>
-          <svg width="100%" height="84" viewBox="0 0 440 84" preserveAspectRatio="none" className="mt-2.5">
-            <line x1="0" y1="42" x2="440" y2="42" stroke="#DCE4F0" />
-            <path d="M0,38 L55,20 L110,48 L165,30 L220,56 L275,26 L330,50 L385,34 L440,18" fill="none" stroke="#0E9F6E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="440" cy="18" r="3.5" fill="#0E9F6E" />
-          </svg>
-          <div className="mt-1.5 text-[11px] text-mut">
-            Saldo projetado 08/ago: <b className="text-ok">+ R$ 11.980</b>
-          </div>
-        </div>
-      </div>
-
-      {/* Atenção necessária */}
-      <div className={`${card} px-3.5 py-3`}>
-        <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Atenção necessária</b>
-          <span className="text-[11px] text-mut">priorizado por impacto financeiro</span>
-          <IaBadge />
-        </div>
-        <div className="mt-2 flex flex-col">
-          {atencao.map((a, i) => (
-            <div key={i} className="flex items-center gap-2.5 border-t border-line py-2">
-              <span className="flex-none rounded-md border border-line bg-soft px-2 py-[3px] text-[11px] font-bold text-ink">
-                {a.valor}
-              </span>
-              <span className="text-[12.5px] text-ink">
-                <RichText text={a.text} />
-              </span>
-              {a.ia && <IaBadge />}
-              {a.action.kind === "draft" ? (
-                <DraftButton
-                  className="ml-auto"
-                  draftKey={a.action.key}
-                  label={a.action.label}
-                  solid={a.action.solid}
-                />
-              ) : (
-                <Link
-                  href={a.action.href}
-                  className="ml-auto flex-none rounded-lg border border-line px-3 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
-                >
-                  {a.action.label}
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

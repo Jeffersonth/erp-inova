@@ -98,7 +98,7 @@ export function NewProjetoDialog({
         <form onSubmit={submit} className="mt-3 flex flex-col gap-2.5">
           <div>
             <label className={label}>Título *</label>
-            <input name="titulo" required className={field} placeholder="Ex: Landing Page X" />
+            <input name="titulo" required className={field} placeholder="Título do projeto" />
           </div>
           <div>
             <label className={label}>Cliente</label>

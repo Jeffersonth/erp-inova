@@ -4,11 +4,14 @@ import { anthropic, MODEL_STRONG } from "@/lib/ai/client";
 import { assistantTools, executeTool } from "@/lib/ai/tools";
 import { createClient } from "@/lib/supabase/server";
 
-const SYSTEM = `Você é o assistente do ERP Pessoal da inova labs — um sistema de gestão para um desenvolvedor freelancer brasileiro (Rafael) que atende clientes no Brasil e no exterior.
+function systemPrompt(nome?: string) {
+  const dono = nome ? `um desenvolvedor freelancer brasileiro (${nome})` : "um desenvolvedor freelancer brasileiro";
+  return `Você é o assistente do ERP Pessoal da inova labs — um sistema de gestão para ${dono} que atende clientes no Brasil e no exterior.
 
 Responda em português (pt-BR), direto e objetivo, como um colega que já olhou os dados. Use as tools disponíveis para consultar clientes, projetos, financeiro e anotações reais — nunca invente números ou nomes. Se uma pergunta não puder ser respondida com os dados disponíveis, diga isso claramente.
 
 Você só responde e sugere — nunca envia mensagens, cobranças ou altera dados diretamente. Se o usuário pedir para "rascunhar", "cobrar" ou "enviar algo", escreva o rascunho da mensagem por completo dentro da sua resposta (pronto para copiar), deixando claro que ele deve revisar antes de enviar.`;
+}
 
 const MAX_ITERATIONS = 4;
 
@@ -20,6 +23,9 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
+
+  const { data: perfil } = await supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle();
+  const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0] || undefined;
 
   const body = await request.json();
   const history: { role: "user" | "assistant"; content: string }[] = body.messages ?? [];
@@ -37,7 +43,7 @@ export async function POST(request: Request) {
       const response = await anthropic.messages.create({
         model: MODEL_STRONG,
         max_tokens: 1024,
-        system: SYSTEM,
+        system: systemPrompt(primeiroNome),
         tools: assistantTools,
         messages,
       });

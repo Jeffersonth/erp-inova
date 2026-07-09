@@ -2,7 +2,6 @@ import { IaBadge } from "@/components/ia-badge";
 import { AiDraftButton } from "@/components/ai-draft-button";
 import { toneText, riskPill } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
-import { lucroCliente } from "@/lib/mock-data";
 import { formatMoney, relativeDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
@@ -53,56 +52,6 @@ export default async function FinanceiroPage() {
         <span className="rounded-full border border-line bg-card px-2.5 py-[3px] text-[10.5px] font-semibold text-mut">
           R$ · US$ · €
         </span>
-      </div>
-
-      {/* Previsão de caixa + Lucro por cliente */}
-      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.5fr_1fr]">
-        <div className={`${card} px-3.5 py-3`}>
-          <div className="flex flex-wrap items-center gap-2">
-            <b className="text-[12.5px] text-ink">Previsão de caixa · 90 dias</b>
-            <IaBadge>IA · 3 CENÁRIOS</IaBadge>
-            <span className="ml-auto flex gap-3 text-[10.5px] text-mut">
-              <span className="text-ok">┅ otimista</span>
-              <span className="text-brand">— base</span>
-              <span className="text-danger">┅ pessimista</span>
-            </span>
-          </div>
-          <svg width="100%" height="130" viewBox="0 0 480 130" preserveAspectRatio="none" className="mt-2">
-            <line x1="0" y1="65" x2="480" y2="65" stroke="#DCE4F0" strokeDasharray="2 4" />
-            <line x1="0" y1="110" x2="480" y2="110" stroke="#DCE4F0" />
-            <path d="M0,70 L120,58 L240,40 L360,26 L480,12" fill="none" stroke="#0E9F6E" strokeWidth="2" strokeDasharray="6 5" strokeLinecap="round" />
-            <path d="M0,70 L120,64 L240,54 L360,48 L480,40" fill="none" stroke="#1D5BFF" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M0,70 L120,64 L240,54 L360,48 L480,40 L480,110 L0,110 Z" fill="rgba(29,91,255,.06)" />
-            <path d="M0,70 L120,74 L240,82 L360,92 L480,104" fill="none" stroke="#E5484D" strokeWidth="2" strokeDasharray="6 5" strokeLinecap="round" />
-          </svg>
-          <div className="mt-1 flex justify-between text-[10px] text-mut">
-            <span>hoje</span>
-            <span>30d</span>
-            <span>60d</span>
-            <span>90d</span>
-          </div>
-          <div className="mt-1.5 text-[11px] text-mut">
-            Cenário base em 90 dias: <b className="text-ink">R$ 24.700</b> · pessimista não fica negativo
-          </div>
-        </div>
-
-        <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Lucro por cliente · últimos 6 meses</b>
-          <div className="mt-3 flex flex-col gap-2.5">
-            {lucroCliente.map((l) => (
-              <div key={l.nome} className="grid grid-cols-[64px_1fr_58px] items-center gap-2 text-[11.5px]">
-                <span>{l.nome}</span>
-                <div className="h-3 overflow-hidden rounded-full bg-soft">
-                  <div className="h-full rounded-full" style={{ width: `${l.pct}%`, background: l.fill }} />
-                </div>
-                <b className={l.danger ? "text-danger" : "text-ink"}>{l.valor}</b>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 border-t border-dashed border-line pt-2.5 text-[11.5px] text-mut">
-            <b className="text-ia">IA:</b> Lex consome 11% das suas horas e gera 2% do lucro — considere reajuste ou encerramento.
-          </div>
-        </div>
       </div>
 
       {/* Contas a receber */}

@@ -1,10 +1,8 @@
-import { IaBadge } from "@/components/ia-badge";
 import { AiDraftButton } from "@/components/ai-draft-button";
 import { NewClienteDialog } from "@/components/new-cliente-dialog";
 import { EditClienteDialog } from "@/components/edit-cliente-dialog";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
-import { distribuicao } from "@/lib/mock-data";
 import { flagEmoji, relativeInteraction } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -124,64 +122,6 @@ export default async function CrmPage() {
         </div>
       </div>
 
-      {/* Mapa + distribuição */}
-      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.5fr_1fr]">
-        <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Clientes pelo mundo</b>
-          <svg width="100%" height="170" viewBox="0 0 520 170" className="mt-1.5">
-            <g fill="#E9EFF8" stroke="#DCE4F0" strokeWidth="1">
-              <path d="M60,30 Q95,18 130,30 Q150,40 142,62 Q128,78 100,74 Q70,70 58,52 Q52,38 60,30 Z" />
-              <path d="M128,86 Q150,80 162,96 Q172,118 158,140 Q144,156 132,144 Q118,120 122,100 Z" />
-              <path d="M228,42 Q252,28 284,34 Q304,40 298,58 Q286,72 258,70 Q234,66 228,54 Z" />
-              <path d="M240,84 Q268,76 288,92 Q300,112 288,132 Q270,148 252,136 Q236,116 240,96 Z" />
-              <path d="M312,36 Q360,22 412,34 Q444,44 436,70 Q420,92 376,88 Q332,82 316,60 Q306,46 312,36 Z" />
-              <path d="M420,110 Q446,102 462,116 Q470,132 456,142 Q438,150 426,138 Q416,124 420,110 Z" />
-            </g>
-            <circle cx="146" cy="118" r="11" fill="rgba(29,91,255,.2)" />
-            <circle cx="146" cy="118" r="5.5" fill="#1D5BFF" />
-            <circle cx="92" cy="52" r="8" fill="rgba(29,91,255,.2)" />
-            <circle cx="92" cy="52" r="4" fill="#1D5BFF" />
-            <circle cx="262" cy="48" r="7" fill="rgba(0,209,255,.25)" />
-            <circle cx="262" cy="48" r="3.5" fill="#00D1FF" />
-            <circle cx="278" cy="56" r="5.5" fill="rgba(0,209,255,.25)" />
-            <circle cx="278" cy="56" r="3" fill="#00D1FF" />
-            <text x="146" y="146" textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748B">BR · 3</text>
-            <text x="92" y="34" textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748B">US · 1</text>
-            <text x="270" y="30" textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748B">EU · 2</text>
-          </svg>
-        </div>
-
-        <div className={`${card} flex flex-col px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Distribuição internacional</b>
-          <div className="mt-3 flex flex-col gap-2.5">
-            {distribuicao.map((d) => (
-              <div key={d.pais} className="grid grid-cols-[44px_1fr_40px] items-center gap-2 text-[11.5px]">
-                <span>
-                  {d.flag} {d.pais}
-                </span>
-                <div className="h-2.5 overflow-hidden rounded-full bg-soft">
-                  <div className="h-full rounded-full" style={{ width: `${d.pct}%`, background: d.fill }} />
-                </div>
-                <b className="text-ink">{d.pct}%</b>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 flex gap-3.5 text-[11.5px] text-mut">
-            <span>
-              Receita BR: <b className="text-ink">R$ 12,1k</b>
-            </span>
-            <span>
-              Exterior: <b className="text-ink">R$ 9,2k eq.</b>
-            </span>
-          </div>
-          <div className="mt-auto flex items-start gap-2 border-t border-dashed border-line pt-3">
-            <IaBadge className="mt-px" />
-            <span className="text-[11.5px] text-mut">
-              Clientes no exterior pagam <b className="text-ink">2,3× mais por hora</b>. Com 1 cliente EU a mais, sua receita cresce ~28% sem aumentar horas.
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

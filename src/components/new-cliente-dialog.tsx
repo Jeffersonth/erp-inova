@@ -100,7 +100,7 @@ export function NewClienteDialog() {
         <form onSubmit={submit} className="mt-3 flex flex-col gap-2.5">
           <div>
             <label className={label}>Nome / empresa *</label>
-            <input name="nome" required className={field} placeholder="Ex: Acme Co." />
+            <input name="nome" required className={field} placeholder="Nome do cliente ou empresa" />
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             <div>
