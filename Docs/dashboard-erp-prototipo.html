@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP Pessoal — Protótipo com IA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/css/jsvectormap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/js/jsvectormap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/maps/world.js"></script>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2132; --card2:#202a40; --border:#2a3550;
+    --text:#e8ecf4; --muted:#8b96ad; --accent:#5b8cff; --green:#34c98e;
+    --red:#ff6b6b; --yellow:#ffc14d; --purple:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+  body{background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{width:220px;background:#131a2a;border-right:1px solid var(--border);padding:20px 12px;
+    position:fixed;top:0;bottom:0;display:flex;flex-direction:column;gap:4px}
+  .logo{font-size:17px;font-weight:700;padding:6px 12px 18px}
+  .logo span{color:var(--accent)}
+  .nav-item{padding:10px 12px;border-radius:10px;font-size:14px;color:var(--muted);cursor:pointer;
+    display:flex;gap:10px;align-items:center;transition:.15s}
+  .nav-item:hover{background:var(--card2);color:var(--text)}
+  .nav-item.active{background:var(--card2);color:var(--text);font-weight:600}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:11px;border-radius:8px;padding:1px 7px}
+  .ask-ai{margin-top:auto;background:linear-gradient(135deg,#2b3a63,#3b2f63);border:1px solid #3a4a75;
+    border-radius:12px;padding:12px;font-size:13px;color:#cfd8ec;cursor:pointer;text-align:center}
+  .ask-ai:hover{border-color:var(--purple)}
+  .ask-ai b{color:#9db8ff}
+  .kbd{background:#0f1420;border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:11px}
+
+  main{margin-left:220px;flex:1;padding:24px;max-width:1180px}
+  .page{display:none} .page.active{display:block}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  h1{font-size:21px;font-weight:600}
+  .date{color:var(--muted);font-size:13.5px}
+  h3{font-size:15px;font-weight:600}
+  .hint{font-size:12px;color:var(--muted)}
+
+  /* AI SUMMARY */
+  .ai-summary{background:linear-gradient(135deg,#1e2a4a,#252040);border:1px solid #3a4a75;
+    border-radius:14px;padding:18px 20px;margin-bottom:20px;display:flex;gap:14px}
+  .ai-summary .icon{font-size:22px;background:#2b3a63;border-radius:10px;padding:8px 11px;height:fit-content}
+  .ai-summary p{font-size:14.5px;line-height:1.6;color:#cfd8ec}
+  .ai-summary strong{color:#9db8ff}
+  .ai-tag{font-size:11px;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .toggle-day{margin-left:auto;align-self:flex-start;background:#2b3a63;color:#9db8ff;border:none;border-radius:8px;
+    padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+  .toggle-day:hover{background:#37497c}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:.15s}
+  .kpi:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .kpi .label{font-size:13px;color:var(--muted);margin-bottom:6px}
+  .kpi .value{font-size:26px;font-weight:700}
+  .kpi .sub{font-size:12.5px;margin-top:6px;color:var(--muted)}
+  .up{color:var(--green)} .down{color:var(--red)} .warn{color:var(--yellow)}
+  .mini-bar{height:7px;background:#2a3550;border-radius:4px;margin-top:10px;overflow:hidden}
+  .mini-bar div{height:100%;background:var(--green);border-radius:4px}
+
+  /* CHARTS */
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .chart-card .hint{margin-bottom:12px}
+  .chart-wrap{height:220px;position:relative}
+  .funnel{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+  .funnel-row{display:flex;align-items:center;gap:10px;font-size:13px}
+  .funnel-row .name{width:90px;color:var(--muted)}
+  .funnel-row .bar{height:26px;border-radius:6px;background:var(--accent);display:flex;align-items:center;
+    padding:0 10px;font-weight:600;font-size:12.5px;min-width:52px}
+  .funnel-row .pct{color:var(--muted);font-size:12px}
+
+  /* CARDS / ALERTS */
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px}
+  .alert{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;background:var(--card2);
+    margin-top:8px;font-size:13.5px;flex-wrap:wrap}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .alert .who{font-weight:600}
+  .alert .why{color:var(--muted)}
+  .btn{margin-left:auto;background:#2b3a63;color:#9db8ff;border:none;border-radius:8px;
+    padding:6px 12px;font-size:12px;cursor:pointer}
+  .btn:hover{background:#37497c}
+  .btn.solid{background:var(--accent);color:#fff}
+  .btn.solid:hover{background:#4a7af0}
+
+  /* ANOMALY */
+  .anomaly{border:1px solid #6b4a2a;background:linear-gradient(135deg,#2a2118,#241a2e)}
+  .anomaly .ai-tag{color:var(--yellow)}
+
+  /* CRM TABLE */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;
+    letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:11px 10px;border-bottom:1px solid #232d45}
+  tr.row:hover{background:var(--card2);cursor:pointer}
+  .tag{font-size:11px;border-radius:6px;padding:2px 8px;background:#2b3a63;color:#9db8ff}
+  .score{font-weight:700;border-radius:8px;padding:3px 9px;font-size:12.5px}
+  .score.hi{background:#153828;color:var(--green)} .score.mid{background:#3a3018;color:var(--yellow)}
+  .score.lo{background:#3a1e1e;color:var(--red)}
+  .status-pill{font-size:11.5px;border-radius:20px;padding:3px 10px;font-weight:600}
+  .st-lead{background:#2b3a63;color:#9db8ff}.st-neg{background:#3a3018;color:var(--yellow)}
+  .st-cli{background:#153828;color:var(--green)}.st-rec{background:#2d2445;color:var(--purple)}
+
+  /* KANBAN */
+  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kol{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;min-height:180px}
+  .kol h4{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .kcard{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px;margin-bottom:9px;font-size:13px}
+  .kcard .t{font-weight:600;margin-bottom:4px}
+  .kcard .c{color:var(--muted);font-size:12px;margin-bottom:7px}
+  .prog{height:5px;background:#2a3550;border-radius:3px;overflow:hidden;margin-bottom:6px}
+  .prog div{height:100%;background:var(--accent)}
+  .risk{font-size:11.5px;border-radius:6px;padding:2px 7px;display:inline-block}
+  .risk.r{background:#3a1e1e;color:var(--red)} .risk.y{background:#3a3018;color:var(--yellow)}
+  .risk.g{background:#153828;color:var(--green)}
+
+  /* CHAT */
+  .chat{display:flex;flex-direction:column;height:calc(100vh - 170px);background:var(--card);
+    border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .chat-log{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:78%;padding:12px 15px;border-radius:14px;font-size:14px;line-height:1.55;white-space:pre-wrap}
+  .msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+  .msg.ai{align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:4px}
+  .msg.ai b{color:#9db8ff}
+  .msg .act{display:inline-block;margin-top:8px;margin-right:6px}
+  .sugs{padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)}
+  .sug{font-size:12.5px;background:var(--card2);border:1px solid var(--border);color:var(--muted);
+    border-radius:20px;padding:6px 13px;cursor:pointer}
+  .sug:hover{color:var(--text);border-color:var(--accent)}
+  .chat-input{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border)}
+  .chat-input input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
+    padding:11px 14px;color:var(--text);font-size:14px;outline:none}
+  .chat-input input:focus{border-color:var(--accent)}
+
+  /* MODAL */
+  .overlay{position:fixed;inset:0;background:rgba(5,8,15,.7);display:none;align-items:center;
+    justify-content:center;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:var(--card);border:1px solid #3a4a75;border-radius:16px;padding:22px;width:min(560px,92vw);
+    max-height:85vh;overflow-y:auto}
+  .modal h3{margin-bottom:4px}
+  .modal .hint{margin-bottom:14px}
+  .draft{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:15px;
+    font-size:13.5px;line-height:1.6;white-space:pre-wrap;margin-bottom:14px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+  .typing{color:var(--muted);font-size:13px;font-style:italic}
+
+  /* ADMIN / CONFIG */
+  .admin-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-top:10px;border-radius:10px;
+    cursor:pointer;background:var(--card2);border:1px solid var(--border)}
+  .admin-chip:hover{border-color:var(--accent)}
+  .mini{width:32px;height:32px;border-radius:50%;background:#2b3a63;color:#9db8ff;display:flex;align-items:center;
+    justify-content:center;font-size:12px;font-weight:700;background-size:cover;background-position:center;flex-shrink:0}
+  .avatar{width:88px;height:88px;border-radius:50%;background:#2b3a63;color:#9db8ff;display:flex;align-items:center;
+    justify-content:center;font-size:30px;font-weight:700;cursor:pointer;background-size:cover;background-position:center;
+    border:2px solid var(--border);position:relative;flex-shrink:0}
+  .avatar:hover{border-color:var(--accent)}
+  .avatar .cam{position:absolute;bottom:-2px;right:-2px;background:var(--accent);border-radius:50%;
+    width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .field{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted)}
+  .field input,.field select{background:var(--card2);border:1px solid var(--border);border-radius:10px;
+    padding:10px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit}
+  .field input:focus{border-color:var(--accent)}
+
+  /* LOGIN */
+  .login{position:fixed;inset:0;z-index:200;background:radial-gradient(1200px 800px at 20% 10%,#141c33 0%,#0a0e1a 55%);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s ease}
+  .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;animation:float 14s infinite alternate ease-in-out}
+  .b1{width:440px;height:440px;background:#5b8cff;top:-120px;left:-80px}
+  .b2{width:380px;height:380px;background:#a78bfa;bottom:-120px;right:-60px;animation-delay:3s}
+  .b3{width:220px;height:220px;background:#34c98e;bottom:20%;left:38%;opacity:.18;animation-delay:6s}
+  @keyframes float{to{transform:translate(50px,-35px) scale(1.12)}}
+  .login-wrap{position:relative;display:grid;grid-template-columns:1.05fr 1fr;width:min(900px,94vw);
+    background:rgba(26,33,50,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border:1px solid rgba(120,140,180,.25);border-radius:24px;overflow:hidden;
+    box-shadow:0 40px 90px rgba(0,0,0,.55);animation:rise .7s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .login-brand{padding:48px 44px;background:linear-gradient(160deg,rgba(91,140,255,.16),rgba(167,139,250,.10));
+    display:flex;flex-direction:column;gap:8px;border-right:1px solid rgba(120,140,180,.15)}
+  .logo-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#5b8cff,#7b6cff);
+    display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;
+    box-shadow:0 10px 30px rgba(91,140,255,.4)}
+  .login-brand h2{font-size:26px;font-weight:700}
+  .login-brand h2 span{color:var(--accent)}
+  .login-brand>p{color:#aab6cf;font-size:14.5px;line-height:1.6;margin:6px 0 18px}
+  .feat{display:flex;gap:11px;align-items:center;font-size:13.5px;color:#c3cde3;padding:9px 0}
+  .feat .fi{width:34px;height:34px;border-radius:10px;background:rgba(91,140,255,.14);
+    display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .login-card{padding:48px 44px;display:flex;flex-direction:column;justify-content:center}
+  .login-card h3{font-size:21px;margin-bottom:4px}
+  .login-card .sub{color:var(--muted);font-size:13.5px;margin-bottom:26px}
+  .lfield{position:relative;margin-bottom:14px}
+  .lfield input{width:100%;background:rgba(15,20,32,.65);border:1px solid rgba(120,140,180,.25);border-radius:12px;
+    padding:13px 44px 13px 44px;color:var(--text);font-size:14px;outline:none;transition:.2s;font-family:inherit}
+  .lfield input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.15)}
+  .lfield .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.55;font-size:15px}
+  .lfield .eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.55;font-size:15px}
+  .lrow{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin:2px 2px 20px}
+  .lrow a{color:#9db8ff;text-decoration:none}
+  .btn-login{width:100%;background:linear-gradient(135deg,#5b8cff,#7b6cff);border:none;color:#fff;font-weight:600;
+    padding:13px;border-radius:12px;font-size:14.5px;cursor:pointer;box-shadow:0 8px 24px rgba(91,140,255,.35);
+    transition:.2s;font-family:inherit}
+  .btn-login:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(91,140,255,.5)}
+  .ldivider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:18px 0}
+  .ldivider::before,.ldivider::after{content:'';flex:1;height:1px;background:rgba(120,140,180,.2)}
+  .btn-google{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(120,140,180,.25);color:var(--text);
+    padding:12px;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s}
+  .btn-google:hover{background:rgba(255,255,255,.09)}
+  .login-note{text-align:center;color:var(--muted);font-size:11.5px;margin-top:20px}
+  @media(max-width:760px){.login-wrap{grid-template-columns:1fr}.login-brand{display:none}}
+
+  /* ANOTAÇÕES */
+  .nota-add{display:flex;gap:10px;flex-wrap:wrap}
+  .nota-add input[type=text]{flex:1;min-width:220px;background:var(--card2);border:1px solid var(--border);
+    border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;font-family:inherit}
+  .nota-add input[type=text]:focus{border-color:var(--accent)}
+  .nota-add input[type=date]{background:var(--card2);border:1px solid var(--border);border-radius:10px;
+    padding:10px 12px;color:var(--text);font-size:13px;outline:none;font-family:inherit;color-scheme:dark}
+
+  @media(max-width:900px){.charts,.kanban{grid-template-columns:1fr}.sidebar{width:64px}
+    .sidebar .txt,.logo span,.ask-ai{display:none}main{margin-left:64px}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="login">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="logo-mark">◆</div>
+      <h2>ERP <span>Pessoal</span></h2>
+      <p>Seu negócio inteiro em um só lugar — com inteligência artificial em cada detalhe.</p>
+      <div class="feat"><div class="fi">🤖</div>Assistente que conhece todos os seus clientes</div>
+      <div class="feat"><div class="fi">📈</div>Previsão de receita e risco de atraso</div>
+      <div class="feat"><div class="fi">💳</div>Cobranças automáticas via Asaas</div>
+      <div class="feat"><div class="fi">📄</div>Contratos e propostas gerados por IA</div>
+    </div>
+    <div class="login-card">
+      <h3>Bem-vindo de volta 👋</h3>
+      <div class="sub">Entre para continuar de onde parou</div>
+      <div class="lfield"><span class="ic">✉️</span>
+        <input type="email" id="lg-email" value="jeff.thchaves@gmail.com" placeholder="seu@email.com"></div>
+      <div class="lfield"><span class="ic">🔒</span>
+        <input type="password" id="pw" placeholder="Sua senha" value="••••••••">
+        <span class="eye" onclick="togglePw()">👁</span></div>
+      <div class="lrow">
+        <label style="display:flex;gap:6px;align-items:center;cursor:pointer">
+          <input type="checkbox" checked style="accent-color:var(--accent)">Lembrar de mim</label>
+        <a href="#" onclick="toast('✉ Link de recuperação enviado para seu e-mail');return false">Esqueci a senha</a>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar →</button>
+      <div class="ldivider">ou</div>
+      <button class="btn-google" onclick="doLogin()">🔵 Continuar com Google</button>
+      <div class="login-note">Protótipo — qualquer credencial entra · Supabase Auth no sistema real</div>
+    </div>
+  </div>
+</div>
+
+<nav class="sidebar">
+  <div class="logo">ERP <span>Pessoal</span></div>
+  <div class="nav-item active" data-page="dash">📊 <span class="txt">Dashboard</span></div>
+  <div class="nav-item" data-page="crm">👥 <span class="txt">CRM</span></div>
+  <div class="nav-item" data-page="proj">📁 <span class="txt">Projetos</span><span class="badge">3</span></div>
+  <div class="nav-item" data-page="fin">💰 <span class="txt">Financeiro</span><span class="badge">1</span></div>
+  <div class="nav-item" data-page="notas">📝 <span class="txt">Anotações</span><span class="badge" style="background:var(--accent)">2</span></div>
+  <div class="nav-item" data-page="ai">🤖 <span class="txt">Assistente IA</span></div>
+  <div class="nav-item" data-page="config">⚙️ <span class="txt">Configurações</span></div>
+  <div class="ask-ai" onclick="go('ai')"><b>Pergunte à IA</b><br>sobre qualquer dado<br><span class="kbd">Ctrl</span> + <span class="kbd">K</span></div>
+  <div class="admin-chip" onclick="go('config')">
+    <div class="mini" id="side-mini">JT</div>
+    <div class="txt" style="font-size:12.5px"><b>Jefferson</b><br><span style="color:var(--muted)">Administrador</span></div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="page active" id="page-dash">
+  <header><h1>Dashboard</h1><div class="date">Quarta-feira, 8 de julho de 2026</div></header>
+
+  <div class="ai-summary">
+    <div class="icon">🤖</div>
+    <div>
+      <div class="ai-tag" id="sum-tag">Resumo do dia · gerado por IA</div>
+      <p id="sum-text">Bom dia, Jefferson. Você tem <strong>12 tarefas hoje</strong> (4 de alta prioridade) e <strong>2 entregas esta semana</strong>. O pagamento da <strong>Clínica Souza (R$ 3.500)</strong> vence amanhã — cobrança já rascunhada. <strong>3 projetos atrasados</strong>; o maior risco é o site da Imobiliária Prado, parado em "Ajustes" há 6 dias. Previsão de receita do mês: <strong>R$ 44.900</strong> (107% da meta).</p>
+    </div>
+    <button class="toggle-day" id="btn-day" onclick="toggleDia()">🌙 Modo fim do dia</button>
+  </div>
+
+  <div class="ai-summary anomaly">
+    <div class="icon">⚠️</div>
+    <div>
+      <div class="ai-tag">Anomalia detectada pela IA</div>
+      <p>Sua taxa de conversão de leads vindos do <strong>Instagram caiu de 31% para 12%</strong> nos últimos 30 dias, enquanto indicações mantêm 45%. Possível causa: tempo médio de primeira resposta subiu de 2h para 9h. <strong>Sugestão:</strong> ativar resposta automática de qualificação para leads do Instagram.</p>
+    </div>
+    <button class="toggle-day" onclick="openModal('auto')">Criar automação</button>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">Clientes ativos</div><div class="value">28</div>
+      <div class="sub"><span class="up">▲ +3</span> vs. mês passado</div></div>
+    <div class="kpi" onclick="go('proj')"><div class="label">Projetos em andamento</div><div class="value">16</div>
+      <div class="sub"><span class="down">3 atrasados</span> · clique para ver</div></div>
+    <div class="kpi" onclick="go('fin')"><div class="label">A receber este mês</div><div class="value">R$ 42.000</div>
+      <div class="sub"><span class="up">R$ 21.800 recebido</span> · <span class="warn">R$ 20.200 pendente</span></div>
+      <div class="mini-bar"><div style="width:52%"></div></div></div>
+    <div class="kpi"><div class="label">Tarefas hoje</div><div class="value">12</div>
+      <div class="sub"><span class="down">4 alta</span> · 5 média · 3 baixa</div></div>
+    <div class="kpi" onclick="go('crm')"><div class="label">Leads novos</div><div class="value">8</div>
+      <div class="sub"><span class="up">▲ conversão 25%</span> · 30 dias</div></div>
+    <div class="kpi"><div class="label">Lucro do mês (IA)</div><div class="value">R$ 17.350</div>
+      <div class="sub">receita − custos · margem 79%</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Receita mensal</h3>
+      <div class="hint">Barras = realizado · linha pontilhada = previsão da IA</div>
+      <div class="chart-wrap"><canvas id="receita"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Funil de conversão de leads</h3>
+      <div class="hint">Últimos 90 dias · % em relação à etapa anterior</div>
+      <div class="funnel" id="funnel"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Projetos concluídos por mês</h3>
+      <div class="hint">Volume de entregas nos últimos 12 meses</div>
+      <div class="chart-wrap"><canvas id="projetos"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Fluxo de caixa</h3>
+      <div class="hint">Entradas vs. saídas · linha = saldo acumulado</div>
+      <div class="chart-wrap"><canvas id="fluxo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>⚡ Atenção necessária</h3>
+    <div class="hint">Priorizado pela IA por impacto financeiro, não por data</div>
+    <div class="alert"><span class="dot" style="background:var(--red)"></span>
+      <span class="who">Restaurante Bella Vista</span><span class="why">R$ 4.200 atrasado há 5 dias · risco de inadimplência 68%</span>
+      <button class="btn" onclick="openModal('cobranca')">✉ Cobrança pronta</button></div>
+    <div class="alert"><span class="dot" style="background:var(--red)"></span>
+      <span class="who">Imobiliária Prado</span><span class="why">parado em "Ajustes" há 6 dias · entrega era 05/07</span>
+      <button class="btn" onclick="go('proj')">Ver projeto</button></div>
+    <div class="alert"><span class="dot" style="background:var(--yellow)"></span>
+      <span class="who">Clínica Souza</span><span class="why">R$ 3.500 vence amanhã</span>
+      <button class="btn" onclick="openModal('lembrete')">✉ Lembrete pronto</button></div>
+    <div class="alert"><span class="dot" style="background:var(--yellow)"></span>
+      <span class="who">Dr. Almeida Advocacia</span><span class="why">sem contato há 34 dias · cliente recorrente</span>
+      <button class="btn" onclick="openModal('reativacao')">✉ Mensagem sugerida</button></div>
+    <div class="alert"><span class="dot" style="background:var(--purple)"></span>
+      <span class="who">Academia FitMax (lead)</span><span class="why">proposta de R$ 6.000 sem resposta há 8 dias</span>
+      <button class="btn" onclick="openModal('followup')">✉ Follow-up</button></div>
+  </div>
+</section>
+
+<!-- ============ CRM ============ -->
+<section class="page" id="page-crm">
+  <header><h1>CRM</h1><div class="date">36 contatos · 8 leads ativos</div></header>
+
+  <div class="ai-summary">
+    <div class="icon">🎯</div>
+    <div>
+      <div class="ai-tag">Lead scoring · IA</div>
+      <p>A nota de 0–100 prevê a chance de fechamento, aprendendo com seu histórico: origem do lead, ramo, valor, e velocidade de resposta. <strong>Leads de indicação no ramo médico</strong> são seu melhor perfil (78% de conversão).</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <table>
+      <tr><th>Contato</th><th>País</th><th>Etiqueta</th><th>Status</th><th>Score IA</th><th>Última interação</th><th>Próxima ação (IA)</th><th></th></tr>
+      <tr class="row"><td><b>Clínica Vida Plena</b><br><span class="hint">Dra. Paula · indicação</span></td>
+        <td>🇧🇷 <span class="hint">BR</span></td>
+        <td><span class="tag">Médico</span></td><td><span class="status-pill st-neg">Negociação</span></td>
+        <td><span class="score hi">92</span></td><td>ontem</td>
+        <td class="hint">Enviar proposta revisada hoje — pediu ajuste no escopo</td>
+        <td><button class="btn" onclick="openModal('resumo1')">Resumo IA</button></td></tr>
+      <tr class="row"><td><b>Academia FitMax</b><br><span class="hint">Carlos · Instagram</span></td>
+        <td>🇧🇷 <span class="hint">BR</span></td>
+        <td><span class="tag">Academia</span></td><td><span class="status-pill st-neg">Proposta</span></td>
+        <td><span class="score mid">61</span></td><td>há 8 dias</td>
+        <td class="hint">Follow-up urgente — proposta parada há 8 dias</td>
+        <td><button class="btn" onclick="openModal('followup')">Follow-up</button></td></tr>
+      <tr class="row"><td><b>Restaurante Bella Vista</b><br><span class="hint">Marina · site</span></td>
+        <td>🇧🇷 <span class="hint">BR</span></td>
+        <td><span class="tag">Restaurante</span></td><td><span class="status-pill st-cli">Cliente</span></td>
+        <td><span class="score lo">34</span></td><td>há 5 dias</td>
+        <td class="hint">Cobrar pagamento atrasado antes de novo escopo</td>
+        <td><button class="btn" onclick="openModal('cobranca')">Cobrança</button></td></tr>
+      <tr class="row"><td><b>Dr. Almeida Advocacia</b><br><span class="hint">Roberto · indicação</span></td>
+        <td>🇧🇷 <span class="hint">BR</span></td>
+        <td><span class="tag">Advogado</span></td><td><span class="status-pill st-rec">Recorrente</span></td>
+        <td><span class="score hi">88</span></td><td class="down">há 34 dias</td>
+        <td class="hint">Reativar contato — potencial upsell de automação</td>
+        <td><button class="btn" onclick="openModal('reativacao')">Mensagem</button></td></tr>
+      <tr class="row"><td><b>Imob. Prado</b><br><span class="hint">Fernanda · Google</span></td>
+        <td>🇵🇹 <span class="hint">PT</span></td>
+        <td><span class="tag">Imobiliária</span></td><td><span class="status-pill st-cli">Cliente</span></td>
+        <td><span class="score mid">70</span></td><td>hoje</td>
+        <td class="hint">Comunicar novo prazo do projeto atrasado</td>
+        <td><button class="btn" onclick="openModal('statusproj')">Status IA</button></td></tr>
+      <tr class="row"><td><b>Padaria Pão Real</b><br><span class="hint">novo lead · WhatsApp</span></td>
+        <td>🇧🇷 <span class="hint">BR</span></td>
+        <td><span class="tag">Comércio</span></td><td><span class="status-pill st-lead">Lead</span></td>
+        <td><span class="score mid">55</span></td><td>hoje</td>
+        <td class="hint">Qualificar: perguntar orçamento e prazo desejado</td>
+        <td><button class="btn" onclick="openModal('cnpj')">⚡ Enriquecer CNPJ</button></td></tr>
+    </table>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>🌍 Clientes por país</h3>
+      <div class="hint">Localização da base de clientes · tamanho do ponto = nº de clientes</div>
+      <div id="worldmap" style="height:240px"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Distribuição internacional</h3>
+      <div class="hint">Insight da IA sobre a base por país</div>
+      <div class="alert"><span style="font-size:17px">🇧🇷</span><span class="who">Brasil</span>
+        <span class="why">22 clientes · R$ 34.200/mês</span><span class="score hi" style="margin-left:auto">79%</span></div>
+      <div class="alert"><span style="font-size:17px">🇵🇹</span><span class="who">Portugal</span>
+        <span class="why">3 clientes · R$ 4.800/mês</span><span class="score hi" style="margin-left:auto">11%</span></div>
+      <div class="alert"><span style="font-size:17px">🇺🇸</span><span class="who">Estados Unidos</span>
+        <span class="why">2 clientes · R$ 2.300/mês</span><span class="score mid" style="margin-left:auto">6%</span></div>
+      <div class="alert"><span style="font-size:17px">🇪🇸</span><span class="who">Espanha</span>
+        <span class="why">1 cliente · R$ 1.100/mês</span><span class="score mid" style="margin-left:auto">4%</span></div>
+      <p class="hint" style="margin-top:12px;line-height:1.5">💡 <b style="color:#9db8ff">IA:</b> seus clientes internacionais pagam ticket 35% maior e nunca atrasaram. Leads de Portugal via Google convertem 50% — vale criar uma landing page em português de Portugal com preços em euro.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJETOS ============ -->
+<section class="page" id="page-proj">
+  <header><h1>Projetos</h1><div class="date">16 em andamento · 3 atrasados</div></header>
+
+  <div class="ai-summary">
+    <div class="icon">🔮</div>
+    <div>
+      <div class="ai-tag">Previsão de atraso · IA</div>
+      <p>A IA compara o ritmo de cada projeto com seus projetos anteriores do mesmo tipo. <strong>Site Imob. Prado</strong> está em Ajustes há 6 dias (sua média: 2). <strong>App FitMax</strong> tem 85% de chance de atrasar se o cliente não enviar o conteúdo até sexta.</p>
+    </div>
+    <button class="toggle-day" onclick="openModal('replan')">Replanejar prazos</button>
+  </div>
+
+  <div class="kanban">
+    <div class="kol"><h4>Briefing</h4>
+      <div class="kcard"><div class="t">Landing Page — Pão Real</div><div class="c">R$ 2.400 · etapa até 11/07 · entrega 25/07</div>
+        <div class="prog"><div style="width:10%"></div></div><span class="risk g">✓ no prazo</span>
+        <button class="btn" style="margin-top:8px;margin-left:0" onclick="openModal('plano')">🤖 Gerar plano</button></div>
+    </div>
+    <div class="kol"><h4>Desenvolvimento</h4>
+      <div class="kcard"><div class="t">Site — Clínica Vida Plena</div><div class="c">R$ 5.800 · etapa até 18/07 · entrega 30/07</div>
+        <div class="prog"><div style="width:45%"></div></div><span class="risk g">✓ no prazo</span></div>
+      <div class="kcard"><div class="t">Agente IA — Dr. Almeida</div><div class="c">R$ 7.200 · etapa até 25/07 · entrega 15/08</div>
+        <div class="prog"><div style="width:30%"></div></div><span class="risk y">⚠ aguardando cliente há 4 dias</span></div>
+    </div>
+    <div class="kol"><h4>Ajustes</h4>
+      <div class="kcard" style="border-color:#6b3a3a"><div class="t">Site — Imob. Prado</div><div class="c">R$ 4.500 · etapa venceu 03/07 · entrega era 05/07</div>
+        <div class="prog"><div style="width:85%"></div></div><span class="risk r">🔥 atrasado · parado há 6 dias</span>
+        <button class="btn" style="margin-top:8px;margin-left:0" onclick="openModal('statusproj')">✉ Avisar cliente</button></div>
+    </div>
+    <div class="kol"><h4>Publicação</h4>
+      <div class="kcard"><div class="t">Dashboard — Bella Vista</div><div class="c">R$ 3.900 · etapa até 09/07 · entrega 10/07</div>
+        <div class="prog"><div style="width:95%"></div></div><span class="risk y">⚠ bloqueado: pagamento pendente</span></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>✅ Checklist inteligente — Site Clínica Vida Plena</h3>
+    <div class="hint">Itens marcados automaticamente pela IA quando detecta o evento no sistema</div>
+    <div class="alert"><span class="dot" style="background:var(--green)"></span>Recebeu logo <span class="hint">· marcado pela IA: arquivo "logo-vidaplena.svg" recebido na Central de Documentos em 02/07</span></div>
+    <div class="alert"><span class="dot" style="background:var(--green)"></span>Domínio configurado <span class="hint">· marcado pela IA: DNS verificado automaticamente</span></div>
+    <div class="alert"><span class="dot" style="background:var(--yellow)"></span>Recebeu fotos <span class="hint">· pendente — IA já rascunhou a mensagem pedindo as fotos</span>
+      <button class="btn" onclick="openModal('fotos')">✉ Pedir fotos</button></div>
+    <div class="alert"><span class="dot" style="background:#4a5570"></span>SSL · Analytics · Search Console <span class="hint">· serão verificados automaticamente na publicação</span></div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>🗓 Prazos por etapa — Site Clínica Vida Plena</h3>
+    <div class="hint">Cada etapa tem seu próprio prazo · clique na data para editar · atrasos alimentam os alertas e a agenda</div>
+    <table>
+      <tr><th>Etapa</th><th>Prazo</th><th>Status</th><th>Duração real vs. sua média</th></tr>
+      <tr class="row"><td>Briefing</td><td>28/06</td><td><span class="status-pill st-cli">✓ Concluída em 27/06</span></td><td class="hint">2 dias · média 2 dias</td></tr>
+      <tr class="row"><td>Layout</td><td>05/07</td><td><span class="status-pill st-cli">✓ Concluída em 05/07</span></td><td class="hint">5 dias · média 4 dias</td></tr>
+      <tr class="row"><td>Desenvolvimento</td><td><b>18/07</b></td><td><span class="status-pill st-neg">Em andamento · 45%</span></td><td class="hint">no ritmo ✓</td></tr>
+      <tr class="row"><td>Testes</td><td>22/07</td><td><span class="status-pill st-lead">Prevista</span></td><td class="hint">—</td></tr>
+      <tr class="row"><td>Ajustes</td><td>26/07</td><td><span class="status-pill st-lead">Prevista</span></td><td class="hint">—</td></tr>
+      <tr class="row"><td>Publicação</td><td>30/07</td><td><span class="status-pill st-lead">Prevista · entrega final</span></td><td class="hint">—</td></tr>
+    </table>
+    <div class="alert" style="margin-top:12px"><span class="dot" style="background:var(--purple)"></span>
+      <span class="why"><b style="color:#9db8ff">IA:</b> ao definir só a data de entrega, eu distribuo os prazos das etapas automaticamente com base nos seus projetos anteriores do mesmo tipo.</span>
+      <button class="btn" onclick="openModal('etapas')">🤖 Distribuir prazos</button></div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>📎 Arquivos do projeto — Site Clínica Vida Plena
+      <button class="btn solid" style="float:right" onclick="openModal('contrato')">📄 Gerar contrato (IA)</button>
+      <button class="btn" style="float:right;margin-right:8px" onclick="toast('✓ Envie o arquivo: a IA classifica e vincula ao projeto automaticamente')">+ Enviar arquivo</button></h3>
+    <div class="hint">Contratos, notas fiscais, PDFs, docs e imagens do cliente · a IA classifica cada upload e vincula ao projeto certo</div>
+    <div class="alert"><span style="font-size:16px">📄</span><span class="who">contrato-vidaplena-assinado.pdf</span>
+      <span class="tag">Contrato</span><span class="why">assinado digitalmente em 28/06 · IA extraiu valor e prazos para o projeto</span>
+      <button class="btn">Abrir</button></div>
+    <div class="alert"><span style="font-size:16px">🧾</span><span class="who">nf-2026-1023.pdf</span>
+      <span class="tag">Nota fiscal</span><span class="why">emitida 01/07 · IA leu R$ 2.900 e vinculou ao recebimento da entrada</span>
+      <button class="btn">Abrir</button></div>
+    <div class="alert"><span style="font-size:16px">🖼️</span><span class="who">logo-vidaplena.svg</span>
+      <span class="tag">Imagem</span><span class="why">enviado pelo cliente 02/07 · IA marcou "Recebeu logo" no checklist</span>
+      <button class="btn">Abrir</button></div>
+    <div class="alert"><span style="font-size:16px">📝</span><span class="who">briefing-clinica.docx</span>
+      <span class="tag">Doc</span><span class="why">enviado pelo cliente 26/06 · IA gerou o plano do projeto a partir dele</span>
+      <button class="btn">Abrir</button></div>
+    <div class="alert"><span style="font-size:16px">🖼️</span><span class="who">fotos-fachada (4 imagens)</span>
+      <span class="tag">Imagens</span><span class="why warn">⚠ faltam fotos internas · IA já rascunhou o pedido ao cliente</span>
+      <button class="btn" onclick="openModal('fotos')">✉ Pedir fotos</button></div>
+  </div>
+</section>
+
+<!-- ============ FINANCEIRO ============ -->
+<section class="page" id="page-fin">
+  <header><h1>Financeiro</h1><div class="date">Julho 2026</div></header>
+
+  <div class="ai-summary">
+    <div class="icon">📈</div>
+    <div>
+      <div class="ai-tag">Previsão de caixa 90 dias · IA</div>
+      <p>Combinando contas a receber, recorrências e a probabilidade de fechamento dos leads em negociação, a projeção é: <strong>jul R$ 44.900 · ago R$ 46.200 · set R$ 43.500</strong>. Se a proposta da FitMax fechar (score 61), agosto sobe para <strong>R$ 52.200</strong>.</p>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Previsão de caixa 90 dias</h3>
+      <div class="hint">Cenários da IA: pessimista, provável e otimista</div>
+      <div class="chart-wrap"><canvas id="cenarios"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Lucro por cliente (IA)</h3>
+      <div class="hint">Receita mensal − custos (hospedagem, APIs, domínio) − horas</div>
+      <div class="chart-wrap"><canvas id="lucro"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Contas a receber</h3>
+    <div class="hint">Risco de inadimplência calculado pela IA com base no histórico de cada cliente</div>
+    <table>
+      <tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Risco IA</th><th></th></tr>
+      <tr class="row"><td>Restaurante Bella Vista</td><td><b>R$ 4.200</b></td><td>03/07</td>
+        <td><span class="status-pill st-neg" style="background:#3a1e1e;color:var(--red)">Atrasado 5d</span></td>
+        <td><span class="score lo">68%</span></td>
+        <td><button class="btn" onclick="openModal('cobranca')">✉ 2ª cobrança (tom firme)</button></td></tr>
+      <tr class="row"><td>Clínica Souza</td><td><b>R$ 3.500</b></td><td>09/07</td>
+        <td><span class="status-pill st-neg">Vence amanhã</span></td>
+        <td><span class="score hi">8%</span></td>
+        <td><button class="btn" onclick="openModal('lembrete')">✉ Lembrete amigável</button></td></tr>
+      <tr class="row"><td>Imob. Prado (parcela 2/3)</td><td><b>R$ 1.500</b></td><td>15/07</td>
+        <td><span class="status-pill st-lead">Em dia</span></td>
+        <td><span class="score hi">12%</span></td>
+        <td><button class="btn">Agendado</button></td></tr>
+      <tr class="row"><td>Dr. Almeida (mensalidade)</td><td><b>R$ 890</b></td><td>20/07</td>
+        <td><span class="status-pill st-rec">Recorrente</span></td>
+        <td><span class="score hi">3%</span></td>
+        <td><button class="btn">Automático</button></td></tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>🔁 Pagamentos recorrentes <span class="tag" style="margin-left:8px;background:#153828;color:var(--green)">● Asaas conectado</span></h3>
+    <div class="hint">Assinaturas criadas no Asaas · cobrança gerada e baixa automática via webhook · PIX, boleto e cartão</div>
+    <table>
+      <tr><th>Cliente</th><th>Plano</th><th>Valor</th><th>Ciclo</th><th>Próx. cobrança</th><th>Status Asaas</th><th>Churn IA</th><th></th></tr>
+      <tr class="row"><td>Dr. Almeida Advocacia</td><td class="hint">Manutenção + Agente IA</td><td><b>R$ 890</b></td>
+        <td>Mensal</td><td>20/07</td><td><span class="status-pill st-cli">Ativa · cartão</span></td>
+        <td><span class="score hi">5%</span></td><td><button class="btn">Ver no Asaas</button></td></tr>
+      <tr class="row"><td>Clínica Souza</td><td class="hint">Hospedagem + suporte</td><td><b>R$ 690</b></td>
+        <td>Mensal</td><td>12/07</td><td><span class="status-pill st-cli">Ativa · PIX</span></td>
+        <td><span class="score hi">4%</span></td><td><button class="btn">Ver no Asaas</button></td></tr>
+      <tr class="row"><td>Imob. Prado</td><td class="hint">Manutenção site</td><td><b>€ 80</b></td>
+        <td>Mensal</td><td>15/07</td><td><span class="status-pill st-neg">Cartão recusado · retry 2/3</span></td>
+        <td><span class="score mid">41%</span></td><td><button class="btn" onclick="openModal('cartao')">✉ Avisar cliente</button></td></tr>
+      <tr class="row"><td>Restaurante Bella Vista</td><td class="hint">Dashboard + hospedagem</td><td><b>R$ 520</b></td>
+        <td>Mensal</td><td>—</td><td><span class="status-pill st-neg" style="background:#3a1e1e;color:var(--red)">Inadimplente</span></td>
+        <td><span class="score lo">72%</span></td><td><button class="btn" onclick="openModal('cobranca')">Cobrança</button></td></tr>
+    </table>
+    <div class="alert" style="margin-top:12px"><span class="dot" style="background:var(--purple)"></span>
+      <span class="why"><b style="color:#9db8ff">IA:</b> receita recorrente atual: <b style="color:var(--text)">R$ 2.560/mês</b> (MRR). Sugestão: converter a Clínica Vida Plena para plano de manutenção após a entrega — clientes do ramo saúde aceitam recorrência em 83% dos casos. MRR projetado: R$ 3.250.</span>
+      <button class="btn" onclick="openModal('mrr')">Ver proposta de plano</button></div>
+  </div>
+
+  <div class="panel anomaly" style="display:flex;gap:14px">
+    <div class="icon" style="font-size:20px">💸</div>
+    <div>
+      <div class="ai-tag">Custo anômalo detectado</div>
+      <p style="font-size:14px;color:#cfd8ec">Sua conta <strong>OpenAI subiu 40%</strong> este mês (R$ 312 → R$ 437), puxada pelo agente do Dr. Almeida. A margem desse cliente caiu de 82% para 71%. <strong>Sugestão:</strong> trocar as consultas de rotina para um modelo mais barato ou reajustar a mensalidade.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ASSISTENTE ============ -->
+<section class="page" id="page-ai">
+  <header><h1>🤖 Assistente</h1><div class="date">Conectado a clientes, projetos, financeiro e agenda</div></header>
+  <div class="chat">
+    <div class="chat-log" id="chat-log">
+      <div class="msg ai">Olá, Jefferson! Tenho acesso a todos os seus dados. Pergunte qualquer coisa ou peça uma ação — eu sempre mostro antes de enviar. Experimente as sugestões abaixo. 👇</div>
+    </div>
+    <div class="sugs" id="sugs"></div>
+    <div class="chat-input">
+      <input id="chat-in" placeholder="Ex.: quanto vou receber este mês?" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn solid" onclick="sendChat()">Enviar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ANOTAÇÕES ============ -->
+<section class="page" id="page-notas">
+  <header><h1>📝 Anotações</h1><div class="date">Anote em linguagem natural — a IA extrai a data de cumprimento</div></header>
+
+  <div class="ai-summary">
+    <div class="icon">✍️</div>
+    <div>
+      <div class="ai-tag">Datas detectadas por IA</div>
+      <p>Escreva do seu jeito: <strong>"cobrar Maria amanhã"</strong>, <strong>"enviar orçamento sexta"</strong> ou <strong>"renovar domínio 15/07"</strong> — a IA entende a data, cria o prazo e coloca na agenda. Anotações sem data viram ideias; se uma ideia parecer tarefa, a IA sugere um prazo.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="nota-add">
+      <input type="text" id="nota-in" placeholder='Ex.: "ligar para o João sexta" ou "ideia: SaaS para clínicas"'
+        onkeydown="if(event.key==='Enter')addNota()">
+      <input type="date" id="nota-dt" title="Ou escolha a data manualmente">
+      <button class="btn solid" onclick="addNota()">+ Anotar</button>
+    </div>
+    <div id="notas-list"></div>
+  </div>
+</section>
+
+<!-- ============ CONFIGURAÇÕES ============ -->
+<section class="page" id="page-config">
+  <header><h1>⚙️ Configurações</h1><div class="date">Perfil, usuários e integrações</div></header>
+
+  <div class="panel">
+    <h3>👤 Usuário administrador</h3>
+    <div class="hint">A foto aparece na sidebar, nas propostas, no portal do cliente e nas mensagens enviadas</div>
+    <div style="display:flex;gap:20px;align-items:flex-start;margin-top:16px;flex-wrap:wrap">
+      <div class="avatar" id="cfg-avatar" onclick="pickPhoto()" title="Clique para enviar a foto">JT<span class="cam">📷</span></div>
+      <input type="file" id="photo-in" accept="image/*" style="display:none">
+      <div style="flex:1;min-width:280px">
+        <div class="form-grid">
+          <label class="field">Nome completo<input id="adm-nome" value="Jefferson T. Chaves"></label>
+          <label class="field">E-mail<input value="jeff.thchaves@gmail.com" type="email"></label>
+          <label class="field">Telefone / WhatsApp<input value="+55 (11) 9 8888-7777"></label>
+          <label class="field">Função<select><option>Administrador</option><option>Gestor</option><option>Colaborador</option></select></label>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px">
+          <button class="btn solid" onclick="saveAdmin()">✓ Salvar perfil</button>
+          <button class="btn" onclick="pickPhoto()">📷 Alterar foto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Usuários e permissões</h3>
+    <div class="hint">Administrador tem acesso total · outros perfis podem ter módulos restritos (ex: colaborador sem acesso ao Financeiro)</div>
+    <div class="alert"><div class="mini" id="list-mini">JT</div><span class="who">Jefferson T. Chaves</span>
+      <span class="tag" style="background:#153828;color:var(--green)">Administrador</span>
+      <span class="why">acesso total · dono da conta</span>
+      <button class="btn" onclick="go('config')">Editar</button></div>
+    <div class="alert" style="opacity:.65"><div class="mini">+</div>
+      <span class="why">Adicionar usuário (colaborador, financeiro, designer...) com foto e permissões por módulo</span>
+      <button class="btn">+ Convidar</button></div>
+  </div>
+
+  <div class="panel">
+    <h3>Integrações</h3>
+    <div class="alert"><span style="font-size:16px">💳</span><span class="who">Asaas</span>
+      <span class="tag" style="background:#153828;color:var(--green)">● Conectado</span>
+      <span class="why">assinaturas, PIX, boleto, cartão e webhooks de baixa automática</span><button class="btn">Configurar</button></div>
+    <div class="alert"><span style="font-size:16px">🗄️</span><span class="who">Supabase</span>
+      <span class="tag" style="background:#153828;color:var(--green)">● Conectado</span>
+      <span class="why">banco de dados PostgreSQL, Auth, Storage e Edge Functions — backend do sistema</span><button class="btn">Configurar</button></div>
+    <div class="alert"><span style="font-size:16px">🤖</span><span class="who">IA (Claude API)</span>
+      <span class="tag" style="background:#153828;color:var(--green)">● Conectado</span>
+      <span class="why">assistente, rascunhos, previsões e classificação de arquivos</span><button class="btn">Configurar</button></div>
+    <div class="alert" style="opacity:.65"><span style="font-size:16px">💬</span><span class="who">WhatsApp Business</span>
+      <span class="tag">Em breve</span><span class="why">envio de cobranças e mensagens direto do ERP</span></div>
+  </div>
+</section>
+
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="ai-tag" id="m-tag">Gerado por IA · revise antes de enviar</div>
+    <h3 id="m-title"></h3>
+    <div class="hint" id="m-hint"></div>
+    <div class="draft" id="m-body"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Editar</button>
+      <button class="btn solid" id="m-ok" onclick="approve()">✓ Aprovar e enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- NAV ---------- */
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelector(`[data-page="${p}"]`).classList.add('active');
+}
+document.querySelectorAll('.nav-item').forEach(e=>e.onclick=()=>go(e.dataset.page));
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();go('ai');
+    setTimeout(()=>document.getElementById('chat-in').focus(),50);}
+});
+
+/* ---------- RESUMO DIA/NOITE ---------- */
+let noite=false;
+function toggleDia(){
+  noite=!noite;
+  document.getElementById('btn-day').textContent=noite?'☀️ Modo início do dia':'🌙 Modo fim do dia';
+  document.getElementById('sum-tag').textContent=noite?'Resumo do fim do dia · gerado por IA':'Resumo do dia · gerado por IA';
+  document.getElementById('sum-text').innerHTML=noite
+    ?'Bom trabalho hoje! Você concluiu <strong>9 de 12 tarefas</strong>, recebeu <strong>R$ 2.800</strong> e moveu 2 projetos de etapa. Ficaram pendentes: ajustes da Imob. Prado e o follow-up da FitMax. <strong>Plano sugerido para amanhã:</strong> começar pelos ajustes da Prado (maior risco), depois cobrar a Bella Vista antes do meio-dia — seu histórico mostra que cobranças de manhã têm 2x mais resposta.'
+    :'Bom dia, Jefferson. Você tem <strong>12 tarefas hoje</strong> (4 de alta prioridade) e <strong>2 entregas esta semana</strong>. O pagamento da <strong>Clínica Souza (R$ 3.500)</strong> vence amanhã — cobrança já rascunhada. <strong>3 projetos atrasados</strong>; o maior risco é o site da Imobiliária Prado, parado em "Ajustes" há 6 dias. Previsão de receita do mês: <strong>R$ 44.900</strong> (107% da meta).';
+}
+
+/* ---------- MODAIS (rascunhos da IA) ---------- */
+const drafts={
+  cobranca:{t:'Cobrança — Restaurante Bella Vista',h:'2ª cobrança · tom mais firme · risco de inadimplência 68%',
+    b:`Olá, Marina! Tudo bem?\n\nPassando para reforçar: a parcela de R$ 4.200 referente ao dashboard venceu em 03/07 e segue em aberto.\n\nPara não impactar a publicação do projeto (prevista para esta semana), preciso da confirmação do pagamento até amanhã. Segue o PIX: financeiro@...\n\nQualquer dificuldade, me avisa que a gente encontra uma solução. 🙂`},
+  lembrete:{t:'Lembrete — Clínica Souza',h:'1º aviso · tom amigável · cliente paga em dia (risco 8%)',
+    b:`Oi, Dr. Souza! Tudo certo?\n\nSó um lembrete rápido: a parcela de R$ 3.500 do site vence amanhã (09/07).\n\nSegue o PIX para facilitar: financeiro@...\n\nQualquer coisa estou à disposição!`},
+  reativacao:{t:'Reativação — Dr. Almeida Advocacia',h:'Sem contato há 34 dias · IA detectou oportunidade de upsell',
+    b:`Olá, Roberto! Quanto tempo!\n\nVi que o agente de IA do escritório respondeu 214 consultas no último mês — está funcionando muito bem.\n\nPensei em algo que pode te interessar: automatizar também a triagem de novos casos que chegam pelo site. Clientes parecidos reduziram 5h/semana de trabalho manual.\n\nTopa uma call de 15 min esta semana?`},
+  followup:{t:'Follow-up — Academia FitMax',h:'Proposta de R$ 6.000 sem resposta há 8 dias · score 61',
+    b:`Fala, Carlos! Tudo bem?\n\nPassando para saber se ficou alguma dúvida sobre a proposta do app que enviei semana passada.\n\nSe o investimento for o ponto, consigo dividir em 3x ou começar por uma versão enxuta (agendamento + pagamentos) por R$ 3.900.\n\nMe conta o que achou? 💪`},
+  statusproj:{t:'Status do projeto — Imob. Prado',h:'IA redigiu a atualização com o novo prazo realista',
+    b:`Oi, Fernanda!\n\nAtualização do site: os ajustes finais levaram mais tempo que o previsto — assumo o atraso e peço desculpas.\n\nNovo cronograma (realista): revisão final até quinta (10/07) e publicação na sexta (11/07). Como compensação, vou incluir sem custo a configuração do Google Meu Negócio.\n\nTe mando o link de homologação amanhã cedo. Obrigado pela paciência!`},
+  fotos:{t:'Pedido de material — Clínica Vida Plena',h:'IA detectou item de checklist pendente há 4 dias',
+    b:`Oi, Dra. Paula!\n\nO site está avançando bem — já estamos na fase de desenvolvimento. 🎉\n\nPara a próxima etapa preciso das fotos da clínica (fachada, recepção e consultórios). Pode enviar por aqui mesmo ou pelo link: [portal do cliente].\n\nCom as fotos em mãos, mantenho a entrega para 30/07.`},
+  plano:{t:'Plano gerado — Landing Page Pão Real',h:'Baseado em 6 landing pages similares que você entregou',
+    b:`📋 ETAPAS SUGERIDAS (prazo total: 12 dias úteis)\n\n1. Briefing e referências — 2 dias\n2. Layout (1 seção hero + 4 blocos) — 3 dias\n3. Desenvolvimento — 4 dias\n4. Ajustes — 2 dias\n5. Publicação + SSL + Analytics — 1 dia\n\n✅ Checklist criado com 9 itens (template Landing Page)\n💰 Valor sugerido: R$ 2.400–2.800 (seu ticket médio para comércio local: R$ 2.600)\n⚠️ Atenção: seus projetos de comércio local atrasam 40% mais quando o cliente fornece os textos. Sugiro incluir redação no escopo.`},
+  replan:{t:'Replanejamento sugerido',h:'IA recalculou os prazos dos 3 projetos atrasados',
+    b:`🔄 NOVOS PRAZOS REALISTAS\n\n1. Site Imob. Prado: 05/07 → 11/07 (mensagem de aviso já rascunhada)\n2. App FitMax: 20/07 → 28/07 (condicionado ao conteúdo do cliente — cobrança de material rascunhada)\n3. Dashboard Bella Vista: bloqueado por pagamento — publicar em até 2 dias após confirmação\n\nAo aprovar: prazos atualizados, clientes notificados e agenda reorganizada.`},
+  auto:{t:'Nova automação — Leads do Instagram',h:'Sugerida pela IA após detectar queda de conversão',
+    b:`⚙️ GATILHO: novo lead com origem "Instagram"\n\nAÇÕES:\n1. Enviar resposta automática em até 5 min com 3 perguntas de qualificação (tipo de projeto, prazo, orçamento)\n2. Criar tarefa "responder lead" com prioridade alta\n3. Se sem resposta em 48h → follow-up automático\n\n📊 Impacto estimado: recuperar a conversão de 12% → ~25% (≈ R$ 4.800/mês em propostas)`},
+  cnpj:{t:'Enriquecimento por CNPJ — Padaria Pão Real',h:'IA consultou dados públicos do CNPJ 12.345.678/0001-90',
+    b:`🏢 PÃO REAL ALIMENTOS LTDA\n\n• Fundada em 2015 · porte pequeno (ME)\n• CNAE: padaria e confeitaria com predominância de revenda\n• Endereço confirmado: Av. Central, 450 — mesmo da ficha ✓\n• 2 sócios · capital social R$ 80.000\n\n🏷️ Etiqueta sugerida: Comércio local\n💰 Ticket sugerido: R$ 2.400–2.800 (landing page)\n📈 Score inicial: 55 (origem WhatsApp converte 38% no seu histórico)`},
+  contrato:{t:'Contrato — Site Clínica Vida Plena',h:'IA preencheu 14 campos com dados do CRM e do projeto · revise antes de exportar',
+    ok:'📄 Exportar PDF e enviar p/ assinatura',done:'✓ PDF gerado, salvo em Arquivos do projeto e enviado para assinatura digital',
+    b:`CONTRATO DE PRESTAÇÃO DE SERVIÇOS\nDesenvolvimento de site institucional\n\nCONTRATANTE: Clínica Vida Plena Ltda\nCNPJ 98.765.432/0001-10 · Av. Saúde, 120 — São Paulo/SP\nRepresentante: Dra. Paula Menezes\n\nCONTRATADO: Jefferson T. Chaves — CNPJ 11.222.333/0001-44\n\nOBJETO: desenvolvimento de site institucional com módulo de agendamento online, conforme proposta nº 2026-014.\n\nVALOR: R$ 5.800,00 — 50% na assinatura (via Asaas) e 50% na entrega.\n\nPRAZOS: entrega final em 30/07/2026, com etapas conforme cronograma do projeto (anexo I). Atraso na entrega de materiais pelo CONTRATANTE prorroga os prazos proporcionalmente.\n\nINCLUI: 2 rodadas de ajustes, hospedagem por 12 meses, SSL, treinamento de 1h.\nNÃO INCLUI: redação de conteúdo, fotos profissionais, manutenção mensal.\n\n✅ Campos preenchidos pela IA a partir do CRM: partes, CNPJ, endereço, valores, prazos e escopo\n⚠️ Revisão da IA: sugerido incluir cláusula de confidencialidade (dados de pacientes) — já adicionada como cláusula 9ª`},
+  etapas:{t:'Distribuição de prazos — Site Clínica Vida Plena',h:'IA calculou com base em 8 sites similares que você entregou',
+    ok:'✓ Aplicar prazos',done:'✓ Prazos aplicados às etapas e adicionados à agenda',
+    b:`Com a entrega final em 30/07, a distribuição sugerida é:\n\n• Briefing → 28/06 (2 dias)\n• Layout → 05/07 (5 dias — seus layouts para saúde levam +1 dia)\n• Desenvolvimento → 18/07 (9 dias)\n• Testes → 22/07 (3 dias)\n• Ajustes → 26/07 (3 dias — cliente responde rápido, folga menor)\n• Publicação → 30/07 (1 dia + verificações automáticas)\n\n📅 Cada prazo vira um item na agenda com lembrete 2 dias antes.\n⚠️ Folga total: 4 dias. Se o desenvolvimento passar de 20/07, o risco de atraso sobe para 70% — vou te avisar.`},
+  cartao:{t:'Cartão recusado — Imob. Prado',h:'Webhook do Asaas · retry automático 2 de 3 · IA rascunhou o aviso',
+    b:`Olá, Fernanda!\n\nO Asaas tentou processar a mensalidade de € 80 no cartão final 4412 e a operadora recusou (2ª tentativa).\n\nHaverá mais 1 tentativa automática amanhã. Se preferir, você pode atualizar o cartão ou pagar por link neste endereço seguro: [link de pagamento Asaas]\n\nQualquer dúvida, me avisa!`},
+  mrr:{t:'Proposta de plano recorrente — Clínica Vida Plena',h:'IA montou o plano com base nos serviços do projeto em andamento',
+    b:`📦 PLANO MANUTENÇÃO SAÚDE — R$ 690/mês\n\n• Hospedagem + domínio + SSL\n• Atualizações de conteúdo (até 4/mês)\n• Backup diário + monitoramento\n• Relatório mensal de acessos\n• Suporte prioritário WhatsApp\n\n💳 Cobrança automática via Asaas (PIX ou cartão)\n📈 Impacto no MRR: R$ 2.560 → R$ 3.250 (+27%)\n\nSugestão: apresentar junto com a entrega do site, quando a satisfação está no pico.`},
+  resumo1:{t:'Resumo do cliente — Clínica Vida Plena',h:'Gerado a partir de 23 registros do histórico',
+    b:`👤 Dra. Paula · indicação do Dr. Souza (mar/2026)\n\n• Em negociação: site institucional R$ 5.800 — pediu ajuste no escopo (incluir agendamento online)\n• Respondeu todas as mensagens em menos de 3h (perfil engajado)\n• Sensível a prazo, não a preço: não questionou o valor, perguntou 2x sobre a data de entrega\n• Score 92 — maior do pipeline\n\n💡 Sugestão da IA: enviar a proposta revisada hoje com o cronograma em destaque e o agendamento como módulo adicional de R$ 1.200.`}
+};
+let cur=null;
+function openModal(k){
+  const d=drafts[k];cur=d;
+  document.getElementById('m-title').textContent=d.t;
+  document.getElementById('m-hint').textContent=d.h;
+  document.getElementById('m-body').textContent=d.b;
+  document.getElementById('m-ok').textContent=d.ok||'✓ Aprovar e enviar';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+function toast(msg){
+  const n=document.createElement('div');
+  n.style.cssText='position:fixed;bottom:24px;right:24px;background:#153828;color:#34c98e;border:1px solid #2a6a4e;padding:13px 18px;border-radius:12px;font-size:13.5px;z-index:99;max-width:340px';
+  n.textContent=msg;
+  document.body.appendChild(n);setTimeout(()=>n.remove(),3000);
+}
+function approve(){
+  closeModal();
+  toast(cur&&cur.done?cur.done:'✓ Enviado e registrado no histórico do cliente');
+}
+
+/* ---------- ADMIN: FOTO DE PERFIL ---------- */
+function pickPhoto(){document.getElementById('photo-in').click()}
+document.getElementById('photo-in').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    ['cfg-avatar','side-mini','list-mini'].forEach(id=>{
+      const el=document.getElementById(id);if(!el)return;
+      el.style.backgroundImage=`url(${ev.target.result})`;
+      el.childNodes.forEach(n=>{if(n.nodeType===3)n.textContent=''});
+      if(id!=='cfg-avatar')el.textContent='';
+    });
+    toast('✓ Foto atualizada');
+  };
+  r.readAsDataURL(f);
+});
+function saveAdmin(){
+  const nome=document.getElementById('adm-nome').value;
+  toast(`✓ Perfil de ${nome.split(' ')[0]} salvo — foto e dados usados em propostas e mensagens`);
+}
+
+/* ---------- CHAT ---------- */
+const answers=[
+  {q:'Quem está com pagamento atrasado?',a:`Apenas 1 cliente:\n\n🔴 <b>Restaurante Bella Vista</b> — R$ 4.200, vencido em 03/07 (5 dias). Risco de inadimplência: 68% (já atrasou 2 das últimas 4 parcelas).\n\nO dashboard dele está pronto para publicar, o que é uma boa alavanca de cobrança.`,act:'cobranca',actLabel:'✉ Gerar 2ª cobrança'},
+  {q:'Quanto vou receber este mês?',a:`💰 <b>Julho até agora:</b>\n\n• Recebido: R$ 21.800\n• Confirmado a receber: R$ 20.200 (4 parcelas)\n• <b>Total previsto: R$ 42.000</b> — 100% da meta\n\nSe a proposta da FitMax fechar ainda em julho (score 61), pode chegar a R$ 45.000. O único risco é a Bella Vista (R$ 4.200 atrasado).`},
+  {q:'Quais projetos terminam esta semana?',a:`📅 <b>Entregas até 12/07:</b>\n\n1. <b>Dashboard Bella Vista</b> — 95% pronto, bloqueado pelo pagamento pendente\n2. <b>Site Imob. Prado</b> — atrasado desde 05/07, novo prazo realista: 11/07\n\nSugestão: resolver a cobrança da Bella Vista primeiro; a publicação leva menos de 1 dia depois disso.`,act:'replan',actLabel:'🔄 Replanejar prazos'},
+  {q:'Quem não converso há mais de 30 dias?',a:`🕐 2 contatos importantes:\n\n1. <b>Dr. Almeida Advocacia</b> — 34 dias · cliente recorrente (R$ 890/mês) · o agente IA dele respondeu 214 consultas no mês → gancho perfeito para upsell\n2. <b>Studio Arq Marcela</b> — 41 dias · projeto finalizado em maio · candidata a pedido de indicação\n\nRascunhei mensagens para os dois.`,act:'reativacao',actLabel:'✉ Ver mensagem Dr. Almeida'},
+  {q:'Resuma o histórico da Clínica Vida Plena',a:`Resumo dos 23 registros:\n\n👤 <b>Dra. Paula</b>, indicação do Dr. Souza (mar/2026). Em negociação: site R$ 5.800, pediu agendamento online no escopo. Responde em <3h, sensível a prazo (não a preço). Score 92 — seu melhor lead.\n\n💡 Enviar hoje a proposta revisada com cronograma em destaque e agendamento como módulo de R$ 1.200.`,act:'resumo1',actLabel:'📄 Resumo completo'},
+  {q:'Qual cliente me dá mais lucro?',a:`📊 <b>Lucro mensal por cliente</b> (receita − custos − horas):\n\n1. Dr. Almeida: R$ 748/mês líquido, mas margem caiu para 71% (custo OpenAI +40%)\n2. Clínica Souza: R$ 610/mês · margem 89% · quase zero manutenção ✨\n3. Bella Vista: R$ 320/mês · margem 62% · consome 6h/mês\n\n💡 Perfil "Clínica Souza" (site + manutenção leve) é seu melhor negócio por hora trabalhada. Vale priorizar leads da saúde.`}
+];
+const sugsEl=document.getElementById('sugs');
+answers.forEach((x,i)=>{
+  const s=document.createElement('div');s.className='sug';s.textContent=x.q;
+  s.onclick=()=>ask(x);sugsEl.appendChild(s);
+});
+function addMsg(html,cls){
+  const log=document.getElementById('chat-log');
+  const m=document.createElement('div');m.className='msg '+cls;m.innerHTML=html;
+  log.appendChild(m);log.scrollTop=log.scrollHeight;return m;
+}
+function ask(x){
+  addMsg(x.q,'user');
+  const t=addMsg('<span class="typing">consultando seus dados…</span>','ai');
+  setTimeout(()=>{
+    let html=x.a.replace(/\n/g,'<br>');
+    if(x.act)html+=`<br><button class="btn solid act" onclick="openModal('${x.act}')">${x.actLabel}</button>`;
+    t.innerHTML=html;
+  },700);
+}
+function sendChat(){
+  const inp=document.getElementById('chat-in');
+  const v=inp.value.trim();if(!v)return;inp.value='';
+  const match=answers.find(a=>a.q.toLowerCase().split(' ').filter(w=>w.length>4).some(w=>v.toLowerCase().includes(w)));
+  if(match){ask({...match,q:v});return}
+  addMsg(v,'user');
+  const t=addMsg('<span class="typing">consultando seus dados…</span>','ai');
+  setTimeout(()=>{t.innerHTML='No sistema real, eu consultaria o banco via <b>function calling</b> e responderia com dados precisos. Neste protótipo, experimente as perguntas sugeridas acima. 🙂';},700);
+}
+
+/* ---------- LOGIN ---------- */
+function doLogin(){
+  const l=document.getElementById('login');
+  l.style.opacity='0';
+  setTimeout(()=>{l.style.display='none';toast('👋 Bem-vindo de volta, Jefferson! 12 tarefas hoje.')},600);
+}
+function togglePw(){const p=document.getElementById('pw');p.type=p.type==='password'?'text':'password'}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+/* ---------- ANOTAÇÕES ---------- */
+const HOJE='2026-07-08';
+let notas=[
+  {t:'Enviar proposta revisada para a Dra. Paula',d:'2026-07-08',tag:'CRM',done:false},
+  {t:'Cobrar Bella Vista antes do meio-dia',d:'2026-07-08',tag:'Financeiro',done:false},
+  {t:'Aprovar layout final da Imob. Prado',d:'2026-07-07',done:false},
+  {t:'Renovar domínio draalmeida.com.br',d:'2026-07-10',tag:'Hospedagem',done:false},
+  {t:'Estudar split de pagamento na API do Asaas',d:'2026-07-12',done:false},
+  {t:'Ideia: SaaS de agendamento para clínicas (validar com Dra. Paula)',d:null,tag:'Ideia',done:false},
+  {t:'Pedir depoimento do Studio Arq Marcela',d:'2026-07-06',done:true}
+];
+function fmtData(d){const[a,m,dia]=d.split('-');return `${dia}/${m}`}
+function renderNotas(){
+  const groups={'🔥 Atrasadas':[],'📅 Hoje':[],'🗓 Próximas':[],'💡 Sem prazo':[],'✔ Concluídas':[]};
+  notas.forEach((n,i)=>{
+    const g=n.done?'✔ Concluídas':!n.d?'💡 Sem prazo':n.d<HOJE?'🔥 Atrasadas':n.d===HOJE?'📅 Hoje':'🗓 Próximas';
+    groups[g].push([n,i]);
+  });
+  const el=document.getElementById('notas-list');el.innerHTML='';
+  for(const[g,items]of Object.entries(groups)){
+    if(!items.length)continue;
+    el.insertAdjacentHTML('beforeend',`<h4 style="margin:18px 4px 2px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">${g}</h4>`);
+    items.forEach(([n,i])=>{
+      el.insertAdjacentHTML('beforeend',
+        `<div class="alert" style="${n.done?'opacity:.45':''}">
+          <input type="checkbox" ${n.done?'checked':''} onchange="toggleNota(${i})" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
+          <span class="who" style="font-weight:500;${n.done?'text-decoration:line-through':''}">${n.t}</span>
+          ${n.tag?`<span class="tag">${n.tag}</span>`:''}
+          ${n.d?`<span class="why" style="margin-left:auto;${!n.done&&n.d<HOJE?'color:var(--red)':''}">📅 ${fmtData(n.d)}</span>`:'<span class="why" style="margin-left:auto">sem prazo</span>'}
+        </div>`);
+    });
+  }
+}
+function toggleNota(i){notas[i].done=!notas[i].done;renderNotas();if(notas[i].done)toast('✔ Concluída — registrada no seu resumo do dia')}
+function addNota(){
+  const inp=document.getElementById('nota-in'),dt=document.getElementById('nota-dt');
+  const t=inp.value.trim();if(!t)return;
+  let d=dt.value||null,det='';
+  if(!d){
+    const low=t.toLowerCase();
+    const m=low.match(/(\d{1,2})\/(\d{1,2})/);
+    if(low.includes('hoje')){d=HOJE;det='hoje'}
+    else if(low.includes('amanhã')||low.includes('amanha')){d='2026-07-09';det='amanhã (09/07)'}
+    else if(low.includes('sexta')){d='2026-07-10';det='sexta-feira (10/07)'}
+    else if(low.includes('semana que vem')||low.includes('próxima semana')||low.includes('proxima semana')){d='2026-07-13';det='segunda (13/07)'}
+    else if(m){d=`2026-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;det=m[0]}
+  }
+  notas.unshift({t,d,done:false,tag:t.toLowerCase().startsWith('ideia')?'Ideia':null});
+  inp.value='';dt.value='';renderNotas();
+  toast(det?`🤖 IA detectou o prazo: ${det} — adicionado à agenda`:d?'✓ Anotação criada com prazo':'✓ Anotação salva — sem prazo, vira ideia');
+}
+renderNotas();
+
+/* ---------- MAPA DE CLIENTES ---------- */
+try{
+  new jsVectorMap({
+    selector:'#worldmap', map:'world',
+    backgroundColor:'transparent', zoomButtons:false, zoomOnScroll:false,
+    regionStyle:{initial:{fill:'#2a3550',stroke:'#1a2132',strokeWidth:.5},hover:{fill:'#37497c'}},
+    markers:[
+      {name:'Brasil — 22 clientes',coords:[-14.2,-51.9],style:{fill:'#5b8cff',r:10}},
+      {name:'Portugal — 3 clientes',coords:[39.4,-8.2],style:{fill:'#a78bfa',r:6}},
+      {name:'EUA — 2 clientes',coords:[37,-95.7],style:{fill:'#34c98e',r:5}},
+      {name:'Espanha — 1 cliente',coords:[40.4,-3.7],style:{fill:'#ffc14d',r:4}}
+    ],
+    markerStyle:{initial:{stroke:'#0f1420',strokeWidth:2},hover:{fill:'#fff'}},
+    markersSelectable:false,
+    onRegionTooltipShow(e,tooltip){tooltip.css({backgroundColor:'#202a40',color:'#e8ecf4',fontSize:'12px'})},
+    onMarkerTooltipShow(e,tooltip){tooltip.css({backgroundColor:'#202a40',color:'#e8ecf4',fontSize:'12px'})}
+  });
+}catch(err){
+  document.getElementById('worldmap').innerHTML='<p class="hint" style="padding-top:80px;text-align:center">🌍 mapa indisponível offline — 🇧🇷 22 · 🇵🇹 3 · 🇺🇸 2 · 🇪🇸 1</p>';
+}
+
+/* ---------- CHARTS ---------- */
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+Chart.defaults.color=css('--muted');
+Chart.defaults.borderColor='rgba(120,140,180,.12)';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+
+const meses=['Ago','Set','Out','Nov','Dez','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago*','Set*','Out*'];
+new Chart(document.getElementById('receita'),{
+  data:{labels:meses,datasets:[
+    {type:'bar',label:'Realizado',data:[28500,31200,29800,35400,26900,33100,30500,38200,36800,40100,39400,42000,null,null,null],
+     backgroundColor:css('--accent'),borderRadius:6},
+    {type:'line',label:'Previsão IA',data:[null,null,null,null,null,null,null,null,null,null,null,42000,44900,46200,43500],
+     borderColor:css('--purple'),borderDash:[6,5],pointBackgroundColor:css('--purple'),tension:.3}
+  ]},
+  options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{y:{ticks:{callback:v=>'R$'+(v/1000)+'k'}}}}
+});
+
+const funil=[['Novo',48],['Contato',36],['Reunião',24],['Proposta',18],['Negociação',14],['Fechado',12]];
+const fw=document.getElementById('funnel');
+funil.forEach(([n,v],i)=>{
+  const pct=i===0?100:Math.round(v/funil[i-1][1]*100);
+  fw.insertAdjacentHTML('beforeend',
+    `<div class="funnel-row"><span class="name">${n}</span>
+     <div class="bar" style="width:${v/48*70+12}%;opacity:${1-i*.09}">${v}</div>
+     <span class="pct">${i===0?'—':pct+'% da etapa anterior'}</span></div>`);
+});
+
+new Chart(document.getElementById('projetos'),{
+  type:'bar',
+  data:{labels:meses.slice(0,12),datasets:[{label:'Concluídos',
+    data:[3,4,3,5,2,4,3,6,5,5,4,3],backgroundColor:css('--green'),borderRadius:6}]},
+  options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:2}}}}
+});
+
+const entradas=[33100,30500,38200,36800,40100,39400,21800];
+const saidas=[9200,8800,10400,9600,11200,10100,4450];
+let acc=0;const saldo=entradas.map((e,i)=>acc+=e-saidas[i]);
+new Chart(document.getElementById('fluxo'),{
+  data:{labels:['Jan','Fev','Mar','Abr','Mai','Jun','Jul'],datasets:[
+    {type:'bar',label:'Entradas',data:entradas,backgroundColor:css('--green'),borderRadius:5},
+    {type:'bar',label:'Saídas',data:saidas,backgroundColor:css('--red'),borderRadius:5},
+    {type:'line',label:'Saldo acumulado',data:saldo,borderColor:css('--yellow'),tension:.3,yAxisID:'y1'}
+  ]},
+  options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{y:{ticks:{callback:v=>'R$'+(v/1000)+'k'}},
+      y1:{position:'right',grid:{display:false},ticks:{callback:v=>'R$'+(v/1000)+'k'}}}}
+});
+
+new Chart(document.getElementById('cenarios'),{
+  type:'line',
+  data:{labels:['Jul','Ago','Set','Out'],datasets:[
+    {label:'Otimista',data:[45000,52200,49800,51000],borderColor:css('--green'),borderDash:[4,4],tension:.3},
+    {label:'Provável',data:[44900,46200,43500,44800],borderColor:css('--accent'),tension:.3,fill:{target:'origin'},backgroundColor:'rgba(91,140,255,.08)'},
+    {label:'Pessimista',data:[40700,39800,38200,39500],borderColor:css('--red'),borderDash:[4,4],tension:.3}
+  ]},
+  options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{y:{ticks:{callback:v=>'R$'+(v/1000)+'k'}}}}
+});
+
+new Chart(document.getElementById('lucro'),{
+  type:'bar',
+  data:{labels:['Dr. Almeida','Clínica Souza','Bella Vista','Imob. Prado','FitMax'],datasets:[
+    {label:'Receita',data:[890,690,520,480,350],backgroundColor:css('--accent'),borderRadius:5},
+    {label:'Custos',data:[142,80,200,110,95],backgroundColor:css('--red'),borderRadius:5},
+    {label:'Lucro',data:[748,610,320,370,255],backgroundColor:css('--green'),borderRadius:5}
+  ]},
+  options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{y:{ticks:{callback:v=>'R$'+v}}}}
+});
+</script>
+</body>
+</html>

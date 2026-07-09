@@ -2,26 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* shadcn/ui semantic tokens — Inova Labs light theme */
+    --background: 216 43% 97%;
+    --foreground: 222 49% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 49% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 49% 8%;
+    --primary: 224 100% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 43% 97%;
+    --secondary-foreground: 222 49% 8%;
+    --muted: 214 33% 92%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 49% 8%;
+    --destructive: 359 74% 59%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 33% 90%;
+    --input: 214 33% 90%;
+    --ring: 224 100% 56%;
+    --radius: 0.75rem;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  /* thin scrollbars for kanban / chat panes */
+  .thin-scroll::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: #cdd7e6;
+    border-radius: 99px;
+  }
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
   }
 }

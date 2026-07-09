@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f0eee9;font-family:'Patrick Hand',system-ui,sans-serif;color:#222}
+a{color:#1D5BFF}a:hover{color:#00a8cc}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:#fff;border:1.5px solid #333;border-radius:8px;box-shadow:3px 3px 0 rgba(0,0,0,.12);overflow:hidden}
+.dv-opt:target .dv-oid{background:#1D5BFF;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+.wf{font-family:'Patrick Hand',cursive;font-size:14px;line-height:1.25}
+.wfbox{border:1.5px solid #444;border-radius:6px;background:#fff}
+.wfgray{background:#eceae4}
+.wfdash{border:1.5px dashed #999;border-radius:6px;background:#fafaf7;color:#999;display:flex;align-items:center;justify-content:center}
+.wfline{height:7px;background:#d8d5cd;border-radius:4px}
+.wfia{display:inline-flex;align-items:center;gap:4px;border:1.5px solid #00b8e0;color:#0090b0;border-radius:10px;padding:0 7px;font-size:11px;font-weight:bold;background:#eafbff}
+.wfbadge{display:inline-block;border:1.5px solid #444;border-radius:10px;padding:0 8px;font-size:11px;background:#fff}
+.wfbtn{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #333;border-radius:7px;padding:4px 12px;background:#fff;font-size:13px}
+.wfbtn.pri{background:#222;color:#fff}
+.wfh{font-size:16px;font-weight:bold}
+.wfnote{color:#0090b0;font-size:12.5px}
+.wfth{font-size:11.5px;color:#777;text-transform:uppercase;letter-spacing:.5px}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Wireframes — as 5 telas do ERP Pessoal + modal de rascunho IA (denso, estilo Linear)</span></div>
+  <div class="dv-opts">
+
+    <!-- ============ 1a DASHBOARD ============ -->
+    <div class="dv-opt" id="1a" data-screen-label="Wireframe Dashboard">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Dashboard — resumo IA, anomalia, KPIs, 4 gráficos, atenção necessária</div>
+      <div class="dv-card wf" style="width:920px;display:flex">
+        <div style="width:150px;border-right:1.5px solid #444;background:#f6f5f1;padding:12px 10px;display:flex;flex-direction:column;gap:8px;flex:none">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><div style="width:22px;height:22px;border:1.5px solid #444;border-radius:5px;background:#eceae4"></div><b>ERP Pessoal</b></div>
+          <div style="background:#222;color:#fff;border-radius:6px;padding:4px 8px">▣ Dashboard</div>
+          <div style="padding:4px 8px">◉ CRM</div>
+          <div style="padding:4px 8px">▤ Projetos</div>
+          <div style="padding:4px 8px">$ Financeiro</div>
+          <div style="padding:4px 8px;display:flex;gap:5px;align-items:center">✦ Assistente <span class="wfia">IA</span></div>
+          <div style="margin-top:auto" class="wfline"></div>
+          <div class="wfline" style="width:70%"></div>
+        </div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div class="wfbox" style="padding:8px 12px;display:flex;gap:10px;align-items:center;background:#eafbff;border-color:#00b8e0">
+            <span class="wfia">IA</span>
+            <span>"Bom dia! Hoje você tem 2 entregas, R$ 4,3k a receber e 1 lead esfriando…"</span>
+            <span style="margin-left:auto" class="wfbtn">Ver tudo</span>
+          </div>
+          <div class="wfbox" style="padding:8px 12px;display:flex;gap:10px;align-items:center">
+            <span style="font-size:16px">⚠</span><b>Anomalia detectada</b><span style="color:#777">despesa 3× acima do normal em "Ferramentas"</span><span class="wfia" style="margin-left:auto">IA</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+            <div class="wfbox" style="padding:8px"><div class="wfth">Receita mês</div><div class="wfh">R$ 18,2k</div><div class="wfnote">▲ +12%</div></div>
+            <div class="wfbox" style="padding:8px"><div class="wfth">A receber</div><div class="wfh">R$ 9,4k</div><div class="wfnote">▲ +4%</div></div>
+            <div class="wfbox" style="padding:8px"><div class="wfth">Leads ativos</div><div class="wfh">7</div><div style="color:#c00;font-size:12.5px">▼ −2</div></div>
+            <div class="wfbox" style="padding:8px"><div class="wfth">Projetos</div><div class="wfh">5</div><div class="wfnote">▲ +1</div></div>
+            <div class="wfbox" style="padding:8px"><div class="wfth">MRR</div><div class="wfh">R$ 3,1k</div><div class="wfnote">▲ +8%</div></div>
+            <div class="wfbox" style="padding:8px"><div class="wfth">Horas sem.</div><div class="wfh">31h</div><div style="color:#777;font-size:12.5px">= 0%</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="wfbox" style="padding:10px;height:120px;position:relative"><b>Receita + previsão <span class="wfia">IA</span></b>
+              <svg width="100%" height="72" viewBox="0 0 380 72" preserveAspectRatio="none"><polyline points="0,60 60,50 120,55 180,38 240,30" fill="none" stroke="#444" stroke-width="2"/><polyline points="240,30 300,24 380,14" fill="none" stroke="#00b8e0" stroke-width="2" stroke-dasharray="6 5"/></svg>
+            </div>
+            <div class="wfbox" style="padding:10px;height:120px"><b>Funil de leads</b>
+              <div style="display:flex;flex-direction:column;gap:5px;margin-top:8px">
+                <div class="wfgray" style="height:12px;width:95%;border-radius:3px"></div>
+                <div class="wfgray" style="height:12px;width:70%;border-radius:3px"></div>
+                <div class="wfgray" style="height:12px;width:45%;border-radius:3px"></div>
+                <div style="height:12px;width:22%;border-radius:3px;background:#bfeef9"></div>
+              </div>
+            </div>
+            <div class="wfbox" style="padding:10px;height:110px"><b>Projetos concluídos</b>
+              <div style="display:flex;align-items:flex-end;gap:8px;height:60px;margin-top:8px">
+                <div class="wfgray" style="width:26px;height:30%"></div><div class="wfgray" style="width:26px;height:55%"></div><div class="wfgray" style="width:26px;height:40%"></div><div class="wfgray" style="width:26px;height:75%"></div><div style="width:26px;height:60%;background:#bfeef9"></div>
+              </div>
+            </div>
+            <div class="wfbox" style="padding:10px;height:110px"><b>Fluxo de caixa</b>
+              <svg width="100%" height="60" viewBox="0 0 380 60" preserveAspectRatio="none"><line x1="0" y1="30" x2="380" y2="30" stroke="#ccc"/><polyline points="0,25 70,10 140,35 210,20 280,42 380,15" fill="none" stroke="#444" stroke-width="2"/></svg>
+            </div>
+          </div>
+          <div class="wfbox" style="padding:10px">
+            <b>Atenção necessária</b> <span class="wfnote">· priorizado por impacto financeiro</span>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+              <div style="display:flex;gap:8px;align-items:center"><span class="wfbadge">R$ 4,2k</span> Fatura da Acme Co. vence amanhã <span class="wfbtn" style="margin-left:auto">Cobrar</span></div>
+              <div style="display:flex;gap:8px;align-items:center"><span class="wfbadge">R$ 2,8k</span> Proposta p/ Nordic AS sem resposta há 5 dias <span class="wfia">IA</span> <span class="wfbtn" style="margin-left:auto">Follow-up</span></div>
+              <div style="display:flex;gap:8px;align-items:center"><span class="wfbadge">R$ 1,5k</span> Projeto "Landing X" com risco de atraso <span class="wfbtn" style="margin-left:auto">Ver</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1b CRM ============ -->
+    <div class="dv-opt" id="1b" data-screen-label="Wireframe CRM">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>CRM — tabela com score IA + mapa-múndi e distribuição internacional</div>
+      <div class="dv-card wf" style="width:920px;display:flex">
+        <div style="width:60px;border-right:1.5px solid #444;background:#f6f5f1;padding:12px 0;display:flex;flex-direction:column;gap:14px;align-items:center;flex:none">
+          <div style="width:22px;height:22px;border:1.5px solid #444;border-radius:5px;background:#eceae4"></div>
+          <span>▣</span><span style="background:#222;color:#fff;border-radius:6px;padding:2px 7px">◉</span><span>▤</span><span>$</span><span>✦</span>
+        </div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px"><span class="wfh">CRM · Contatos</span><span class="wfdash" style="padding:3px 10px">busca…</span><span class="wfbtn pri" style="margin-left:auto">+ Novo contato</span></div>
+          <div class="wfbox" style="overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.6fr .7fr .9fr .8fr .7fr 1fr 1.4fr;gap:6px;padding:7px 10px;border-bottom:1.5px solid #444;background:#f6f5f1" class="wfth">
+              <span>Nome</span><span>País</span><span>Ramo</span><span>Status</span><span>Score IA</span><span>Últ. interação</span><span>Próxima ação (IA)</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.6fr .7fr .9fr .8fr .7fr 1fr 1.4fr;gap:6px;padding:7px 10px;border-bottom:1px solid #ddd;align-items:center">
+              <b>Acme Co. — João</b><span>🇧🇷 BR</span><span class="wfbadge">E-comm</span><span class="wfbadge">Cliente</span><b style="color:#0a0">87</b><span>ontem</span><span class="wfnote">Enviar upsell de manutenção</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.6fr .7fr .9fr .8fr .7fr 1fr 1.4fr;gap:6px;padding:7px 10px;border-bottom:1px solid #ddd;align-items:center">
+              <b>Nordic AS — Ingrid</b><span>🇳🇴 NO</span><span class="wfbadge">SaaS</span><span class="wfbadge">Proposta</span><b style="color:#c90">62</b><span>5 dias</span><span class="wfnote">Follow-up da proposta (US$)</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.6fr .7fr .9fr .8fr .7fr 1fr 1.4fr;gap:6px;padding:7px 10px;border-bottom:1px solid #ddd;align-items:center">
+              <b>Lex Advocacia</b><span>🇧🇷 BR</span><span class="wfbadge">Jurídico</span><span class="wfbadge">Lead</span><b style="color:#c00">34</b><span>12 dias</span><span class="wfnote">Reengajar com case novo</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.6fr .7fr .9fr .8fr .7fr 1fr 1.4fr;gap:6px;padding:7px 10px;align-items:center">
+              <b>Bloom GmbH — Ana</b><span>🇩🇪 DE</span><span class="wfbadge">Saúde</span><span class="wfbadge">Cliente</span><b style="color:#0a0">91</b><span>hoje</span><span class="wfnote">Agendar review trimestral</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px">
+            <div class="wfbox" style="padding:10px;height:150px;position:relative"><b>Clientes pelo mundo</b>
+              <svg width="100%" height="105" viewBox="0 0 420 105"><ellipse cx="110" cy="45" rx="55" ry="30" fill="#eceae4" stroke="#bbb"/><ellipse cx="150" cy="80" rx="28" ry="20" fill="#eceae4" stroke="#bbb"/><ellipse cx="250" cy="38" rx="45" ry="22" fill="#eceae4" stroke="#bbb"/><ellipse cx="330" cy="60" rx="50" ry="28" fill="#eceae4" stroke="#bbb"/><circle cx="152" cy="82" r="7" fill="#00b8e0"/><circle cx="248" cy="35" r="5" fill="#00b8e0"/><circle cx="262" cy="42" r="4" fill="#00b8e0"/><circle cx="105" cy="42" r="4" fill="#00b8e0"/></svg>
+              <span class="wfnote" style="position:absolute;bottom:8px;left:10px">● = clientes por país</span>
+            </div>
+            <div class="wfbox" style="padding:10px">
+              <b>Distribuição internacional</b>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+                <div style="display:flex;gap:8px;align-items:center">🇧🇷<div class="wfgray" style="height:10px;width:60%;border-radius:3px"></div>58%</div>
+                <div style="display:flex;gap:8px;align-items:center">🇺🇸<div class="wfgray" style="height:10px;width:24%;border-radius:3px"></div>22%</div>
+                <div style="display:flex;gap:8px;align-items:center">🇪🇺<div class="wfgray" style="height:10px;width:20%;border-radius:3px"></div>20%</div>
+              </div>
+              <div style="margin-top:10px;border-top:1px dashed #bbb;padding-top:6px"><span class="wfia">IA</span> <span class="wfnote">"Clientes no exterior pagam 2,3× mais por hora — priorize leads EU/US."</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1c PROJETOS ============ -->
+    <div class="dv-opt" id="1c" data-screen-label="Wireframe Projetos">
+      <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Projetos — kanban 7 colunas + checklist inteligente</div>
+      <div class="dv-card wf" style="width:920px;display:flex">
+        <div style="width:60px;border-right:1.5px solid #444;background:#f6f5f1;padding:12px 0;display:flex;flex-direction:column;gap:14px;align-items:center;flex:none">
+          <div style="width:22px;height:22px;border:1.5px solid #444;border-radius:5px;background:#eceae4"></div>
+          <span>▣</span><span>◉</span><span style="background:#222;color:#fff;border-radius:6px;padding:2px 7px">▤</span><span>$</span><span>✦</span>
+        </div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px"><span class="wfh">Projetos</span><span class="wfnote">arraste os cards entre colunas</span><span class="wfbtn pri" style="margin-left:auto">+ Novo projeto</span></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+            <div class="wfgray" style="border-radius:6px;padding:6px;min-height:210px"><div class="wfth">Briefing · 1</div>
+              <div class="wfbox" style="padding:6px;margin-top:6px"><b style="font-size:12.5px">App Delivery</b><div class="wfline" style="margin:5px 0;width:20%"></div><div style="font-size:11.5px">R$ 12k · 20/08</div></div>
+            </div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Proposta · 2</div>
+              <div class="wfbox" style="padding:6px;margin-top:6px"><b style="font-size:12.5px">Site Nordic</b><div class="wfline" style="margin:5px 0;width:10%"></div><div style="font-size:11.5px">US$ 3,5k · 15/08</div><span class="wfia" style="margin-top:4px">IA rascunhou</span></div>
+              <div class="wfbox" style="padding:6px;margin-top:6px"><b style="font-size:12.5px">Bot WhatsApp</b><div style="font-size:11.5px">R$ 6k</div></div>
+            </div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Aprovado · 0</div><div class="wfdash" style="height:44px;margin-top:6px;font-size:11.5px">vazio</div></div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Em dev · 2</div>
+              <div class="wfbox" style="padding:6px;margin-top:6px;border-color:#c00"><b style="font-size:12.5px">Landing X</b><div style="height:6px;background:#eee;border-radius:3px;margin:5px 0"><div style="height:6px;width:45%;background:#444;border-radius:3px"></div></div><div style="font-size:11.5px">R$ 1,5k · 11/07</div><span class="wfbadge" style="border-color:#c00;color:#c00;margin-top:4px">⚠ risco atraso</span></div>
+              <div class="wfbox" style="padding:6px;margin-top:6px"><b style="font-size:12.5px">Painel Bloom</b><div style="height:6px;background:#eee;border-radius:3px;margin:5px 0"><div style="height:6px;width:70%;background:#444;border-radius:3px"></div></div><div style="font-size:11.5px">€ 4k · 30/07</div></div>
+            </div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Revisão · 1</div>
+              <div class="wfbox" style="padding:6px;margin-top:6px"><b style="font-size:12.5px">Loja Acme</b><div style="height:6px;background:#eee;border-radius:3px;margin:5px 0"><div style="height:6px;width:90%;background:#444;border-radius:3px"></div></div><div style="font-size:11.5px">R$ 8k · 14/07</div></div>
+            </div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Entrega · 0</div><div class="wfdash" style="height:44px;margin-top:6px;font-size:11.5px">vazio</div></div>
+            <div class="wfgray" style="border-radius:6px;padding:6px"><div class="wfth">Concluído · 8</div>
+              <div class="wfbox" style="padding:6px;margin-top:6px;opacity:.6"><b style="font-size:12.5px">Blog Lex</b><div style="font-size:11.5px">✓ pago</div></div>
+            </div>
+          </div>
+          <div class="wfbox" style="padding:10px">
+            <b>Checklist inteligente — "Landing X"</b> <span class="wfia">IA marca automaticamente</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin-top:6px">
+              <div>☑ Briefing aprovado <span class="wfnote">(IA · detectou no e-mail)</span></div>
+              <div>☑ Wireframe enviado</div>
+              <div>☐ Copy revisada</div>
+              <div>☐ Deploy em produção</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1d FINANCEIRO ============ -->
+    <div class="dv-opt" id="1d" data-screen-label="Wireframe Financeiro">
+      <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Financeiro — previsão 90d em 3 cenários, lucro por cliente, contas a receber, Asaas</div>
+      <div class="dv-card wf" style="width:920px;display:flex">
+        <div style="width:60px;border-right:1.5px solid #444;background:#f6f5f1;padding:12px 0;display:flex;flex-direction:column;gap:14px;align-items:center;flex:none">
+          <div style="width:22px;height:22px;border:1.5px solid #444;border-radius:5px;background:#eceae4"></div>
+          <span>▣</span><span>◉</span><span>▤</span><span style="background:#222;color:#fff;border-radius:6px;padding:2px 7px">$</span><span>✦</span>
+        </div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px"><span class="wfh">Financeiro</span><span class="wfbadge">R$ · US$ · €</span></div>
+          <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px">
+            <div class="wfbox" style="padding:10px;height:150px"><b>Previsão de caixa · 90 dias</b> <span class="wfia">IA · 3 cenários</span>
+              <svg width="100%" height="95" viewBox="0 0 460 95" preserveAspectRatio="none">
+                <line x1="0" y1="55" x2="460" y2="55" stroke="#ddd"/>
+                <polyline points="0,50 120,42 240,30 460,10" fill="none" stroke="#0a0" stroke-width="2" stroke-dasharray="5 4"/>
+                <polyline points="0,50 120,46 240,40 460,32" fill="none" stroke="#444" stroke-width="2.5"/>
+                <polyline points="0,50 120,52 240,58 460,72" fill="none" stroke="#c00" stroke-width="2" stroke-dasharray="5 4"/>
+                <text x="420" y="12" font-size="11" fill="#0a0">otimista</text><text x="420" y="30" font-size="11" fill="#444">base</text><text x="415" y="86" font-size="11" fill="#c00">pessimista</text>
+              </svg>
+            </div>
+            <div class="wfbox" style="padding:10px;height:150px"><b>Lucro por cliente</b>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:12.5px">
+                <div style="display:flex;gap:8px;align-items:center">Bloom<div class="wfgray" style="height:10px;width:65%;border-radius:3px"></div></div>
+                <div style="display:flex;gap:8px;align-items:center">Acme<div class="wfgray" style="height:10px;width:48%;border-radius:3px"></div></div>
+                <div style="display:flex;gap:8px;align-items:center">Nordic<div class="wfgray" style="height:10px;width:32%;border-radius:3px"></div></div>
+                <div style="display:flex;gap:8px;align-items:center">Lex<div style="height:10px;width:8%;border-radius:3px;background:#f5c9c9"></div><span style="color:#c00;font-size:11.5px">margem baixa</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="wfbox" style="overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.4fr .8fr .8fr .9fr 1fr;gap:6px;padding:7px 10px;border-bottom:1.5px solid #444;background:#f6f5f1" class="wfth">
+              <span>Contas a receber</span><span>Valor</span><span>Vence</span><span>Risco IA</span><span>Ação</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.4fr .8fr .8fr .9fr 1fr;gap:6px;padding:7px 10px;border-bottom:1px solid #ddd;align-items:center">
+              <b>Acme Co.</b><span>R$ 4,2k</span><span>amanhã</span><span class="wfbadge" style="color:#0a0;border-color:#0a0">baixo</span><span class="wfbtn">Lembrete</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.4fr .8fr .8fr .9fr 1fr;gap:6px;padding:7px 10px;align-items:center">
+              <b>Lex Advocacia</b><span>R$ 2,1k</span><span>−8 dias</span><span class="wfbadge" style="color:#c00;border-color:#c00">alto 72%</span><span class="wfbtn">Cobrança IA</span>
+            </div>
+          </div>
+          <div class="wfbox" style="padding:10px">
+            <b>Assinaturas recorrentes · Asaas</b>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px">
+              <div class="wfgray" style="border-radius:6px;padding:8px"><div class="wfth">MRR</div><div class="wfh">R$ 3,1k</div></div>
+              <div class="wfgray" style="border-radius:6px;padding:8px"><div class="wfth">Ativas</div><div class="wfh">6</div></div>
+              <div class="wfgray" style="border-radius:6px;padding:8px"><div class="wfth">Retry cartão</div><div class="wfh">1</div><div style="font-size:11.5px">2ª tentativa</div></div>
+              <div class="wfgray" style="border-radius:6px;padding:8px"><div class="wfth">Churn previsto</div><div class="wfh">1 <span class="wfia">IA</span></div><div style="font-size:11.5px">Lex · 68%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1e ASSISTENTE IA ============ -->
+    <div class="dv-opt" id="1e" data-screen-label="Wireframe Assistente IA">
+      <div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Assistente IA — chat em tela cheia com chips e ações</div>
+      <div class="dv-card wf" style="width:640px;display:flex">
+        <div style="width:60px;border-right:1.5px solid #444;background:#f6f5f1;padding:12px 0;display:flex;flex-direction:column;gap:14px;align-items:center;flex:none">
+          <div style="width:22px;height:22px;border:1.5px solid #444;border-radius:5px;background:#eceae4"></div>
+          <span>▣</span><span>◉</span><span>▤</span><span>$</span><span style="background:#222;color:#fff;border-radius:6px;padding:2px 7px">✦</span>
+        </div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:430px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="wfh">Assistente</span><span class="wfia">IA</span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="wfbadge">Quanto faturei este mês?</span><span class="wfbadge">Quem devo cobrar?</span><span class="wfbadge">Rascunhe follow-up p/ Nordic</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;justify-content:flex-end">
+            <div style="align-self:flex-end;background:#eceae4;border-radius:10px 10px 2px 10px;padding:8px 12px;max-width:75%">Quem devo cobrar esta semana?</div>
+            <div class="wfbox" style="align-self:flex-start;border-radius:10px 10px 10px 2px;padding:10px 12px;max-width:85%">
+              <span class="wfia">IA</span>
+              <p style="margin:6px 0">Duas cobranças: <b>Acme R$ 4,2k</b> (vence amanhã) e <b>Lex R$ 2,1k</b> (8 dias em atraso, risco alto).</p>
+              <div style="display:flex;gap:6px"><span class="wfbtn pri">Rascunhar cobranças</span><span class="wfbtn">Ver financeiro</span></div>
+            </div>
+          </div>
+          <div class="wfdash" style="padding:10px;justify-content:flex-start;gap:8px">Pergunte algo… <span style="margin-left:auto">➤</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1f MODAL RASCUNHO IA ============ -->
+    <div class="dv-opt" id="1f" data-screen-label="Wireframe Modal Rascunho IA">
+      <div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Componente-chave — modal "rascunho da IA" (usado em todo o sistema)</div>
+      <div class="dv-card wf" style="width:420px;background:#e7e5df;padding:26px;display:flex;justify-content:center">
+        <div class="wfbox" style="width:340px;padding:14px;box-shadow:4px 4px 0 rgba(0,0,0,.15)">
+          <div style="display:flex;align-items:center;gap:8px"><b style="font-size:15px">Cobrança — Acme Co.</b><span style="margin-left:auto;color:#999">✕</span></div>
+          <div class="wfia" style="margin:8px 0">IA · Gerado por IA — revise antes de enviar</div>
+          <div class="wfgray" style="border-radius:6px;padding:10px;font-size:13px">
+            "Oi João! Passando para lembrar da fatura #042 de R$ 4.200, que vence amanhã (09/07). Segue o link do boleto…"
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin:8px 0"><div class="wfline"></div><div class="wfline" style="width:80%"></div></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+            <span class="wfbtn">Editar</span><span class="wfbtn pri">Aprovar e enviar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="dv-next">Próximos passos: "aprovar tudo e ir para o hi-fi do Dashboard + CRM" · "mudar a estrutura de <a class="dv-oid" href="#1a">1a</a> (ex.: KPIs em 8 cards, gráficos em coluna única)" · "variações de layout do CRM <a class="dv-oid" href="#1b">1b</a>"</p>
+</section>
+
+</x-dc>
+</body>
+</html>

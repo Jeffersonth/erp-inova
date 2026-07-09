@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l \"ERP Pessoal para Freelancer-handoff.zip\")",
+      "Bash(npm -v)",
+      "Bash(npx --version)",
+      "Bash(git --version)",
+      "Bash(npx --yes create-next-app@14 . --ts --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm)",
+      "Bash(node -e \"console.log\\('next',require\\('./package.json'\\).dependencies.next\\)\")",
+      "Bash(npx --yes create-next-app@14 erp-inova --ts --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --skip-install --disable-git)",
+      "Bash(node -e \"console.log\\('tailwind',require\\('./node_modules/tailwindcss/package.json'\\).version\\)\")",
+      "Bash(npm install *)",
+      "Bash(npx --yes shadcn@latest add button card input badge dialog textarea label separator avatar --yes --overwrite)",
+      "Bash(npm run *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;background:#F4F7FB}
+a{color:#1D5BFF;text-decoration:none}a:hover{color:#00D1FF}
+*{box-sizing:border-box}
+input,textarea,button{font-family:'Inter',system-ui,sans-serif}
+button{white-space:nowrap}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blobA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,-35px) scale(1.12)}}
+@keyframes blobB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-45px,40px) scale(.9)}}
+@keyframes blobC{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,45px) scale(1.08)}}
+@media(max-width:760px){.login-brand{display:none}.login-card{grid-template-columns:1fr!important}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}" data-screen-label="ERP Pessoal">
+<!-- ======================= LOGIN ======================= -->
+<sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Login" style="min-height:100vh;background:#060F1F;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:28px;font-size:13px">
+  <div style="position:absolute;width:420px;height:420px;border-radius:50%;background:#1D5BFF;filter:blur(110px);opacity:.38;top:-90px;left:-60px;animation:blobA 14s ease-in-out infinite"></div>
+  <div style="position:absolute;width:360px;height:360px;border-radius:50%;background:#00D1FF;filter:blur(110px);opacity:.22;bottom:-80px;right:-40px;animation:blobB 17s ease-in-out infinite"></div>
+  <div style="position:absolute;width:280px;height:280px;border-radius:50%;background:#0E9F6E;filter:blur(110px);opacity:.18;bottom:10%;left:36%;animation:blobC 19s ease-in-out infinite"></div>
+
+  <div class="login-card" style="position:relative;display:grid;grid-template-columns:1.1fr 1fr;width:880px;max-width:96vw;background:rgba(244,247,251,.05);border:1px solid rgba(244,247,251,.14);border-radius:20px;backdrop-filter:blur(26px);box-shadow:0 40px 90px rgba(0,0,0,.55);overflow:hidden;animation:cardUp .6s ease both">
+
+    <div class="login-brand" style="padding:38px 36px;display:flex;flex-direction:column;gap:20px;background:linear-gradient(160deg,rgba(29,91,255,.16),rgba(0,209,255,.04));color:#F4F7FB;border-right:1px solid rgba(244,247,251,.1)">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1D5BFF,#00D1FF);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;box-shadow:0 8px 24px rgba(29,91,255,.45)">in</div>
+        <div><div style="font-weight:800;font-size:17px;letter-spacing:-.02em">ERP Pessoal</div><div style="font-size:11px;color:#8DA2C0">por inova labs</div></div>
+      </div>
+      <div style="font-size:15px;font-weight:600;line-height:1.45;max-width:300px">Seu negócio inteiro em um só lugar — <span style="color:#00D1FF">com IA em cada detalhe</span>.</div>
+      <div style="display:flex;flex-direction:column;gap:13px;margin-top:6px">
+        <div style="display:flex;gap:11px;align-items:flex-start"><span style="flex:none;width:28px;height:28px;border-radius:8px;background:rgba(0,209,255,.12);border:1px solid rgba(0,209,255,.3);display:flex;align-items:center;justify-content:center;color:#00D1FF;font-size:13px">✦</span><div style="font-size:12px;color:#B9C6DC;line-height:1.5"><b style="color:#F4F7FB">Assistente que conhece seus clientes</b><br>responde e rascunha com os seus dados</div></div>
+        <div style="display:flex;gap:11px;align-items:flex-start"><span style="flex:none;width:28px;height:28px;border-radius:8px;background:rgba(0,209,255,.12);border:1px solid rgba(0,209,255,.3);display:flex;align-items:center;justify-content:center;color:#00D1FF;font-size:13px">↗</span><div style="font-size:12px;color:#B9C6DC;line-height:1.5"><b style="color:#F4F7FB">Previsão de receita e risco de atraso</b><br>3 cenários de caixa para 90 dias</div></div>
+        <div style="display:flex;gap:11px;align-items:flex-start"><span style="flex:none;width:28px;height:28px;border-radius:8px;background:rgba(0,209,255,.12);border:1px solid rgba(0,209,255,.3);display:flex;align-items:center;justify-content:center;color:#00D1FF;font-size:13px">⟳</span><div style="font-size:12px;color:#B9C6DC;line-height:1.5"><b style="color:#F4F7FB">Cobranças automáticas via Asaas</b><br>lembretes, retry de cartão e MRR</div></div>
+        <div style="display:flex;gap:11px;align-items:flex-start"><span style="flex:none;width:28px;height:28px;border-radius:8px;background:rgba(0,209,255,.12);border:1px solid rgba(0,209,255,.3);display:flex;align-items:center;justify-content:center;color:#00D1FF;font-size:13px">✍</span><div style="font-size:12px;color:#B9C6DC;line-height:1.5"><b style="color:#F4F7FB">Contratos gerados por IA</b><br>preenchidos com os dados do projeto</div></div>
+      </div>
+    </div>
+
+    <div style="padding:38px 36px;display:flex;flex-direction:column;gap:14px;background:rgba(6,15,31,.4);color:#F4F7FB">
+      <div><div style="font-weight:800;font-size:19px;letter-spacing:-.01em">Bem-vindo de volta</div><div style="font-size:12px;color:#8DA2C0;margin-top:3px">Entre para continuar de onde parou.</div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <label style="font-size:11px;font-weight:600;color:#8DA2C0">E-mail</label>
+        <div style="display:flex;align-items:center;gap:9px;background:rgba(244,247,251,.06);border:1px solid rgba(244,247,251,.16);border-radius:10px;padding:10px 13px" style-focus="border-color:#1D5BFF">
+          <span style="color:#64748B;font-size:13px">✉</span>
+          <input type="email" placeholder="voce@exemplo.com.br" style="flex:1;background:transparent;border:none;outline:none;color:#F4F7FB;font-size:12.5px"/>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="font-size:11px;font-weight:600;color:#8DA2C0">Senha</label>
+        <div style="display:flex;align-items:center;gap:9px;background:rgba(244,247,251,.06);border:1px solid rgba(244,247,251,.16);border-radius:10px;padding:10px 13px">
+          <span style="color:#64748B;font-size:13px">✱</span>
+          <input type="{{ pwdType }}" placeholder="••••••••" style="flex:1;background:transparent;border:none;outline:none;color:#F4F7FB;font-size:12.5px;min-width:0"/>
+          <button onClick="{{ togglePwd }}" style="background:none;border:none;color:#00D1FF;font-size:11px;font-weight:600;cursor:pointer;padding:0">{{ pwdToggleLabel }}</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#8DA2C0">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" style="accent-color:#1D5BFF"/>Lembrar de mim</label>
+        <a href="#" style="margin-left:auto;color:#00D1FF;font-weight:600">Esqueci a senha</a>
+      </div>
+      <button onClick="{{ doLogin }}" style="margin-top:4px;background:linear-gradient(135deg,#1D5BFF,#00D1FF);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 12px 32px rgba(29,91,255,.45)" style-hover="box-shadow:0 14px 38px rgba(0,209,255,.5)">Entrar</button>
+      <div style="display:flex;align-items:center;gap:10px;color:#64748B;font-size:11px"><div style="flex:1;height:1px;background:rgba(244,247,251,.12)"></div>ou<div style="flex:1;height:1px;background:rgba(244,247,251,.12)"></div></div>
+      <button onClick="{{ doLogin }}" style="background:rgba(244,247,251,.06);border:1px solid rgba(244,247,251,.16);color:#F4F7FB;border-radius:10px;padding:11px;font-weight:600;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px" style-hover="border-color:rgba(244,247,251,.4)"><span style="font-weight:800;font-size:13px;background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853);-webkit-background-clip:text;background-clip:text;color:transparent">G</span>Continuar com Google</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showApp }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;display:flex;background:var(--bg,#F4F7FB);color:var(--text,#0B1220);font-size:13px;line-height:1.45">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav style="width:212px;flex:none;background:#0A1A33;color:#F4F7FB;display:flex;flex-direction:column;padding:16px 12px;gap:2px;position:sticky;top:0;height:100vh">
+    <div style="display:flex;align-items:baseline;gap:1px;padding:4px 10px 18px;font-weight:800;font-size:17px;letter-spacing:-.02em">
+      <span style="position:relative">in<span style="position:absolute;left:0;bottom:-3px;width:100%;height:3px;background:#00D1FF;border-radius:2px"></span></span><span>ova&nbsp;labs</span><span style="width:5px;height:5px;background:#00D1FF;border-radius:50%;margin-left:3px"></span>
+    </div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:.08em;color:#64748B;padding:0 10px 8px">ERP PESSOAL</div>
+    <button onClick="{{ nav.dashboard }}" style="{{ navStyles.dashboard }}" style-hover="background:rgba(244,247,251,.08)">▦&nbsp;&nbsp;Dashboard</button>
+    <button onClick="{{ nav.crm }}" style="{{ navStyles.crm }}" style-hover="background:rgba(244,247,251,.08)">◉&nbsp;&nbsp;CRM</button>
+    <button onClick="{{ nav.projetos }}" style="{{ navStyles.projetos }}" style-hover="background:rgba(244,247,251,.08)">▤&nbsp;&nbsp;Projetos</button>
+    <button onClick="{{ nav.financeiro }}" style="{{ navStyles.financeiro }}" style-hover="background:rgba(244,247,251,.08)">$&nbsp;&nbsp;Financeiro</button>
+    <button onClick="{{ nav.assistente }}" style="{{ navStyles.assistente }}" style-hover="background:rgba(244,247,251,.08)">✦&nbsp;&nbsp;Assistente&nbsp;IA</button>
+    <button onClick="{{ nav.anotacoes }}" style="{{ navStyles.anotacoes }}" style-hover="background:rgba(244,247,251,.08)">✎&nbsp;&nbsp;Anotações</button>
+    <button onClick="{{ nav.config }}" style="{{ navStyles.config }}" style-hover="background:rgba(244,247,251,.08)">⚙&nbsp;&nbsp;Configurações</button>
+    <button onClick="{{ nav.config }}" style="margin-top:auto;border:none;border-top:1px solid rgba(244,247,251,.12);border-radius:0;background:transparent;padding:12px 10px 4px;display:flex;align-items:center;gap:8px;cursor:pointer;color:inherit;text-align:left;width:100%">
+      <sc-if value="{{ hasAvatar }}" hint-placeholder-val="{{ false }}">
+        <div style="{{ avatarBgSm }}"></div>
+      </sc-if>
+      <sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}">
+        <div style="width:26px;height:26px;border-radius:50%;background:#1D5BFF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:none">RM</div>
+      </sc-if>
+      <div style="min-width:0"><div style="font-weight:600;font-size:12px">Rafael M.</div><div style="font-size:10.5px;color:#64748B">Dev freelancer</div></div>
+    </button>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main style="flex:1;min-width:0;padding:18px 22px 28px;display:flex;flex-direction:column;gap:12px">
+
+  <!-- ======================= DASHBOARD ======================= -->
+  <sc-if value="{{ showDash }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Dashboard" style="display:flex;flex-direction:column;gap:12px">
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Dashboard</h1>
+      <span style="font-size:11.5px;color:var(--mut,#64748B)">terça, 8 de julho</span>
+      <button style="margin-left:auto;background:#1D5BFF;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-weight:600;font-size:12px;cursor:pointer" style-hover="background:#1848CC">+ Novo</button>
+    </div>
+
+    <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--iabg,linear-gradient(90deg,rgba(0,209,255,.10),rgba(29,91,255,.06)));border:1px solid var(--ialine,rgba(0,209,255,.35));border-radius:12px;padding:11px 14px;display:flex;gap:12px;align-items:flex-start">
+      <span style="flex:none;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:3px 8px;margin-top:1px">IA</span>
+      <div style="min-width:0">
+        <div style="font-weight:600;font-size:12.5px">Bom dia, Rafael. Hoje pede atenção ao caixa.</div>
+        <div style="color:var(--mut,#64748B);font-size:12px;margin-top:2px">Você tem <b style="color:var(--text,#0B1220)">2 entregas</b> esta semana, <b style="color:var(--text,#0B1220)">R$ 6,3k a receber</b> em 7 dias e a proposta da Nordic AS está <b style="color:var(--text,#0B1220)">5 dias sem resposta</b> — sugeri um follow-up abaixo.</div>
+      </div>
+      <button onClick="{{ nav.assistente }}" style="margin-left:auto;flex:none;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#00D1FF">Abrir assistente</button>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-left:3px solid #C77700;border-radius:12px;padding:10px 14px;display:flex;gap:10px;align-items:center">
+      <span style="font-size:15px">⚠</span>
+      <div style="min-width:0"><b style="font-size:12.5px">Anomalia detectada:</b> <span style="color:var(--mut,#64748B);font-size:12px">gasto com "Ferramentas &amp; SaaS" está 3,2× acima da média (R$ 918 vs R$ 287/mês).</span></div>
+      <span style="flex:none;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:3px 8px;margin-left:auto">IA</span>
+      <button onClick="{{ drafts.anomalia }}" style="flex:none;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Revisar</button>
+    </div>
+    </sc-if>
+
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">RECEITA · JUL</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">R$ 18.240</div>
+        <div style="font-size:11px;font-weight:600;color:#0E9F6E;margin-top:2px">▲ 12% vs jun</div>
+      </button>
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">A RECEBER · 30D</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">R$ 9.400</div>
+        <div style="font-size:11px;font-weight:600;color:#0E9F6E;margin-top:2px">▲ 4% vs jun</div>
+      </button>
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">LEADS ATIVOS</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">7</div>
+        <div style="font-size:11px;font-weight:600;color:#E5484D;margin-top:2px">▼ 2 esfriando</div>
+      </button>
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">PROJETOS ATIVOS</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">5</div>
+        <div style="font-size:11px;font-weight:600;color:#0E9F6E;margin-top:2px">▲ 1 novo</div>
+      </button>
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">MRR · ASAAS</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">R$ 3.120</div>
+        <div style="font-size:11px;font-weight:600;color:#0E9F6E;margin-top:2px">▲ 8% vs jun</div>
+      </button>
+      <button style="text-align:left;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:10px 12px;cursor:pointer;color:inherit" style-hover="border-color:#1D5BFF">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">HORAS · SEMANA</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em;margin-top:2px">31h</div>
+        <div style="font-size:11px;font-weight:600;color:var(--mut,#64748B);margin-top:2px">= média</div>
+      </button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:8px"><b style="font-size:12.5px">Receita mensal</b>
+          <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;color:var(--iafg,#0083A8);font-weight:600">previsão IA ┅</span></sc-if>
+        </div>
+        <svg width="100%" height="110" viewBox="0 0 440 110" preserveAspectRatio="none" style="margin-top:8px">
+          <line x1="0" y1="90" x2="440" y2="90" stroke="var(--line,#DCE4F0)"/>
+          <line x1="0" y1="50" x2="440" y2="50" stroke="var(--line,#DCE4F0)" stroke-dasharray="2 4"/>
+          <path d="M0,78 L62,70 L124,74 L186,58 L248,46 L290,40" fill="none" stroke="#1D5BFF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M0,78 L62,70 L124,74 L186,58 L248,46 L290,40 L290,90 L0,90 Z" fill="rgba(29,91,255,.07)"/>
+          <path d="M290,40 L350,34 L440,22" fill="none" stroke="#00D1FF" stroke-width="2.5" stroke-dasharray="6 6" stroke-linecap="round"/>
+          <circle cx="290" cy="40" r="3.5" fill="#1D5BFF"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut,#64748B);margin-top:4px"><span>fev</span><span>mar</span><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago*</span><span>set*</span></div>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <b style="font-size:12.5px">Funil de leads</b>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:78px 1fr 34px;gap:8px;align-items:center;font-size:11.5px"><span style="color:var(--mut,#64748B)">Contato</span><div style="height:14px;border-radius:4px;background:rgba(29,91,255,.25);width:100%"></div><b>12</b></div>
+          <div style="display:grid;grid-template-columns:78px 1fr 34px;gap:8px;align-items:center;font-size:11.5px"><span style="color:var(--mut,#64748B)">Qualificado</span><div style="height:14px;border-radius:4px;background:rgba(29,91,255,.45);width:66%"></div><b>8</b></div>
+          <div style="display:grid;grid-template-columns:78px 1fr 34px;gap:8px;align-items:center;font-size:11.5px"><span style="color:var(--mut,#64748B)">Proposta</span><div style="height:14px;border-radius:4px;background:rgba(29,91,255,.7);width:33%"></div><b>4</b></div>
+          <div style="display:grid;grid-template-columns:78px 1fr 34px;gap:8px;align-items:center;font-size:11.5px"><span style="color:var(--mut,#64748B)">Fechado</span><div style="height:14px;border-radius:4px;background:#1D5BFF;width:17%"></div><b>2</b></div>
+        </div>
+        <div style="font-size:11px;color:var(--mut,#64748B);margin-top:10px">Conversão contato → fechado: <b style="color:var(--text,#0B1220)">17%</b></div>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <b style="font-size:12.5px">Projetos concluídos</b>
+        <div style="display:flex;align-items:flex-end;gap:14px;height:84px;margin-top:10px;padding:0 4px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:center"><div style="width:100%;height:34%;background:rgba(29,91,255,.3);border-radius:4px 4px 0 0;align-self:end;margin-top:auto"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:center;height:100%"><div style="width:100%;height:58%;background:rgba(29,91,255,.3);border-radius:4px 4px 0 0;margin-top:auto"></div></div>
+          <div style="flex:1;height:100%;display:flex"><div style="width:100%;height:42%;background:rgba(29,91,255,.3);border-radius:4px 4px 0 0;margin-top:auto"></div></div>
+          <div style="flex:1;height:100%;display:flex"><div style="width:100%;height:75%;background:rgba(29,91,255,.3);border-radius:4px 4px 0 0;margin-top:auto"></div></div>
+          <div style="flex:1;height:100%;display:flex"><div style="width:100%;height:50%;background:rgba(29,91,255,.3);border-radius:4px 4px 0 0;margin-top:auto"></div></div>
+          <div style="flex:1;height:100%;display:flex"><div style="width:100%;height:66%;background:#1D5BFF;border-radius:4px 4px 0 0;margin-top:auto"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut,#64748B);margin-top:4px;padding:0 4px"><span>fev</span><span>mar</span><span>abr</span><span>mai</span><span>jun</span><span>jul</span></div>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <b style="font-size:12.5px">Fluxo de caixa · 30 dias</b>
+        <svg width="100%" height="84" viewBox="0 0 440 84" preserveAspectRatio="none" style="margin-top:10px">
+          <line x1="0" y1="42" x2="440" y2="42" stroke="var(--line,#DCE4F0)"/>
+          <path d="M0,38 L55,20 L110,48 L165,30 L220,56 L275,26 L330,50 L385,34 L440,18" fill="none" stroke="#0E9F6E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="440" cy="18" r="3.5" fill="#0E9F6E"/>
+        </svg>
+        <div style="font-size:11px;color:var(--mut,#64748B);margin-top:6px">Saldo projetado 08/ago: <b style="color:#0E9F6E">+ R$ 11.980</b></div>
+      </div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+      <div style="display:flex;align-items:center;gap:8px"><b style="font-size:12.5px">Atenção necessária</b><span style="font-size:11px;color:var(--mut,#64748B)">priorizado por impacto financeiro</span>
+        <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">IA</span></sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line,#DCE4F0)">
+          <span style="flex:none;font-size:11px;font-weight:700;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:6px;padding:3px 8px">R$ 4.200</span>
+          <span style="font-size:12.5px">Fatura <b>#042 · Acme Co.</b> vence amanhã</span>
+          <button onClick="{{ drafts.cobrancaAcme }}" style="margin-left:auto;flex:none;background:#1D5BFF;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="background:#1848CC">Cobrar</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line,#DCE4F0)">
+          <span style="flex:none;font-size:11px;font-weight:700;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:6px;padding:3px 8px">US$ 3.500</span>
+          <span style="font-size:12.5px">Proposta <b>Nordic AS</b> sem resposta há 5 dias</span>
+          <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">IA</span></sc-if>
+          <button onClick="{{ drafts.followupNordic }}" style="margin-left:auto;flex:none;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Follow-up</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0 2px;border-top:1px solid var(--line,#DCE4F0)">
+          <span style="flex:none;font-size:11px;font-weight:700;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:6px;padding:3px 8px">R$ 1.500</span>
+          <span style="font-size:12.5px">Projeto <b>Landing X</b> com 78% de risco de atraso (entrega 11/07)</span>
+          <button onClick="{{ nav.projetos }}" style="margin-left:auto;flex:none;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Ver projeto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======================= CRM ======================= -->
+  <sc-if value="{{ showCrm }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="CRM" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">CRM · Contatos</h1>
+      <input placeholder="Buscar contato…" style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:8px;padding:6px 12px;font-size:12px;width:220px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/>
+      <button style="margin-left:auto;background:#1D5BFF;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-weight:600;font-size:12px;cursor:pointer" style-hover="background:#1848CC">+ Novo contato</button>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;background:var(--soft,#F4F7FB);border-bottom:1px solid var(--line,#DCE4F0);font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">
+        <span>NOME</span><span>PAÍS</span><span>RAMO</span><span>STATUS</span><span>SCORE IA</span><span>ÚLT. INTERAÇÃO</span><span>PRÓXIMA AÇÃO · IA</span><span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Acme Co.</b><div style="font-size:11px;color:var(--mut,#64748B)">João Prado · joao@acme.com.br</div></div>
+        <span style="font-size:12px">🇧🇷 BR</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">E-commerce</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:#0E9F6E">● Cliente</span>
+        <b style="color:#0E9F6E;font-size:13px">87</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">ontem</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Oferecer plano de manutenção mensal</span>
+        <button onClick="{{ drafts.upsellAcme }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Nordic AS</b><div style="font-size:11px;color:var(--mut,#64748B)">Ingrid Berg · ingrid@nordic.no</div></div>
+        <span style="font-size:12px">🇳🇴 NO</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">SaaS</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:#1D5BFF">● Proposta</span>
+        <b style="color:#C77700;font-size:13px">62</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">5 dias</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Follow-up da proposta de US$ 3.500</span>
+        <button onClick="{{ drafts.followupNordic }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Bloom GmbH</b><div style="font-size:11px;color:var(--mut,#64748B)">Ana Weiss · ana@bloom.de</div></div>
+        <span style="font-size:12px">🇩🇪 DE</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Saúde</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:#0E9F6E">● Cliente</span>
+        <b style="color:#0E9F6E;font-size:13px">91</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">hoje</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Agendar review trimestral (€ 4k em aberto)</span>
+        <button onClick="{{ drafts.reviewBloom }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Lex Advocacia</b><div style="font-size:11px;color:var(--mut,#64748B)">Dra. Camila Reis · camila@lex.adv.br</div></div>
+        <span style="font-size:12px">🇧🇷 BR</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Jurídico</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:var(--mut,#64748B)">● Lead frio</span>
+        <b style="color:#E5484D;font-size:13px">34</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">12 dias</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Reengajar com o case do painel Bloom</span>
+        <button onClick="{{ drafts.reengajarLex }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Hudson Media</b><div style="font-size:11px;color:var(--mut,#64748B)">Mike Ross · mike@hudson.io</div></div>
+        <span style="font-size:12px">🇺🇸 US</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Mídia</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:#1D5BFF">● Negociação</span>
+        <b style="color:#0E9F6E;font-size:13px">78</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">2 dias</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Enviar estimativa do retainer (US$ 1,2k/mês)</span>
+        <button onClick="{{ drafts.retainerHudson }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.7fr .6fr .9fr .9fr .7fr .9fr 1.6fr .8fr;gap:8px;padding:9px 14px;align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div style="min-width:0"><b style="font-size:12.5px">Vela Fitness</b><div style="font-size:11px;color:var(--mut,#64748B)">Paula Dias · paula@vela.fit</div></div>
+        <span style="font-size:12px">🇧🇷 BR</span>
+        <span><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Fitness</span></span>
+        <span style="font-size:11.5px;font-weight:600;color:#1D5BFF">● Qualificado</span>
+        <b style="color:#C77700;font-size:13px">55</b>
+        <span style="font-size:11.5px;color:var(--mut,#64748B)">4 dias</span>
+        <span style="font-size:11.5px;color:var(--iafg,#0083A8)">Convidar para call de descoberta</span>
+        <button onClick="{{ drafts.callVela }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Rascunhar</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px">
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <b style="font-size:12.5px">Clientes pelo mundo</b>
+        <svg width="100%" height="170" viewBox="0 0 520 170" style="margin-top:6px">
+          <g fill="var(--soft,#E9EFF8)" stroke="var(--line,#DCE4F0)" stroke-width="1">
+            <path d="M60,30 Q95,18 130,30 Q150,40 142,62 Q128,78 100,74 Q70,70 58,52 Q52,38 60,30 Z"/>
+            <path d="M128,86 Q150,80 162,96 Q172,118 158,140 Q144,156 132,144 Q118,120 122,100 Z"/>
+            <path d="M228,42 Q252,28 284,34 Q304,40 298,58 Q286,72 258,70 Q234,66 228,54 Z"/>
+            <path d="M240,84 Q268,76 288,92 Q300,112 288,132 Q270,148 252,136 Q236,116 240,96 Z"/>
+            <path d="M312,36 Q360,22 412,34 Q444,44 436,70 Q420,92 376,88 Q332,82 316,60 Q306,46 312,36 Z"/>
+            <path d="M420,110 Q446,102 462,116 Q470,132 456,142 Q438,150 426,138 Q416,124 420,110 Z"/>
+          </g>
+          <circle cx="146" cy="118" r="11" fill="rgba(29,91,255,.2)"/><circle cx="146" cy="118" r="5.5" fill="#1D5BFF"/>
+          <circle cx="92" cy="52" r="8" fill="rgba(29,91,255,.2)"/><circle cx="92" cy="52" r="4" fill="#1D5BFF"/>
+          <circle cx="262" cy="48" r="7" fill="rgba(0,209,255,.25)"/><circle cx="262" cy="48" r="3.5" fill="#00D1FF"/>
+          <circle cx="278" cy="56" r="5.5" fill="rgba(0,209,255,.25)"/><circle cx="278" cy="56" r="3" fill="#00D1FF"/>
+          <text x="146" y="146" text-anchor="middle" font-size="10" font-weight="600" fill="var(--mut,#64748B)">BR · 3</text>
+          <text x="92" y="34" text-anchor="middle" font-size="10" font-weight="600" fill="var(--mut,#64748B)">US · 1</text>
+          <text x="270" y="30" text-anchor="middle" font-size="10" font-weight="600" fill="var(--mut,#64748B)">EU · 2</text>
+        </svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column">
+        <b style="font-size:12.5px">Distribuição internacional</b>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+          <div style="display:grid;grid-template-columns:44px 1fr 40px;gap:8px;align-items:center;font-size:11.5px"><span>🇧🇷 BR</span><div style="height:10px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:50%;background:#1D5BFF;border-radius:99px"></div></div><b>50%</b></div>
+          <div style="display:grid;grid-template-columns:44px 1fr 40px;gap:8px;align-items:center;font-size:11.5px"><span>🇪🇺 EU</span><div style="height:10px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:33%;background:#00D1FF;border-radius:99px"></div></div><b>33%</b></div>
+          <div style="display:grid;grid-template-columns:44px 1fr 40px;gap:8px;align-items:center;font-size:11.5px"><span>🇺🇸 US</span><div style="height:10px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:17%;background:#0A1A33;border-radius:99px"></div></div><b>17%</b></div>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut,#64748B);margin-top:12px;display:flex;gap:14px"><span>Receita BR: <b style="color:var(--text,#0B1220)">R$ 12,1k</b></span><span>Exterior: <b style="color:var(--text,#0B1220)">R$ 9,2k eq.</b></span></div>
+        <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:auto;padding-top:12px;border-top:1px dashed var(--line,#DCE4F0);display:flex;gap:8px;align-items:flex-start">
+          <span style="flex:none;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px;margin-top:1px">IA</span>
+          <span style="font-size:11.5px;color:var(--mut,#64748B)">Clientes no exterior pagam <b style="color:var(--text,#0B1220)">2,3× mais por hora</b>. Com 1 cliente EU a mais, sua receita cresce ~28% sem aumentar horas.</span>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======================= PROJETOS ======================= -->
+  <sc-if value="{{ showProjetos }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Projetos" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Projetos</h1>
+      <span style="font-size:11.5px;color:var(--mut,#64748B)">arraste os cards entre as colunas</span>
+      <button style="margin-left:auto;background:#1D5BFF;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-weight:600;font-size:12px;cursor:pointer" style-hover="background:#1848CC">+ Novo projeto</button>
+    </div>
+
+    <div style="overflow-x:auto;padding-bottom:4px">
+    <div style="display:grid;grid-template-columns:repeat(7,minmax(148px,1fr));gap:8px;align-items:start;min-width:1100px">
+      <sc-for list="{{ kanbanCols }}" as="col" hint-placeholder-count="7">
+        <div onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}" style="background:var(--soft,#EDF2F9);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:280px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--mut,#64748B);padding:2px 2px 0;text-transform:uppercase"><span>{{ col.name }}</span><span style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:0 6px;font-size:9.5px">{{ col.count }}</span></div>
+          <sc-for list="{{ col.cards }}" as="card" hint-placeholder-count="1">
+            <div draggable="{{ true }}" onDragStart="{{ card.onDragStart }}" style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:9px;padding:9px 10px;cursor:grab;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(10,26,51,.05)" style-hover="border-color:#1D5BFF">
+              <b style="font-size:12px;line-height:1.3">{{ card.title }}</b>
+              <sc-if value="{{ card.showProgress }}" hint-placeholder-val="{{ false }}">
+                <div style="height:5px;background:var(--soft,#EDF2F9);border-radius:3px;overflow:hidden"><div style="{{ card.progressStyle }}"></div></div>
+              </sc-if>
+              <div style="font-size:10.5px;color:var(--mut,#64748B)">{{ card.valor }} · {{ card.prazo }}</div>
+              <sc-if value="{{ card.hasEtapa }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10px;color:var(--mut,#64748B);border-top:1px dashed var(--line,#DCE4F0);padding-top:5px">{{ card.etapa }}</div>
+              </sc-if>
+              <sc-if value="{{ card.hasRisk }}" hint-placeholder-val="{{ false }}">
+                <span style="align-self:flex-start;white-space:nowrap;font-size:9.5px;font-weight:700;color:#E5484D;border:1px solid rgba(229,72,77,.4);background:rgba(229,72,77,.08);border-radius:99px;padding:2px 7px">{{ card.riskLabel }}</span>
+              </sc-if>
+              <sc-if value="{{ card.iaTag }}" hint-placeholder-val="{{ false }}">
+                <span style="align-self:flex-start;white-space:nowrap;font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">IA rascunhou</span>
+              </sc-if>
+              <sc-if value="{{ card.doneTag }}" hint-placeholder-val="{{ false }}">
+                <span style="align-self:flex-start;font-size:9.5px;font-weight:700;color:#0E9F6E;border:1px solid rgba(14,159,110,.35);background:rgba(14,159,110,.08);border-radius:99px;padding:2px 7px">✓ entregue e pago</span>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1.5px dashed var(--line,#DCE4F0);border-radius:8px;min-height:52px;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--mut,#64748B)">solte aqui</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+      <div style="display:flex;align-items:center;gap:8px"><b style="font-size:12.5px">Checklist inteligente — Landing X</b>
+        <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:var(--iafg,#0083A8);font-weight:600">a IA marca itens detectados em e-mails e commits</span></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-top:10px;font-size:12.5px">
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:#0E9F6E;font-weight:700">☑</span><span style="text-decoration:line-through;color:var(--mut,#64748B)">Briefing aprovado</span><sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:10px;color:var(--iafg,#0083A8)">IA · e-mail 28/06</span></sc-if></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:#0E9F6E;font-weight:700">☑</span><span style="text-decoration:line-through;color:var(--mut,#64748B)">Wireframe enviado</span></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:#0E9F6E;font-weight:700">☑</span><span style="text-decoration:line-through;color:var(--mut,#64748B)">Ambiente de staging no ar</span><sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:10px;color:var(--iafg,#0083A8)">IA · deploy 04/07</span></sc-if></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:var(--mut,#64748B)">☐</span><span>Copy revisada pelo cliente</span></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:var(--mut,#64748B)">☐</span><span>Integração do formulário</span></div>
+        <div style="display:flex;gap:8px;align-items:center"><span style="color:var(--mut,#64748B)">☐</span><span>Deploy em produção</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px">
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 14px 0"><b style="font-size:12.5px">Prazos por etapa — Landing X</b>
+          <button onClick="{{ drafts.prazosIA }}" style="margin-left:auto;background:transparent;border:1px solid var(--ialine,rgba(0,209,255,.45));color:var(--iafg,#0083A8);border-radius:7px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer" style-hover="background:var(--iafill,rgba(0,209,255,.10))">✦ Distribuir prazos (IA)</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line,#DCE4F0);font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B);margin-top:8px">
+          <span>ETAPA</span><span>PRAZO</span><span>STATUS</span><span>DURAÇÃO VS MÉDIA</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:7px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center;font-size:12px">
+          <span>Briefing</span><span style="color:var(--mut,#64748B)">28/06</span><span style="color:#0E9F6E;font-weight:600">✓ concluída</span><span style="color:var(--mut,#64748B)">2d · média 3d</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:7px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center;font-size:12px">
+          <span>Design</span><span style="color:var(--mut,#64748B)">02/07</span><span style="color:#0E9F6E;font-weight:600">✓ concluída</span><span style="color:var(--mut,#64748B)">3d · média 4d</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:7px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center;font-size:12px">
+          <span><b>Desenvolvimento</b></span><span style="color:#C77700;font-weight:600">09/07</span><span style="color:#1D5BFF;font-weight:600">● em andamento</span><span style="color:#E5484D;font-weight:600">7d · média 5d ⚠</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:7px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center;font-size:12px">
+          <span>Revisão do cliente</span><span style="color:var(--mut,#64748B)">10/07</span><span style="color:var(--mut,#64748B)">pendente</span><span style="color:var(--mut,#64748B)">— · média 2d</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.3fr .8fr 1fr 1.1fr;gap:8px;padding:7px 14px 11px;align-items:center;font-size:12px">
+          <span>Deploy</span><span style="color:var(--mut,#64748B)">11/07</span><span style="color:var(--mut,#64748B)">pendente</span><span style="color:var(--mut,#64748B)">— · média 1d</span>
+        </div>
+      </div>
+
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px"><b style="font-size:12.5px">Arquivos do projeto</b>
+          <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;color:var(--iafg,#0083A8);font-weight:600">tipos classificados pela IA</span></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line,#DCE4F0);font-size:12px">
+          <span style="flex:none;width:26px;height:26px;border-radius:7px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-size:11px">📄</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Contrato_LandingX.pdf</span>
+          <span style="margin-left:auto;flex:none;font-size:9.5px;font-weight:700;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">Contrato</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line,#DCE4F0);font-size:12px">
+          <span style="flex:none;width:26px;height:26px;border-radius:7px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-size:11px">🧾</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">NF-041_entrada.pdf</span>
+          <span style="margin-left:auto;flex:none;font-size:9.5px;font-weight:700;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">Nota fiscal</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line,#DCE4F0);font-size:12px">
+          <span style="flex:none;width:26px;height:26px;border-radius:7px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-size:11px">📝</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Briefing-cliente.docx</span>
+          <span style="margin-left:auto;flex:none;font-size:9.5px;font-weight:700;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">Documento</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line,#DCE4F0);font-size:12px">
+          <span style="flex:none;width:26px;height:26px;border-radius:7px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-size:11px">🖼</span>
+          <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">logos-e-fotos-cliente.zip</span>
+          <span style="margin-left:auto;flex:none;font-size:9.5px;font-weight:700;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">Imagens</span>
+        </div>
+        <button onClick="{{ drafts.contrato }}" style="margin-top:auto;background:#1D5BFF;color:#fff;border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer" style-hover="background:#1848CC">✦ Gerar contrato (IA)</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======================= FINANCEIRO ======================= -->
+  <sc-if value="{{ showFinanceiro }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Financeiro" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Financeiro</h1>
+      <span style="font-size:10.5px;font-weight:600;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:3px 10px;color:var(--mut,#64748B)">R$ · US$ · €</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px">
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:12.5px">Previsão de caixa · 90 dias</b>
+          <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:2px 7px">IA · 3 CENÁRIOS</span></sc-if>
+          <span style="margin-left:auto;display:flex;gap:12px;font-size:10.5px;color:var(--mut,#64748B)"><span style="color:#0E9F6E">┅ otimista</span><span style="color:#1D5BFF">— base</span><span style="color:#E5484D">┅ pessimista</span></span>
+        </div>
+        <svg width="100%" height="130" viewBox="0 0 480 130" preserveAspectRatio="none" style="margin-top:8px">
+          <line x1="0" y1="65" x2="480" y2="65" stroke="var(--line,#DCE4F0)" stroke-dasharray="2 4"/>
+          <line x1="0" y1="110" x2="480" y2="110" stroke="var(--line,#DCE4F0)"/>
+          <path d="M0,70 L120,58 L240,40 L360,26 L480,12" fill="none" stroke="#0E9F6E" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/>
+          <path d="M0,70 L120,64 L240,54 L360,48 L480,40" fill="none" stroke="#1D5BFF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M0,70 L120,64 L240,54 L360,48 L480,40 L480,110 L0,110 Z" fill="rgba(29,91,255,.06)"/>
+          <path d="M0,70 L120,74 L240,82 L360,92 L480,104" fill="none" stroke="#E5484D" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut,#64748B);margin-top:4px"><span>hoje</span><span>30d</span><span>60d</span><span>90d</span></div>
+        <div style="font-size:11px;color:var(--mut,#64748B);margin-top:6px">Cenário base em 90 dias: <b style="color:var(--text,#0B1220)">R$ 24.700</b> · pessimista não fica negativo</div>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+        <b style="font-size:12.5px">Lucro por cliente · últimos 6 meses</b>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+          <div style="display:grid;grid-template-columns:64px 1fr 58px;gap:8px;align-items:center;font-size:11.5px"><span>Bloom</span><div style="height:12px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:82%;background:#1D5BFF;border-radius:99px"></div></div><b>R$ 14,2k</b></div>
+          <div style="display:grid;grid-template-columns:64px 1fr 58px;gap:8px;align-items:center;font-size:11.5px"><span>Acme</span><div style="height:12px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:60%;background:#1D5BFF;border-radius:99px"></div></div><b>R$ 10,4k</b></div>
+          <div style="display:grid;grid-template-columns:64px 1fr 58px;gap:8px;align-items:center;font-size:11.5px"><span>Nordic</span><div style="height:12px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:38%;background:#00D1FF;border-radius:99px"></div></div><b>R$ 6,6k</b></div>
+          <div style="display:grid;grid-template-columns:64px 1fr 58px;gap:8px;align-items:center;font-size:11.5px"><span>Hudson</span><div style="height:12px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:22%;background:#00D1FF;border-radius:99px"></div></div><b>R$ 3,8k</b></div>
+          <div style="display:grid;grid-template-columns:64px 1fr 58px;gap:8px;align-items:center;font-size:11.5px"><span>Lex</span><div style="height:12px;border-radius:99px;background:var(--soft,#F4F7FB);overflow:hidden"><div style="height:100%;width:6%;background:#E5484D;border-radius:99px"></div></div><b style="color:#E5484D">R$ 0,9k</b></div>
+        </div>
+        <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line,#DCE4F0);font-size:11.5px;color:var(--mut,#64748B)"><b style="color:var(--iafg,#0083A8)">IA:</b> Lex consome 11% das suas horas e gera 2% do lucro — considere reajuste ou encerramento.</div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1.6fr .8fr .8fr .9fr 1fr;gap:8px;padding:9px 14px;background:var(--soft,#F4F7FB);border-bottom:1px solid var(--line,#DCE4F0);font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">
+        <span>CONTAS A RECEBER</span><span>VALOR</span><span>VENCIMENTO</span><span>RISCO · IA</span><span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1.6fr .8fr .8fr .9fr 1fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div><b style="font-size:12.5px">Acme Co.</b><div style="font-size:11px;color:var(--mut,#64748B)">fatura #042 · e-commerce</div></div>
+        <b style="font-size:12.5px">R$ 4.200</b><span style="font-size:11.5px;color:#C77700;font-weight:600">amanhã</span>
+        <span><span style="font-size:10.5px;font-weight:700;color:#0E9F6E;border:1px solid rgba(14,159,110,.35);background:rgba(14,159,110,.08);border-radius:99px;padding:2px 9px">baixo · 8%</span></span>
+        <button onClick="{{ drafts.cobrancaAcme }}" style="justify-self:end;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Enviar lembrete</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.6fr .8fr .8fr .9fr 1fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div><b style="font-size:12.5px">Lex Advocacia</b><div style="font-size:11px;color:var(--mut,#64748B)">fatura #038 · jurídico</div></div>
+        <b style="font-size:12.5px">R$ 2.100</b><span style="font-size:11.5px;color:#E5484D;font-weight:600">8 dias atrás</span>
+        <span><span style="font-size:10.5px;font-weight:700;color:#E5484D;border:1px solid rgba(229,72,77,.4);background:rgba(229,72,77,.08);border-radius:99px;padding:2px 9px">alto · 72%</span></span>
+        <button onClick="{{ drafts.cobrancaLex }}" style="justify-self:end;background:#1D5BFF;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="background:#1848CC">Cobrança IA</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.6fr .8fr .8fr .9fr 1fr;gap:8px;padding:9px 14px;align-items:center" style-hover="background:var(--soft,#F4F7FB)">
+        <div><b style="font-size:12.5px">Bloom GmbH</b><div style="font-size:11px;color:var(--mut,#64748B)">sprint 7 · saúde</div></div>
+        <b style="font-size:12.5px">€ 4.000</b><span style="font-size:11.5px;color:var(--mut,#64748B)">30/07</span>
+        <span><span style="font-size:10.5px;font-weight:700;color:#0E9F6E;border:1px solid rgba(14,159,110,.35);background:rgba(14,159,110,.08);border-radius:99px;padding:2px 9px">baixo · 3%</span></span>
+        <span style="justify-self:end;font-size:11px;color:var(--mut,#64748B)">em dia</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 14px">
+      <div style="display:flex;align-items:center;gap:8px"><b style="font-size:12.5px">Assinaturas recorrentes</b><span style="font-size:10.5px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 9px;color:var(--mut,#64748B)">integrado ao Asaas</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+        <div style="background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">MRR</div>
+          <div style="font-size:17px;font-weight:800;margin-top:2px">R$ 3.120</div>
+          <div style="font-size:11px;font-weight:600;color:#0E9F6E;margin-top:2px">▲ 8% vs jun</div>
+        </div>
+        <div style="background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">ASSINATURAS ATIVAS</div>
+          <div style="font-size:17px;font-weight:800;margin-top:2px">6</div>
+          <div style="font-size:11px;color:var(--mut,#64748B);margin-top:2px">manutenção + suporte</div>
+        </div>
+        <div style="background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">RETRY DE CARTÃO</div>
+          <div style="font-size:17px;font-weight:800;margin-top:2px;color:#C77700">1</div>
+          <div style="font-size:11px;color:var(--mut,#64748B);margin-top:2px">Vela Fitness · 2ª tentativa amanhã</div>
+        </div>
+        <div style="background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 12px">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">CHURN PREVISTO</span>
+            <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}"><span style="font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:1px 6px">IA</span></sc-if>
+          </div>
+          <div style="font-size:17px;font-weight:800;margin-top:2px;color:#E5484D">1</div>
+          <div style="font-size:11px;color:var(--mut,#64748B);margin-top:2px">Lex · 68% de chance em 60d</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======================= ASSISTENTE IA ======================= -->
+  <sc-if value="{{ showAssistente }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Assistente IA" style="display:flex;flex-direction:column;gap:12px;height:calc(100vh - 50px)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Assistente</h1>
+      <span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:3px 8px">IA</span>
+      <span style="font-size:11.5px;color:var(--mut,#64748B)">responde com seus dados · toda ação vira rascunho para você aprovar</span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="4">
+        <button onClick="{{ chip.ask }}" style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:99px;padding:6px 13px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="border-color:#00D1FF">{{ chip.label }}</button>
+      </sc-for>
+    </div>
+    <div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="1">
+        <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-end;max-width:70%;background:#1D5BFF;color:#fff;border-radius:12px 12px 3px 12px;padding:9px 13px;font-size:12.5px;line-height:1.5">{{ m.text }}</div>
+        </sc-if>
+        <sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+          <div style="align-self:flex-start;max-width:80%;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:12px 12px 12px 3px;padding:10px 13px">
+            <span style="font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:1px 6px">IA</span>
+            <div style="font-size:12.5px;line-height:1.55;white-space:pre-wrap;margin-top:6px">{{ m.text }}</div>
+            <sc-if value="{{ m.hasActions }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">
+                <sc-for list="{{ m.actions }}" as="a" hint-placeholder-count="1">
+                  <button onClick="{{ a.run }}" style="background:#1D5BFF;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="background:#1848CC">{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:8px">
+      <input value="{{ chatInput }}" onChange="{{ onChatInput }}" onKeyDown="{{ onChatKey }}" placeholder="Pergunte sobre clientes, projetos ou finanças…" style="flex:1;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 14px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/>
+      <button onClick="{{ doSendFree }}" style="background:#1D5BFF;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="background:#1848CC">Enviar ➤</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======================= ANOTAÇÕES ======================= -->
+  <sc-if value="{{ showAnotacoes }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Anotações" style="display:flex;flex-direction:column;gap:12px;max-width:840px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Anotações</h1>
+      <span style="font-size:11.5px;color:var(--mut,#64748B)">rápidas de escrever, impossíveis de esquecer</span>
+    </div>
+
+    <sc-if value="{{ ia }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--iabg,linear-gradient(90deg,rgba(0,209,255,.10),rgba(29,91,255,.06)));border:1px solid var(--ialine,rgba(0,209,255,.35));border-radius:12px;padding:11px 14px;display:flex;gap:12px;align-items:flex-start">
+      <span style="flex:none;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:3px 8px;margin-top:1px">IA</span>
+      <div style="font-size:12px;color:var(--mut,#64748B)">Escreva em linguagem natural — <b style="color:var(--text,#0B1220)">"cobrar Maria amanhã"</b>, <b style="color:var(--text,#0B1220)">"enviar orçamento sexta"</b>, <b style="color:var(--text,#0B1220)">"renovar domínio 15/07"</b> — e eu detecto a data, crio o prazo e adiciono à sua agenda. Sem data, vira uma ideia.</div>
+    </div>
+    </sc-if>
+
+    <div style="display:flex;gap:8px">
+      <input value="{{ noteInput }}" onChange="{{ onNoteInput }}" onKeyDown="{{ onNoteKey }}" placeholder="O que você precisa lembrar?" style="flex:1;background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 14px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/>
+      <input type="date" value="{{ noteDate }}" onChange="{{ onNoteDate }}" style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--mut,#64748B);outline:none" style-focus="border-color:#1D5BFF"/>
+      <button onClick="{{ doAddNote }}" style="background:#1D5BFF;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:12.5px;font-weight:700;cursor:pointer" style-hover="background:#1848CC">+ Anotar</button>
+    </div>
+
+    <sc-for list="{{ secs }}" as="sec" hint-placeholder-count="3">
+      <sc-if value="{{ sec.show }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--mut,#64748B);margin:2px 0 6px">{{ sec.title }} · {{ sec.count }}</div>
+          <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;overflow:hidden">
+            <sc-for list="{{ sec.items }}" as="n" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line,#DCE4F0)" style-hover="background:var(--soft,#F4F7FB)">
+                <button onClick="{{ n.toggle }}" style="{{ n.checkStyle }}">{{ n.checkGlyph }}</button>
+                <span style="{{ n.textStyle }}">{{ n.text }}</span>
+                <sc-if value="{{ n.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="flex:none;font-size:10px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px;color:var(--mut,#64748B)">{{ n.tag }}</span>
+                </sc-if>
+                <span style="margin-left:auto"></span>
+                <sc-if value="{{ n.detected }}" hint-placeholder-val="{{ false }}">
+                  <span style="flex:none;font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:1px 6px;white-space:nowrap">IA · prazo</span>
+                </sc-if>
+                <sc-if value="{{ n.hasDue }}" hint-placeholder-val="{{ false }}">
+                  <span style="{{ n.chipStyle }}">{{ n.dueLabel }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <!-- ======================= CONFIGURAÇÕES ======================= -->
+  <sc-if value="{{ showConfig }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Configurações" style="display:flex;flex-direction:column;gap:12px;max-width:840px">
+    <h1 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em">Configurações</h1>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:16px 18px">
+      <b style="font-size:12.5px">Usuário administrador</b>
+      <div style="display:flex;gap:20px;align-items:flex-start;margin-top:14px">
+        <input type="file" accept="image/*" ref="{{ fileRef }}" onChange="{{ onAvatarChange }}" style="display:none"/>
+        <button onClick="{{ avatarClick }}" title="Alterar foto" style="position:relative;flex:none;width:84px;height:84px;border-radius:50%;border:2px solid var(--line,#DCE4F0);background:var(--soft,#F4F7FB);cursor:pointer;padding:0;overflow:visible" style-hover="border-color:#1D5BFF">
+          <sc-if value="{{ hasAvatar }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ avatarBgLg }}"></div>
+          </sc-if>
+          <sc-if value="{{ noAvatar }}" hint-placeholder-val="{{ true }}">
+            <div style="width:100%;height:100%;border-radius:50%;background:#1D5BFF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px">RM</div>
+          </sc-if>
+          <span style="position:absolute;bottom:-2px;right:-2px;width:26px;height:26px;border-radius:50%;background:#0A1A33;color:#00D1FF;border:2px solid var(--card,#fff);display:flex;align-items:center;justify-content:center;font-size:12px">📷</span>
+        </button>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px">
+          <div><label style="font-size:10.5px;font-weight:600;color:var(--mut,#64748B)">Nome</label><input defaultValue="Rafael M." style="width:100%;margin-top:4px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:8px;padding:8px 11px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/></div>
+          <div><label style="font-size:10.5px;font-weight:600;color:var(--mut,#64748B)">E-mail</label><input defaultValue="rafael@inovalabs.com.br" style="width:100%;margin-top:4px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:8px;padding:8px 11px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/></div>
+          <div><label style="font-size:10.5px;font-weight:600;color:var(--mut,#64748B)">Telefone</label><input defaultValue="+55 11 98765-4321" style="width:100%;margin-top:4px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:8px;padding:8px 11px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/></div>
+          <div><label style="font-size:10.5px;font-weight:600;color:var(--mut,#64748B)">Função</label><input defaultValue="Administrador · Dev freelancer" style="width:100%;margin-top:4px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:8px;padding:8px 11px;font-size:12.5px;color:inherit;outline:none" style-focus="border-color:#1D5BFF"/></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--mut,#64748B);margin-top:10px">A foto aparece na sidebar e nas mensagens enviadas pelo sistema.</div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 8px"><b style="font-size:12.5px">Usuários e permissões</b>
+        <button style="margin-left:auto;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:4px 11px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">+ Convidar usuário</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 2fr;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line,#DCE4F0);font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--mut,#64748B)">
+        <span>USUÁRIO</span><span>PAPEL</span><span>MÓDULOS</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 2fr;gap:8px;padding:9px 16px;border-bottom:1px solid var(--line,#DCE4F0);align-items:center;font-size:12px">
+        <div><b>Rafael M.</b><div style="font-size:10.5px;color:var(--mut,#64748B)">rafael@inovalabs.com.br</div></div>
+        <span style="font-size:11px;font-weight:700;color:#1D5BFF">Administrador</span>
+        <div style="display:flex;gap:5px;flex-wrap:wrap"><span style="font-size:10px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Todos os módulos</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 2fr;gap:8px;padding:9px 16px;align-items:center;font-size:12px">
+        <div><b>Cléa Contábil</b><div style="font-size:10.5px;color:var(--mut,#64748B)">clea@contabil.com.br</div></div>
+        <span style="font-size:11px;font-weight:700;color:var(--mut,#64748B)">Convidada</span>
+        <div style="display:flex;gap:5px;flex-wrap:wrap"><span style="font-size:10px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Financeiro · leitura</span><span style="font-size:10px;font-weight:600;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:99px;padding:2px 8px">Notas fiscais · edição</span></div>
+      </div>
+    </div>
+
+    <div style="background:var(--card,#fff);border:1px solid var(--line,#DCE4F0);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column">
+      <b style="font-size:12.5px">Integrações</b>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#DCE4F0);margin-top:6px">
+        <span style="flex:none;width:30px;height:30px;border-radius:8px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#1D5BFF">A</span>
+        <div><b style="font-size:12px">Asaas</b><div style="font-size:11px;color:var(--mut,#64748B)">cobranças, assinaturas e retry de cartão</div></div>
+        <span style="margin-left:auto;font-size:11px;font-weight:700;color:#0E9F6E">● Conectado</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#DCE4F0)">
+        <span style="flex:none;width:30px;height:30px;border-radius:8px;background:var(--iafill,rgba(0,209,255,.10));border:1px solid var(--ialine,rgba(0,209,255,.45));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--iafg,#0083A8)">✦</span>
+        <div><b style="font-size:12px">Motor de IA</b><div style="font-size:11px;color:var(--mut,#64748B)">rascunhos, scores, previsões e detecção de prazos</div></div>
+        <span style="margin-left:auto;font-size:11px;font-weight:700;color:#0E9F6E">● Conectado</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0 4px">
+        <span style="flex:none;width:30px;height:30px;border-radius:8px;background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0E9F6E">W</span>
+        <div><b style="font-size:12px">WhatsApp Business</b><div style="font-size:11px;color:var(--mut,#64748B)">enviar cobranças e follow-ups aprovados</div></div>
+        <button style="margin-left:auto;background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">Conectar</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  </main>
+</div>
+</sc-if>
+
+<!-- ======================= MODAL RASCUNHO IA ======================= -->
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeModal }}" style="position:fixed;inset:0;background:rgba(10,26,51,.55);display:flex;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(2px)">
+  <div onClick="{{ stop }}" style="width:480px;max-width:92vw;background:var(--card,#fff);color:var(--text,#0B1220);border:1px solid var(--line,#DCE4F0);border-radius:14px;box-shadow:0 24px 60px rgba(10,26,51,.35);padding:18px 20px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <b style="font-size:14.5px">{{ modalTitle }}</b>
+      <button onClick="{{ closeModal }}" style="margin-left:auto;background:none;border:none;color:var(--mut,#64748B);font-size:15px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;margin:10px 0">
+      <span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--iafg,#0083A8);border:1px solid var(--ialine,rgba(0,209,255,.45));background:var(--iafill,rgba(0,209,255,.10));border-radius:99px;padding:3px 8px">IA</span>
+      <span style="font-size:11px;color:var(--mut,#64748B)">Gerado por IA · revise antes de enviar</span>
+    </div>
+    <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+      <textarea value="{{ draftText }}" onChange="{{ onDraftChange }}" style="width:100%;min-height:150px;background:var(--soft,#F4F7FB);border:1px solid #1D5BFF;border-radius:10px;padding:12px;font-size:12.5px;line-height:1.55;color:inherit;outline:none;resize:vertical"></textarea>
+    </sc-if>
+    <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--soft,#F4F7FB);border:1px solid var(--line,#DCE4F0);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.55;white-space:pre-wrap">{{ draftText }}</div>
+    </sc-if>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button onClick="{{ toggleEdit }}" style="background:transparent;border:1px solid var(--line,#DCE4F0);color:var(--text,#0B1220);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="border-color:#1D5BFF">{{ editLabel }}</button>
+      <button onClick="{{ approve }}" style="background:#1D5BFF;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:#1848CC">{{ modalCta }}</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toastOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0A1A33;color:#F4F7FB;border-radius:10px;padding:10px 18px;font-size:12.5px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(10,26,51,.35);z-index:60;animation:toastIn .25s ease">
+  <span style="color:#00D1FF">✓</span> {{ toast }}
+</div>
+</sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tema&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;claro&quot;, &quot;escuro&quot;], &quot;default&quot;: &quot;claro&quot;, &quot;tsType&quot;: &quot;'claro' | 'escuro'&quot;, &quot;section&quot;: &quot;Aparência&quot;}, &quot;camadaIA&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Funcional&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login', modal: null, editing: false, draftText: '', toast: '',
+    showPwd: false, avatar: null, noteInput: '', noteDate: '',
+    notes: [
+      { id: 1, text: 'Cobrar Maria do boleto atrasado', tag: 'Financeiro', due: this.dRel(-1), detected: true, done: false },
+      { id: 2, text: 'Enviar orçamento para a Vela Fitness', tag: 'CRM', due: this.dRel(0), detected: true, done: false },
+      { id: 3, text: 'Renovar domínio inovalabs.com.br', tag: 'Financeiro', due: this.dRel(7), detected: true, done: false },
+      { id: 4, text: 'Ideia: template de proposta bilíngue PT/EN', tag: 'Ideia', due: null, done: false },
+      { id: 5, text: 'Atualizar portfólio com o case Bloom', tag: null, due: this.dRel(-3), done: true }
+    ],
+    dragCard: null,
+    cols: [
+      { id: 'briefing', name: 'Briefing', cards: [{ id: 'p1', title: 'App Delivery', valor: 'R$ 12.000', prazo: '20/08', progress: 0 }] },
+      { id: 'proposta', name: 'Proposta', cards: [{ id: 'p2', title: 'Site Nordic', valor: 'US$ 3.500', prazo: '15/08', progress: 0, ia: true }, { id: 'p3', title: 'Bot WhatsApp', valor: 'R$ 6.000', prazo: 'a definir', progress: 0 }] },
+      { id: 'aprovado', name: 'Aprovado', cards: [] },
+      { id: 'dev', name: 'Em dev', cards: [{ id: 'p4', title: 'Landing X', valor: 'R$ 1.500', prazo: '11/07', progress: 45, risk: 78, etapa: 'etapa até 09/07 · entrega 11/07' }, { id: 'p5', title: 'Painel Bloom', valor: '€ 4.000', prazo: '30/07', progress: 70, etapa: 'etapa até 18/07 · entrega 30/07' }] },
+      { id: 'revisao', name: 'Revisão', cards: [{ id: 'p6', title: 'Loja Acme', valor: 'R$ 8.000', prazo: '14/07', progress: 90, etapa: 'revisão até 12/07 · entrega 14/07' }] },
+      { id: 'entrega', name: 'Entrega', cards: [] },
+      { id: 'concluido', name: 'Concluído', cards: [{ id: 'p7', title: 'Blog Lex', valor: 'R$ 2.100', prazo: 'pago', progress: 100, done: true }] }
+    ],
+    chatInput: '',
+    msgs: [{ who: 'ai', text: 'Oi Rafael! Posso responder sobre clientes, projetos e finanças — ou rascunhar mensagens para você aprovar. Experimente os atalhos acima.', actions: [] }]
+  };
+
+  chatRef = React.createRef();
+
+  chips = [
+    { key: 'cobrar', label: 'Quem devo cobrar?' },
+    { key: 'faturamento', label: 'Quanto faturei este mês?' },
+    { key: 'nordic', label: 'Rascunhe follow-up p/ Nordic' },
+    { key: 'risco', label: 'Como está o risco dos projetos?' }
+  ];
+
+  replies = {
+    cobrar: { text: 'Duas cobranças pendentes esta semana:\n\n• Acme Co. — R$ 4.200, vence amanhã (risco baixo)\n• Lex Advocacia — R$ 2.100, 8 dias em atraso (risco de inadimplência: 72%)', actions: [{ label: 'Rascunhar cobrança Acme', draft: 'cobrancaAcme' }, { label: 'Rascunhar cobrança Lex', draft: 'cobrancaLex' }] },
+    faturamento: { text: 'Julho até agora: R$ 18.240 (+12% vs junho).\n\n• BR: R$ 12,1k · Exterior: R$ 9,2k equivalente\n• MRR Asaas: R$ 3.120\n• Projeção de fechamento do mês: R$ 21,5k', actions: [{ label: 'Ver financeiro', nav: 'financeiro' }] },
+    nordic: { text: 'Preparei um follow-up amigável para a Ingrid retomando a proposta de US$ 3.500, com sugestão de call na quinta.', actions: [{ label: 'Abrir rascunho', draft: 'followupNordic' }] },
+    risco: { text: 'Um projeto em risco: Landing X (78% de chance de atraso — entrega 11/07, progresso em 45%).\n\nSugestão: mover a revisão da Loja Acme para sexta e dedicar a quinta inteira à Landing X.', actions: [{ label: 'Ver projetos', nav: 'projetos' }] },
+    fallback: { text: 'Boa pergunta! Neste protótipo eu respondo melhor sobre cobranças, faturamento, a proposta da Nordic e risco de projetos — experimente um dos atalhos acima.', actions: [] }
+  };
+
+  fileRef = React.createRef();
+
+  dRel(n) {
+    const t = new Date();
+    t.setDate(t.getDate() + n);
+    return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  }
+
+  isoToday() { return this.dRel(0); }
+
+  fmtDue(iso) {
+    const dt = new Date(iso + 'T12:00:00');
+    const wd = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    return wd[dt.getDay()] + ' · ' + String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0');
+  }
+
+  parseDue(text) {
+    const low = text.toLowerCase();
+    if (low.includes('hoje')) return this.dRel(0);
+    if (low.includes('amanhã') || low.includes('amanha')) return this.dRel(1);
+    const wd = { domingo: 0, segunda: 1, 'terça': 2, terca: 2, quarta: 3, quinta: 4, sexta: 5, 'sábado': 6, sabado: 6 };
+    for (const k in wd) {
+      if (low.includes(k)) {
+        const t = new Date();
+        const diff = ((wd[k] - t.getDay() + 7) % 7) || 7;
+        return this.dRel(diff);
+      }
+    }
+    const m = low.match(/(\d{1,2})\/(\d{1,2})/);
+    if (m) {
+      const t = new Date();
+      let dt = new Date(t.getFullYear(), parseInt(m[2], 10) - 1, parseInt(m[1], 10));
+      if (dt < new Date(t.getFullYear(), t.getMonth(), t.getDate())) dt.setFullYear(dt.getFullYear() + 1);
+      return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    }
+    return null;
+  }
+
+  guessTag(text) {
+    const low = text.toLowerCase();
+    if (/(cobrar|boleto|fatura|pagar|renovar|assinatura)/.test(low)) return 'Financeiro';
+    if (/(orçamento|orcamento|proposta|cliente|lead|call|reunião|reuniao)/.test(low)) return 'CRM';
+    if (low.includes('ideia')) return 'Ideia';
+    return null;
+  }
+
+  addNote() {
+    const text = this.state.noteInput.trim();
+    if (!text) return;
+    const manual = this.state.noteDate;
+    const parsed = manual ? null : this.parseDue(text);
+    const due = manual || parsed;
+    const note = { id: Date.now(), text, tag: this.guessTag(text), due, detected: !!parsed, done: false };
+    this.setState(s => ({ notes: [note].concat(s.notes), noteInput: '', noteDate: '' }));
+    if (parsed) {
+      clearTimeout(this._t);
+      this.setState({ toast: 'IA detectou o prazo: ' + this.fmtDue(parsed) });
+      this._t = setTimeout(() => this.setState({ toast: '' }), 2600);
+    }
+  }
+
+  toggleNote(id) {
+    this.setState(s => ({ notes: s.notes.map(n => n.id === id ? Object.assign({}, n, { done: !n.done }) : n) }));
+  }
+
+  onAvatar(e) {
+    const f = e.target.files && e.target.files[0];
+    if (f) this.setState({ avatar: URL.createObjectURL(f) });
+  }
+
+  moveCard(colId) {
+    const id = this.state.dragCard;
+    if (!id) return;
+    this.setState(s => {
+      let moved = null;
+      const cols = s.cols.map(c => {
+        const found = c.cards.find(k => k.id === id);
+        if (found) moved = found;
+        return Object.assign({}, c, { cards: c.cards.filter(k => k.id !== id) });
+      });
+      if (moved) cols.find(c => c.id === colId).cards.push(moved);
+      return { cols, dragCard: null };
+    });
+  }
+
+  openDraft(key) {
+    this.setState({ modal: key, editing: false, draftText: this.draftsData[key].body });
+  }
+
+  send(key, label) {
+    const reply = this.replies[key] || this.replies.fallback;
+    this.setState(s => ({ msgs: s.msgs.concat([{ who: 'user', text: label }]) }));
+    clearTimeout(this._r);
+    this._r = setTimeout(() => {
+      this.setState(s => ({ msgs: s.msgs.concat([Object.assign({ who: 'ai' }, reply)]) }));
+    }, 450);
+  }
+
+  sendFree() {
+    const t = this.state.chatInput.trim();
+    if (!t) return;
+    const low = t.toLowerCase();
+    let key = 'fallback';
+    if (low.includes('cobr') || low.includes('receb')) key = 'cobrar';
+    else if (low.includes('fatur') || low.includes('receita') || low.includes('mês')) key = 'faturamento';
+    else if (low.includes('nordic') || low.includes('proposta')) key = 'nordic';
+    else if (low.includes('risco') || low.includes('projet') || low.includes('atras')) key = 'risco';
+    this.setState({ chatInput: '' });
+    this.send(key, t);
+  }
+
+  componentDidUpdate() {
+    if (this.state.screen === 'assistente' && this.chatRef.current) {
+      this.chatRef.current.scrollTop = this.chatRef.current.scrollHeight;
+    }
+  }
+
+  draftsData = {
+    cobrancaAcme: { title: 'Cobrança — Acme Co.', body: 'Oi João, tudo bem?\n\nPassando para lembrar da fatura #042, de R$ 4.200, com vencimento amanhã (09/07). O boleto segue no link abaixo — qualquer dúvida é só me chamar.\n\nLink do boleto: asaas.com/i/042\n\nAbraço,\nRafael' },
+    followupNordic: { title: 'Follow-up — Nordic AS', body: 'Hi Ingrid,\n\nJust following up on the proposal I sent last week (US$ 3,500 for the marketing site). Happy to walk you through the scope on a quick call this week — would Thursday work?\n\nBest,\nRafael' },
+    upsellAcme: { title: 'Upsell — Acme Co.', body: 'Oi João!\n\nA loja está no ar há 3 meses sem nenhum incidente. Que tal um plano de manutenção mensal (R$ 890/mês) cobrindo atualizações, backups e pequenas melhorias? Te garanto prioridade no atendimento.\n\nPosso enviar a proposta formal?\n\nAbraço,\nRafael' },
+    reviewBloom: { title: 'Review trimestral — Bloom GmbH', body: 'Hi Ana,\n\nWe are close to wrapping this quarter — how about a 30-min review call next week to go over the dashboard metrics and plan the next sprint (€ 4k budget pending approval)?\n\nBest,\nRafael' },
+    reengajarLex: { title: 'Reengajamento — Lex Advocacia', body: 'Olá Dra. Camila,\n\nAcabei de entregar um painel de gestão para uma empresa da área de saúde e lembrei da nossa conversa sobre automatizar os relatórios do escritório. Posso te mostrar o case em 15 minutos esta semana?\n\nAbraço,\nRafael' },
+    retainerHudson: { title: 'Retainer — Hudson Media', body: 'Hi Mike,\n\nAs discussed, here is the retainer estimate: US$ 1,200/month for up to 20h of development and priority support. I can start on August 1st.\n\nShall I send the formal agreement?\n\nBest,\nRafael' },
+    callVela: { title: 'Call de descoberta — Vela Fitness', body: 'Oi Paula!\n\nQue tal uma call rápida de 20 minutos para eu entender melhor o que você precisa no app da Vela? Tenho horários na quinta às 10h ou sexta às 15h.\n\nAbraço,\nRafael' },
+    contrato: { title: 'Contrato — Landing X · Acme Co.', cta: 'Exportar PDF e enviar p/ assinatura', body: 'CONTRATO DE PRESTAÇÃO DE SERVIÇOS\n\nContratante: Acme Co. — CNPJ 12.345.678/0001-90\nContratado: Rafael M. — CNPJ 98.765.432/0001-10\n\nObjeto: desenvolvimento de landing page (Landing X), incluindo design responsivo, copy aprovada e deploy em produção.\n\nValor: R$ 1.500 (50% na aprovação, 50% na entrega)\nPrazo de entrega: 11/07/2026\nRevisões: até 2 rodadas incluídas.\n\nPreenchido pela IA com os dados do projeto e do cliente no CRM.' },
+    prazosIA: { title: 'Distribuir prazos — Landing X', cta: 'Aplicar prazos', body: 'Proposta de redistribuição, com base na sua velocidade média por etapa:\n\n• Desenvolvimento: concluir até 09/07\n• Revisão do cliente: 10/07\n• Ajustes finais + deploy: 11/07\n\nSe a revisão da Loja Acme for movida para 12/07, o risco de atraso da Landing X cai de 78% para 41%.' },
+    cobrancaLex: { title: 'Cobrança — Lex Advocacia', body: 'Olá Dra. Camila,\n\nNotei que a fatura #038, de R$ 2.100, está em aberto desde 30/06. Reenvio o link de pagamento abaixo — se preferir, posso parcelar em 2×.\n\nLink: asaas.com/i/038\n\nAbraço,\nRafael' },
+    anomalia: { title: 'Revisão de gastos — Ferramentas & SaaS', body: 'Resumo da anomalia:\n\n• Média mensal (6 meses): R$ 287\n• Julho até agora: R$ 918 (3,2×)\n\nPrincipais itens novos: Vercel Pro (R$ 182), Figma upgrade (R$ 156), créditos de API (R$ 293).\n\nSugestão: revisar os créditos de API — 68% não foram consumidos.' }
+  };
+
+  renderVals() {
+    const s = this.state;
+    const tema = this.props.tema ?? 'claro';
+    const dark = tema === 'escuro';
+    const rootStyle = dark ? {
+      '--bg': '#0A1A33', '--card': '#101F3C', '--soft': '#16294D', '--line': '#223760', '--text': '#F4F7FB', '--mut': '#8DA2C0',
+      '--iafg': '#00D1FF', '--iafill': 'rgba(0,209,255,.10)', '--ialine': 'rgba(0,209,255,.35)',
+      '--iabg': 'linear-gradient(90deg,rgba(0,209,255,.10),rgba(29,91,255,.08))'
+    } : {
+      '--bg': '#F4F7FB', '--card': '#FFFFFF', '--soft': '#F4F7FB', '--line': '#DCE4F0', '--text': '#0B1220', '--mut': '#64748B',
+      '--iafg': '#0083A8', '--iafill': 'rgba(0,209,255,.10)', '--ialine': 'rgba(0,209,255,.45)',
+      '--iabg': 'linear-gradient(90deg,rgba(0,209,255,.10),rgba(29,91,255,.06))'
+    };
+    const navBase = { textAlign: 'left', background: 'transparent', border: 'none', color: '#B9C6DC', borderRadius: '8px', padding: '7px 10px', fontSize: '12.5px', fontWeight: 500, cursor: 'pointer', width: '100%' };
+    const navActive = Object.assign({}, navBase, { background: 'rgba(29,91,255,.35)', color: '#FFFFFF', fontWeight: 600 });
+    const navStyles = {};
+    ['dashboard','crm','projetos','financeiro','assistente','anotacoes','config'].forEach(k => { navStyles[k] = s.screen === k ? navActive : navBase; });
+
+    const nav = {};
+    ['dashboard','crm','projetos','financeiro','assistente','anotacoes','config'].forEach(k => { nav[k] = () => this.setState({ screen: k }); });
+
+    const drafts = {};
+    Object.keys(this.draftsData).forEach(k => {
+      drafts[k] = () => this.setState({ modal: k, editing: false, draftText: this.draftsData[k].body });
+    });
+
+    const iaOn = this.props.camadaIA ?? true;
+
+    const kanbanCols = s.cols.map(col => ({
+      name: col.name,
+      count: col.cards.length,
+      empty: col.cards.length === 0,
+      onDragOver: (e) => e.preventDefault(),
+      onDrop: () => this.moveCard(col.id),
+      cards: col.cards.map(c => ({
+        title: c.title, valor: c.valor, prazo: c.prazo,
+        etapa: c.etapa || '', hasEtapa: !!c.etapa,
+        onDragStart: () => this.setState({ dragCard: c.id }),
+        showProgress: c.progress > 0 && !c.done,
+        progressStyle: { height: '100%', width: c.progress + '%', background: c.risk ? '#E5484D' : '#1D5BFF', borderRadius: '3px' },
+        hasRisk: !!c.risk && iaOn,
+        riskLabel: '⚠ atraso · ' + (c.risk || 0) + '%',
+        iaTag: !!c.ia && iaOn,
+        doneTag: !!c.done
+      }))
+    }));
+
+    const msgs = s.msgs.map(m => ({
+      text: m.text,
+      isUser: m.who === 'user',
+      isAi: m.who === 'ai',
+      hasActions: !!(m.actions && m.actions.length),
+      actions: (m.actions || []).map(a => ({
+        label: a.label,
+        run: () => { if (a.draft) this.openDraft(a.draft); else if (a.nav) this.setState({ screen: a.nav }); }
+      }))
+    }));
+
+    const chips = this.chips.map(c => ({ label: c.label, ask: () => this.send(c.key, c.label) }));
+
+    const today = this.isoToday();
+    const mkNote = (n) => ({
+      text: n.text,
+      tag: n.tag || '',
+      hasTag: !!n.tag,
+      hasDue: !!n.due,
+      dueLabel: n.due ? this.fmtDue(n.due) : '',
+      detected: !!n.detected && iaOn && !n.done,
+      toggle: () => this.toggleNote(n.id),
+      checkGlyph: n.done ? '✓' : '',
+      checkStyle: n.done
+        ? { width: '18px', height: '18px', borderRadius: '6px', border: '1px solid #0E9F6E', background: '#0E9F6E', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', padding: 0 }
+        : { width: '18px', height: '18px', borderRadius: '6px', border: '1.5px solid var(--line)', background: 'var(--card)', cursor: 'pointer', flex: 'none', padding: 0 },
+      textStyle: n.done ? { textDecoration: 'line-through', color: 'var(--mut)', fontSize: '12.5px', minWidth: 0 } : { fontSize: '12.5px', minWidth: 0 },
+      chipStyle: (!n.done && n.due && n.due < today)
+        ? { fontSize: '10.5px', fontWeight: 700, borderRadius: '99px', padding: '2px 9px', border: '1px solid rgba(229,72,77,.4)', background: 'rgba(229,72,77,.08)', color: '#E5484D', flex: 'none', whiteSpace: 'nowrap' }
+        : { fontSize: '10.5px', fontWeight: 600, borderRadius: '99px', padding: '2px 9px', border: '1px solid var(--line)', color: 'var(--mut)', flex: 'none', whiteSpace: 'nowrap' }
+    });
+    const N = s.notes;
+    const secs = [
+      { title: '🔥 Atrasadas', items: N.filter(n => !n.done && n.due && n.due < today) },
+      { title: '📅 Hoje', items: N.filter(n => !n.done && n.due === today) },
+      { title: '🗓 Próximas', items: N.filter(n => !n.done && n.due && n.due > today) },
+      { title: '💡 Sem prazo', items: N.filter(n => !n.done && !n.due) },
+      { title: '✔ Concluídas', items: N.filter(n => n.done) }
+    ].map(x => ({ title: x.title, count: x.items.length, show: x.items.length > 0, items: x.items.map(mkNote) }));
+
+    return {
+      rootStyle, nav, navStyles, drafts,
+      ia: iaOn,
+      kanbanCols, msgs, chips,
+      chatRef: this.chatRef,
+      chatInput: s.chatInput,
+      onChatInput: (e) => this.setState({ chatInput: e.target.value }),
+      onChatKey: (e) => { if (e.key === 'Enter') this.sendFree(); },
+      doSendFree: () => this.sendFree(),
+      showDash: s.screen === 'dashboard',
+      showCrm: s.screen === 'crm',
+      showProjetos: s.screen === 'projetos',
+      showFinanceiro: s.screen === 'financeiro',
+      showAssistente: s.screen === 'assistente',
+      showAnotacoes: s.screen === 'anotacoes',
+      showConfig: s.screen === 'config',
+      showLogin: s.screen === 'login',
+      showApp: s.screen !== 'login',
+      pwdType: s.showPwd ? 'text' : 'password',
+      pwdToggleLabel: s.showPwd ? 'ocultar' : 'mostrar',
+      togglePwd: () => this.setState(p => ({ showPwd: !p.showPwd })),
+      doLogin: () => {
+        this.setState({ screen: 'dashboard', toast: 'Bem-vindo de volta, Rafael' });
+        clearTimeout(this._t);
+        this._t = setTimeout(() => this.setState({ toast: '' }), 2600);
+      },
+      secs,
+      noteInput: s.noteInput,
+      noteDate: s.noteDate,
+      onNoteInput: (e) => this.setState({ noteInput: e.target.value }),
+      onNoteDate: (e) => this.setState({ noteDate: e.target.value }),
+      onNoteKey: (e) => { if (e.key === 'Enter') this.addNote(); },
+      doAddNote: () => this.addNote(),
+      hasAvatar: !!s.avatar,
+      noAvatar: !s.avatar,
+      avatarUrl: s.avatar || '',
+      avatarBgSm: { width: '26px', height: '26px', borderRadius: '50%', backgroundImage: s.avatar ? 'url(' + s.avatar + ')' : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flex: 'none' },
+      avatarBgLg: { width: '100%', height: '100%', borderRadius: '50%', backgroundImage: s.avatar ? 'url(' + s.avatar + ')' : 'none', backgroundSize: 'cover', backgroundPosition: 'center' },
+      avatarClick: () => { if (this.fileRef.current) this.fileRef.current.click(); },
+      onAvatarChange: (e) => this.onAvatar(e),
+      fileRef: this.fileRef,
+      modalCta: s.modal ? (this.draftsData[s.modal].cta || 'Aprovar e enviar') : '',
+      modalOpen: !!s.modal,
+      modalTitle: s.modal ? this.draftsData[s.modal].title : '',
+      draftText: s.draftText,
+      editing: s.editing,
+      notEditing: !s.editing,
+      editLabel: s.editing ? 'Concluir edição' : 'Editar',
+      onDraftChange: (e) => this.setState({ draftText: e.target.value }),
+      toggleEdit: () => this.setState(p => ({ editing: !p.editing })),
+      closeModal: () => this.setState({ modal: null, editing: false }),
+      stop: (e) => e.stopPropagation(),
+      approve: () => {
+        const title = this.draftsData[s.modal] ? this.draftsData[s.modal].title : 'Mensagem';
+        this.setState({ modal: null, editing: false, toast: title + ' — enviado' });
+        clearTimeout(this._t);
+        this._t = setTimeout(() => this.setState({ toast: '' }), 2600);
+      },
+      toastOpen: !!s.toast,
+      toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
