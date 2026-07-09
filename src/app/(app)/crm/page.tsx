@@ -11,11 +11,11 @@ export default function CrmPage() {
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">CRM · Contatos</h1>
         <input
           placeholder="Buscar contato…"
-          className="w-[220px] rounded-lg border border-line bg-card px-3 py-1.5 text-xs text-ink outline-none focus:border-brand"
+          className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-xs text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
         />
         <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
           + Novo contato

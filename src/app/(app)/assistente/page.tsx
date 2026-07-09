@@ -50,7 +50,7 @@ export default function AssistentePage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-52px)] flex-col gap-3">
+    <div className="flex h-[calc(100dvh-104px)] flex-col gap-3 md:h-[calc(100dvh-52px)]">
       <div className="flex items-center gap-2.5">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Assistente</h1>
         <IaBadge className="px-2 py-[3px]" />

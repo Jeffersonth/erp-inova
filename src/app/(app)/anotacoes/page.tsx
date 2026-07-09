@@ -94,7 +94,7 @@ export default function AnotacoesPage() {
 
   return (
     <div className="flex max-w-[840px] flex-col gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Anotações</h1>
         <span className="text-[11.5px] text-mut">rápidas de escrever, impossíveis de esquecer</span>
       </div>
@@ -106,23 +106,23 @@ export default function AnotacoesPage() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
           placeholder="O que você precisa lembrar?"
-          className="flex-1 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[12.5px] text-ink outline-none focus:border-brand"
+          className="min-w-[200px] flex-1 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[12.5px] text-ink outline-none focus:border-brand"
         />
         <input
           type="date"
           value={dateInput}
           onChange={(e) => setDateInput(e.target.value)}
-          className="rounded-[10px] border border-line bg-card px-3 py-2.5 text-[12px] text-mut outline-none focus:border-brand"
+          className="flex-none rounded-[10px] border border-line bg-card px-3 py-2.5 text-[12px] text-mut outline-none focus:border-brand"
         />
         <button
           onClick={add}
-          className="rounded-[10px] bg-brand px-[18px] py-2.5 text-[12.5px] font-bold text-white transition-colors hover:bg-brand-dark"
+          className="flex-none whitespace-nowrap rounded-[10px] bg-brand px-[18px] py-2.5 text-[12.5px] font-bold text-white transition-colors hover:bg-brand-dark"
         >
           + Anotar
         </button>
@@ -149,13 +149,12 @@ export default function AnotacoesPage() {
                     >
                       ✓
                     </button>
-                    <span className={n.done ? "text-mut line-through" : "text-ink"}>{n.text}</span>
+                    <span className={`min-w-0 flex-1 ${n.done ? "text-mut line-through" : "text-ink"}`}>{n.text}</span>
                     {n.tag && (
                       <span className="flex-none rounded-full border border-line bg-soft px-2 py-0.5 text-[10px] font-semibold text-mut">
                         {n.tag}
                       </span>
                     )}
-                    <span className="ml-auto" />
                     {n.detected && !n.done && <IaBadge className="px-1.5 py-px text-[9px]">IA · prazo</IaBadge>}
                     {n.due ? (
                       <span
