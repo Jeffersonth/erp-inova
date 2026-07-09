@@ -1,5 +1,6 @@
 import { IaBadge } from "@/components/ia-badge";
 import { DraftButton } from "@/components/draft-button";
+import { NewProjetoDialog } from "@/components/new-projeto-dialog";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
 import { arquivosLandingX } from "@/lib/mock-data";
@@ -51,9 +52,10 @@ const etapaStatusTone: Record<Enums<"etapa_status">, Tone> = {
 export default async function ProjetosPage() {
   const supabase = createClient();
 
-  const [{ data: projetos }, { data: destaque }] = await Promise.all([
+  const [{ data: projetos }, { data: destaque }, { data: clientes }] = await Promise.all([
     supabase.from("projetos").select("*"),
     supabase.from("projetos").select("*").eq("titulo", "Landing X").maybeSingle(),
+    supabase.from("clientes").select("id, nome").order("nome"),
   ]);
 
   const cols: KanbanColumn[] = colOrder.map((status) => ({
@@ -85,9 +87,7 @@ export default async function ProjetosPage() {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
         <span className="text-[11.5px] text-mut">arraste os cards entre as colunas</span>
-        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
-          + Novo projeto
-        </button>
+        <NewProjetoDialog clientes={clientes ?? []} />
       </div>
 
       <KanbanBoard initialColumns={cols} />

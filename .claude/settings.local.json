@@ -29,7 +29,8 @@
       "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__list_migrations",
       "Bash(rm -rf .next)",
       "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__execute_sql",
-      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__generate_typescript_types"
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__generate_typescript_types",
+      "Bash(curl -sI \"https://stktqyttljgdopsdupcj.supabase.co/storage/v1/object/public/avatars/3ebf8b62-4203-44c0-b703-ebae53414ea8/avatar.png\")"
     ]
   }
 }

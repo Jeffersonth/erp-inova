@@ -1,5 +1,6 @@
 import { IaBadge } from "@/components/ia-badge";
 import { DraftButton } from "@/components/draft-button";
+import { NewClienteDialog } from "@/components/new-cliente-dialog";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
 import { distribuicao } from "@/lib/mock-data";
@@ -66,9 +67,7 @@ export default async function CrmPage() {
           placeholder="Buscar contato…"
           className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-xs text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
         />
-        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
-          + Novo contato
-        </button>
+        <NewClienteDialog />
       </div>
 
       {/* Tabela */}
