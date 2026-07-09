@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -13,9 +13,11 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -40,14 +42,29 @@ function Logo() {
   );
 }
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  nome: string;
+  funcao: string;
+  avatarUrl: string | null;
+  iniciais: string;
+};
+
+export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   // fecha o drawer mobile sempre que a rota muda
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  async function signOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <>
@@ -119,18 +136,34 @@ export function AppSidebar() {
           );
         })}
 
-        <Link
-          href="/configuracoes"
-          className="mt-auto flex items-center gap-2 border-t border-white/10 px-2.5 pb-1 pt-3"
-        >
-          <div className="flex size-[26px] flex-none items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
-            RM
-          </div>
-          <div className="min-w-0">
-            <div className="text-[12px] font-semibold text-white">Rafael M.</div>
-            <div className="text-[10.5px] text-slate-500">Dev freelancer</div>
-          </div>
-        </Link>
+        <div className="mt-auto flex items-center gap-1.5 border-t border-white/10 px-2.5 pb-1 pt-3">
+          <Link href="/configuracoes" className="flex min-w-0 flex-1 items-center gap-2">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt=""
+                className="size-[26px] flex-none rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex size-[26px] flex-none items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
+                {iniciais}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="truncate text-[12px] font-semibold text-white">{nome}</div>
+              <div className="truncate text-[10.5px] text-slate-500">{funcao}</div>
+            </div>
+          </Link>
+          <button
+            onClick={signOut}
+            aria-label="Sair"
+            title="Sair"
+            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="size-4" strokeWidth={2} />
+          </button>
+        </div>
       </nav>
     </>
   );

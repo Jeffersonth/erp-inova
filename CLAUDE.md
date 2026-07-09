@@ -61,18 +61,39 @@ Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (tít
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
 
-## Banco de dados (Supabase) — tabelas Fase 1
+## Banco de dados (Supabase) — conectado
 
-`usuarios`, `clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (prazo por
-etapa), `checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do Asaas),
-`custos`, `anotacoes`, `leads_pipeline`, `eventos_agenda`, `biblioteca` (pgvector). Migração
-inicial em `supabase/migrations/`. RLS por usuário/módulo. `historico` nunca recebe
-UPDATE/DELETE.
+Projeto real ativo (`stktqyttljgdopsdupcj`, região `sa-east-1`). Tabelas: `usuarios`,
+`clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (prazo por etapa),
+`checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do Asaas), `custos`,
+`anotacoes`, `leads_pipeline`, `eventos_agenda`. Migrações em `supabase/migrations/`
+(`0001_init`, `0002_handle_new_user` — trigger que cria a linha em `usuarios` no cadastro,
+`0003_restrict_handle_new_user_rpc`). RLS dono-por-linha (`user_id = auth.uid()`);
+`historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
+`src/lib/supabase/database.types.ts`.
+
+**Auth real**: login/cadastro via Supabase Auth (`src/components/login-form.tsx`), sessão via
+cookies com `@supabase/ssr` (`src/middleware.ts` renova o token a cada request). Rotas
+`(app)/*` são protegidas em `src/app/(app)/layout.tsx` (redireciona para `/login` sem
+sessão); `/login` redireciona para `/dashboard` se já autenticado. Confirmação de e-mail está
+ligada no projeto — usuários novos recebem "verifique seu e-mail" (não há SMTP configurado
+para dev, então confirme manualmente via SQL: `update auth.users set email_confirmed_at =
+now() where email = '...'`).
+
+**Dados reais vs. ilustrativos (Fase 1):** CRM, Projetos (kanban com persistência de status
+ao arrastar) e Financeiro (contas a receber, assinaturas/MRR) leem do Supabase de verdade.
+Dashboard mistura KPIs reais (projetos ativos, leads ativos, a receber 30d, MRR) com
+conteúdo narrativo de IA ainda ilustrativo (resumo do dia, anomalia, previsão de caixa,
+lucro por cliente) — isso é proposital, veja Fase 3 no roadmap. Anotações tem CRUD real
+(insert/update client-side). O catálogo de rascunhos de IA (`src/lib/mock-data.ts` →
+`drafts`) continua estático até a Fase 2; a ligação cliente→draft é por nome (os 6 clientes
+seedados usam os mesmos nomes do catálogo original).
 
 ## Roadmap
 
-- **Fase 1 (v1 — em andamento):** Dashboard, CRM + histórico, Projetos (kanban/checklist),
-  Financeiro básico, Login. *(sem previsões de IA reais ainda — telas com dados mockados)*
+- **Fase 1 (concluída):** Dashboard, CRM + histórico, Projetos (kanban/checklist),
+  Financeiro básico, Login — agora com Supabase real (Auth + Postgres + RLS), não mais só
+  dados mockados. *(previsões/resumos de IA ainda ilustrativos — ver Fase 3)*
 - **Fase 2:** Assistente global com tools, resumo diário, geração de propostas/cobranças, busca semântica.
 - **Fase 3:** Previsões (receita, atraso, inadimplência), lead scoring, automações, lucro por cliente.
 - **Fase 4:** WhatsApp, portal do cliente, controle de horas, prospecção por CNPJ.
@@ -85,13 +106,17 @@ npm run build    # build de produção
 npm run lint     # eslint
 ```
 
-Variáveis de ambiente em `.env.local` (ver `.env.example`):
+Variáveis de ambiente em `.env.local` (não versionado — ver `.env.example`):
 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 ## Convenções de código
 
-- Componentes de tela em `src/app/(app)/<modulo>/page.tsx`; login em `src/app/login/page.tsx`.
-- UI compartilhada em `src/components/` (shadcn em `src/components/ui/`).
-- Dados mockados da Fase 1 em `src/lib/mock-data.ts` — trocar por queries Supabase nas fases seguintes.
-- Preferir Server Components; usar `"use client"` só onde há interação (kanban, chat, modais).
+- Componentes de tela em `src/app/(app)/<modulo>/page.tsx` (Server Components, buscam dados
+  via `src/lib/supabase/server.ts`); login em `src/app/login/page.tsx`.
+- UI compartilhada em `src/components/` (shadcn em `src/components/ui/`). Telas com
+  interação client-side (kanban drag-and-drop, chat, anotações, modal) delegam para um
+  Client Component correspondente (`kanban-board.tsx`, `notes-board.tsx`, `login-form.tsx`)
+  que usa `src/lib/supabase/client.ts`.
+- Conteúdo ainda ilustrativo/estático (charts de IA, catálogo de rascunhos) em
+  `src/lib/mock-data.ts` — trocar por geração real na Fase 2/3.
 - Textos da UI em **português (pt-BR)**.

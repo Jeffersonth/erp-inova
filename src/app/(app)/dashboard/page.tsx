@@ -3,11 +3,53 @@ import { IaBadge } from "@/components/ia-badge";
 import { DraftButton } from "@/components/draft-button";
 import { RichText } from "@/components/rich-text";
 import { toneText } from "@/lib/tone";
-import { kpis, funil, projetosConcluidos, atencao } from "@/lib/mock-data";
+import { funil, projetosConcluidos, atencao } from "@/lib/mock-data";
+import { formatMoney } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 
 const card = "rounded-xl border border-line bg-card";
+const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as const;
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = createClient();
+  const hoje = new Date();
+  const em30dias = new Date(hoje);
+  em30dias.setDate(em30dias.getDate() + 30);
+  const hojeIso = hoje.toISOString().slice(0, 10);
+  const em30Iso = em30dias.toISOString().slice(0, 10);
+
+  const [{ data: projetos }, { data: clientes }, { data: assinaturas }, { data: recebimentos }] =
+    await Promise.all([
+      supabase.from("projetos").select("status"),
+      supabase.from("clientes").select("status"),
+      supabase.from("assinaturas").select("valor, status"),
+      supabase
+        .from("recebimentos")
+        .select("valor, moeda, status, vencimento")
+        .eq("moeda", "BRL")
+        .neq("status", "pago")
+        .gte("vencimento", hojeIso)
+        .lte("vencimento", em30Iso),
+    ]);
+
+  const projetosAtivos = (projetos ?? []).filter((p) => p.status !== "concluido").length;
+  const leadsAtivos = (clientes ?? []).filter((c) =>
+    (leadsAtivosStatus as readonly string[]).includes(c.status),
+  ).length;
+  const mrr = (assinaturas ?? [])
+    .filter((a) => a.status === "ativa")
+    .reduce((sum, a) => sum + Number(a.valor), 0);
+  const aReceber30d = (recebimentos ?? []).reduce((sum, r) => sum + Number(r.valor), 0);
+
+  const kpis = [
+    { label: "PROJETOS ATIVOS", value: String(projetosAtivos), delta: "dados reais", tone: "ok" as const },
+    { label: "LEADS ATIVOS", value: String(leadsAtivos), delta: "dados reais", tone: "ok" as const },
+    { label: "A RECEBER · 30D", value: formatMoney(aReceber30d), delta: "dados reais", tone: "ok" as const },
+    { label: "MRR · ASAAS", value: formatMoney(mrr), delta: "dados reais", tone: "ok" as const },
+    { label: "RECEITA · JUL", value: "R$ 18.240", delta: "▲ 12% vs jun", tone: "ok" as const },
+    { label: "HORAS · SEMANA", value: "31h", delta: "= média", tone: "mut" as const },
+  ];
+
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}

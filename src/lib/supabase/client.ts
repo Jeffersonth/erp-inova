@@ -1,11 +1,9 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "./database.types";
 
-/**
- * Supabase client for use in Client Components.
- * Phase 1 screens run on mock data; wire this in when replacing mocks with queries.
- */
+/** Supabase client para uso em Client Components. */
 export function createClient() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );

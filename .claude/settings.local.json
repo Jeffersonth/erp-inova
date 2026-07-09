@@ -14,7 +14,22 @@
       "Bash(npm run *)",
       "Bash(git config *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__list_projects",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__list_organizations",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__get_cost",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__confirm_cost",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__create_project",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__apply_migration",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__list_tables",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__get_project_url",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__get_publishable_keys",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__get_advisors",
+      "Bash(git check-ignore *)",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__list_migrations",
+      "Bash(rm -rf .next)",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__execute_sql",
+      "mcp__e1ab56d1-9f24-4738-a11f-9bd5ead1da0e__generate_typescript_types"
     ]
   }
 }

@@ -1,13 +1,62 @@
 import { IaBadge } from "@/components/ia-badge";
 import { DraftButton } from "@/components/draft-button";
 import { toneText } from "@/lib/tone";
-import { contatos, distribuicao } from "@/lib/mock-data";
+import type { Tone } from "@/lib/mock-data";
+import { distribuicao } from "@/lib/mock-data";
+import { flagEmoji, relativeInteraction } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
+import type { Enums } from "@/lib/supabase/database.types";
 
 const card = "rounded-xl border border-line bg-card";
 const cols =
   "grid-cols-[1.7fr_0.6fr_0.9fr_0.9fr_0.7fr_0.9fr_1.6fr_0.8fr]";
 
-export default function CrmPage() {
+const statusLabel: Record<Enums<"cliente_status">, string> = {
+  lead: "Lead",
+  qualificado: "Qualificado",
+  proposta: "Proposta",
+  negociacao: "Negociação",
+  cliente: "Cliente",
+  recorrente: "Recorrente",
+  frio: "Lead frio",
+  perdido: "Perdido",
+};
+
+const statusTone: Record<Enums<"cliente_status">, Tone> = {
+  lead: "brand",
+  qualificado: "brand",
+  proposta: "brand",
+  negociacao: "brand",
+  cliente: "ok",
+  recorrente: "ok",
+  frio: "mut",
+  perdido: "danger",
+};
+
+// draft pronto no catálogo mock (Fase 2 troca por geração real via IA)
+const draftByNome: Record<string, string> = {
+  "Acme Co.": "upsellAcme",
+  "Nordic AS": "followupNordic",
+  "Bloom GmbH": "reviewBloom",
+  "Lex Advocacia": "reengajarLex",
+  "Hudson Media": "retainerHudson",
+  "Vela Fitness": "callVela",
+};
+
+function scoreTone(score: number | null): Tone {
+  if (score == null) return "mut";
+  if (score >= 70) return "ok";
+  if (score >= 45) return "amber";
+  return "danger";
+}
+
+export default async function CrmPage() {
+  const supabase = createClient();
+  const { data: contatos } = await supabase
+    .from("clientes")
+    .select("*")
+    .order("score_ia", { ascending: false, nullsFirst: false });
+
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}
@@ -36,36 +85,52 @@ export default function CrmPage() {
               <span>PRÓXIMA AÇÃO · IA</span>
               <span />
             </div>
-            {contatos.map((c) => (
-              <div
-                key={c.empresa}
-                className={`grid ${cols} items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft`}
-              >
-                <div className="min-w-0">
-                  <b className="text-[12.5px] text-ink">{c.empresa}</b>
-                  <div className="truncate text-[11px] text-mut">{c.pessoa}</div>
-                </div>
-                <span className="text-[12px]">
-                  {c.flag} {c.pais}
-                </span>
-                <span>
-                  <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[10.5px] font-semibold text-ink">
-                    {c.ramo}
-                  </span>
-                </span>
-                <span className={`text-[11.5px] font-semibold ${toneText[c.statusTone]}`}>
-                  ● {c.status}
-                </span>
-                <b className={`text-[13px] ${toneText[c.scoreTone]}`}>{c.score}</b>
-                <span className="text-[11.5px] text-mut">{c.ultima}</span>
-                <span className="text-[11.5px] text-ia">{c.proxima}</span>
-                <DraftButton
-                  draftKey={c.draft}
-                  label="Rascunhar"
-                  className="justify-self-start px-2.5 py-1 text-[11px]"
-                />
+            {!contatos?.length && (
+              <div className="px-3.5 py-8 text-center text-[12.5px] text-mut">
+                Nenhum contato ainda. Clique em &ldquo;+ Novo contato&rdquo; para começar.
               </div>
-            ))}
+            )}
+            {contatos?.map((c) => {
+              const draftKey = draftByNome[c.nome];
+              return (
+                <div
+                  key={c.id}
+                  className={`grid ${cols} items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft`}
+                >
+                  <div className="min-w-0">
+                    <b className="text-[12.5px] text-ink">{c.nome}</b>
+                    <div className="truncate text-[11px] text-mut">
+                      {[c.contato_nome, c.email].filter(Boolean).join(" · ")}
+                    </div>
+                  </div>
+                  <span className="text-[12px]">
+                    {flagEmoji(c.pais)} {c.pais}
+                  </span>
+                  <span>
+                    {c.ramo && (
+                      <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[10.5px] font-semibold text-ink">
+                        {c.ramo}
+                      </span>
+                    )}
+                  </span>
+                  <span className={`text-[11.5px] font-semibold ${toneText[statusTone[c.status]]}`}>
+                    ● {statusLabel[c.status]}
+                  </span>
+                  <b className={`text-[13px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
+                  <span className="text-[11.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>
+                  <span className="text-[11.5px] text-ia">{c.proxima_acao_ia ?? "—"}</span>
+                  {draftKey ? (
+                    <DraftButton
+                      draftKey={draftKey}
+                      label="Rascunhar"
+                      className="justify-self-start px-2.5 py-1 text-[11px]"
+                    />
+                  ) : (
+                    <span />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
