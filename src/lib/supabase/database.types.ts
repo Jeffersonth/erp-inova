@@ -316,6 +316,7 @@ export type Database = {
         Row: {
           concluida_em: string | null
           duracao_dias: number | null
+          final: boolean
           id: string
           media_dias: number | null
           nome: string
@@ -327,6 +328,7 @@ export type Database = {
         Insert: {
           concluida_em?: string | null
           duracao_dias?: number | null
+          final?: boolean
           id?: string
           media_dias?: number | null
           nome: string
@@ -338,6 +340,7 @@ export type Database = {
         Update: {
           concluida_em?: string | null
           duracao_dias?: number | null
+          final?: boolean
           id?: string
           media_dias?: number | null
           nome?: string
@@ -590,6 +593,57 @@ export type Database = {
           },
         ]
       }
+      tarefas: {
+        Row: {
+          concluida: boolean
+          created_at: string
+          etapa_id: string
+          id: string
+          ordem: number
+          projeto_id: string
+          tipo: Database["public"]["Enums"]["tarefa_tipo"]
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          concluida?: boolean
+          created_at?: string
+          etapa_id: string
+          id?: string
+          ordem?: number
+          projeto_id: string
+          tipo?: Database["public"]["Enums"]["tarefa_tipo"]
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          concluida?: boolean
+          created_at?: string
+          etapa_id?: string
+          id?: string
+          ordem?: number
+          projeto_id?: string
+          tipo?: Database["public"]["Enums"]["tarefa_tipo"]
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tarefas_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usuarios: {
         Row: {
           avatar_url: string | null
@@ -658,6 +712,7 @@ export type Database = {
         | "pago"
         | "recorrente"
       risco_nivel: "baixo" | "medio" | "alto"
+      tarefa_tipo: "dev" | "design" | "conteudo" | "reuniao" | "bug"
       user_role: "admin" | "gestor" | "colaborador"
     }
     CompositeTypes: {

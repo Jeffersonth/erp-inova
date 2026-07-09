@@ -56,7 +56,7 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-Dashboard · CRM · Projetos (kanban) · Financeiro · Assistente IA · Anotações · Configurações.
+Dashboard · CRM · Projetos (quadro de tarefas) · Financeiro · Assistente IA · Anotações · Configurações.
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
@@ -64,11 +64,14 @@ enviar*) + **toast** de confirmação.
 ## Banco de dados (Supabase) — conectado
 
 Projeto real ativo (`stktqyttljgdopsdupcj`, região `sa-east-1`). Tabelas: `usuarios`,
-`clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (prazo por etapa),
-`checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do Asaas), `custos`,
-`anotacoes`, `leads_pipeline`, `eventos_agenda`. Migrações em `supabase/migrations/`
-(`0001_init`, `0002_handle_new_user` — trigger que cria a linha em `usuarios` no cadastro,
-`0003_restrict_handle_new_user_rpc`). RLS dono-por-linha (`user_id = auth.uid()`);
+`clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (colunas do quadro do
+projeto; `final = true` marca a etapa de conclusão), `tarefas` (cards do quadro, com `tipo`
+e `concluida`), `checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do
+Asaas), `custos`, `anotacoes`, `leads_pipeline`, `eventos_agenda`. Migrações em
+`supabase/migrations/` (`0001_init`, `0002_handle_new_user` — trigger que cria a linha em
+`usuarios` no cadastro, `0003_restrict_handle_new_user_rpc`, `0004`/`0005` avatars storage,
+`0006_tarefas_kanban_projeto` — quadro de tarefas + backfill de etapas). RLS dono-por-linha
+(`user_id = auth.uid()`);
 `historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
 `src/lib/supabase/database.types.ts`.
 
@@ -117,9 +120,13 @@ para o resumo diário (tarefa rotineira).
 
 ## Roadmap
 
-- **Fase 1 (concluída):** Dashboard, CRM + histórico, Projetos (kanban/checklist),
-  Financeiro básico, Login — Supabase real (Auth + Postgres + RLS), não mais só dados
-  mockados.
+- **Fase 1 (concluída):** Dashboard, CRM + histórico, Projetos, Financeiro básico, Login —
+  Supabase real (Auth + Postgres + RLS), não mais só dados mockados. Projetos evoluiu de um
+  kanban de "projetos como cards" para um **quadro de tarefas por projeto**: seletor de
+  projetos no topo, colunas = etapas (editáveis por projeto, com etapa final de conclusão),
+  cards coloridos por tipo (`dev`/`design`/`conteudo`/`reuniao`/`bug`), drag-and-drop entre
+  etapas, concluir card com destaque e barra de progresso automática (`projetos.progresso`
+  derivado de % de tarefas concluídas). Ver `src/components/project-board.tsx`.
 - **Fase 2 (parcial):** Assistente global com tools ✅, geração de propostas/cobranças ✅,
   resumo diário ✅ — busca semântica ainda não implementada (ver seção "IA real" acima).
 - **Fase 3:** Previsões (receita, atraso, inadimplência), lead scoring, automações, lucro por cliente.
@@ -141,9 +148,9 @@ Variáveis de ambiente em `.env.local` (não versionado — ver `.env.example`):
 - Componentes de tela em `src/app/(app)/<modulo>/page.tsx` (Server Components, buscam dados
   via `src/lib/supabase/server.ts`); login em `src/app/login/page.tsx`.
 - UI compartilhada em `src/components/` (shadcn em `src/components/ui/`). Telas com
-  interação client-side (kanban drag-and-drop, chat, anotações, modal) delegam para um
-  Client Component correspondente (`kanban-board.tsx`, `notes-board.tsx`, `login-form.tsx`)
-  que usa `src/lib/supabase/client.ts`.
+  interação client-side (quadro de tarefas com drag-and-drop, chat, anotações, modal) delegam
+  para um Client Component correspondente (`project-board.tsx`, `notes-board.tsx`,
+  `login-form.tsx`) que usa `src/lib/supabase/client.ts`.
 - Conteúdo ainda ilustrativo/estático (charts de IA, catálogo de rascunhos) em
   `src/lib/mock-data.ts` — trocar por geração real na Fase 2/3.
 - Textos da UI em **português (pt-BR)**.

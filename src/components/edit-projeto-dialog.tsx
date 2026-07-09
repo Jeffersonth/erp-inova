@@ -11,16 +11,6 @@ const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
 const label = "text-[10.5px] font-semibold text-mut";
 
-const statusOptions: { value: Enums<"projeto_status">; label: string }[] = [
-  { value: "briefing", label: "Briefing" },
-  { value: "proposta", label: "Proposta" },
-  { value: "aprovado", label: "Aprovado" },
-  { value: "dev", label: "Em dev" },
-  { value: "revisao", label: "Revisão" },
-  { value: "entrega", label: "Entrega" },
-  { value: "concluido", label: "Concluído" },
-];
-
 export type EditableProjeto = {
   id: string;
   titulo: string;
@@ -28,18 +18,18 @@ export type EditableProjeto = {
   valor: number | null;
   moeda: Enums<"moeda">;
   dataEntrega: string | null;
-  status: Enums<"projeto_status">;
-  progresso: number;
 };
 
 export function EditProjetoDialog({
   projeto,
   clientes,
   onOpenChange,
+  onDeleted,
 }: {
   projeto: EditableProjeto | null;
   clientes: { id: string; nome: string }[];
   onOpenChange: (open: boolean) => void;
+  onDeleted?: () => void;
 }) {
   const router = useRouter();
   const { toast } = useApp();
@@ -64,7 +54,6 @@ export function EditProjetoDialog({
     const clienteId = String(form.get("cliente_id") ?? "");
     const valor = String(form.get("valor") ?? "").trim();
     const dataEntrega = String(form.get("data_entrega") ?? "").trim();
-    const progresso = Number(form.get("progresso") ?? 0);
 
     const { error: updateError } = await supabase
       .from("projetos")
@@ -73,9 +62,7 @@ export function EditProjetoDialog({
         cliente_id: clienteId || null,
         valor: valor ? Number(valor) : null,
         moeda: form.get("moeda") as Enums<"moeda">,
-        status: form.get("status") as Enums<"projeto_status">,
         data_entrega: dataEntrega || null,
-        progresso: Number.isFinite(progresso) ? Math.min(100, Math.max(0, progresso)) : 0,
       })
       .eq("id", projeto.id);
 
@@ -92,7 +79,7 @@ export function EditProjetoDialog({
 
   async function excluir() {
     if (!projeto) return;
-    if (!confirm(`Excluir o projeto "${projeto.titulo}"? Etapas e checklist vinculados também são apagados.`)) {
+    if (!confirm(`Excluir o projeto "${projeto.titulo}"? Etapas e cards vinculados também são apagados.`)) {
       return;
     }
     setLoading(true);
@@ -104,7 +91,8 @@ export function EditProjetoDialog({
     }
     onOpenChange(false);
     toast(`✓ Projeto "${projeto.titulo}" excluído`);
-    router.refresh();
+    if (onDeleted) onDeleted();
+    else router.refresh();
   }
 
   return (
@@ -150,33 +138,9 @@ export function EditProjetoDialog({
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className={label}>Entrega prevista</label>
-                  <input name="data_entrega" type="date" defaultValue={projeto.dataEntrega ?? ""} className={field} />
-                </div>
-                <div>
-                  <label className={label}>Etapa</label>
-                  <select name="status" defaultValue={projeto.status} className={field}>
-                    {statusOptions.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
               <div>
-                <label className={label}>Progresso ({projeto.progresso}%)</label>
-                <input
-                  name="progresso"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  defaultValue={projeto.progresso}
-                  className="mt-1 w-full accent-brand"
-                />
+                <label className={label}>Entrega prevista</label>
+                <input name="data_entrega" type="date" defaultValue={projeto.dataEntrega ?? ""} className={field} />
               </div>
 
               {error && (
