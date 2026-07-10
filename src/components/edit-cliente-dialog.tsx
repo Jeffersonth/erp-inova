@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
+import { ArquivosBox } from "@/components/arquivos-box";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -202,6 +203,17 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
             </div>
           </div>
         </form>
+
+        <div className="mt-3 border-t border-line pt-3">
+          <ArquivosBox
+            scope="cliente"
+            ownerId={cliente.id}
+            accept="application/pdf"
+            titulo="Notas fiscais (PDF)"
+            ajuda="Anexe as NFs deste cliente em PDF (máx. 15 MB)."
+            classificacaoPadrao="Nota fiscal"
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
