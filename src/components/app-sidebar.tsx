@@ -23,7 +23,6 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
   { href: "/crm", label: "CRM", icon: Users },
   { href: "/projetos", label: "Projetos", icon: FolderKanban },
@@ -32,6 +31,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
