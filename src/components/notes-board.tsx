@@ -122,6 +122,14 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
     await supabase.from("anotacoes").update({ concluida: done }).eq("id", id);
   }
 
+  async function remove(id: string) {
+    const note = notes.find((n) => n.id === id);
+    if (!note) return;
+    if (!confirm("Excluir esta anotação?")) return;
+    setNotes((prev) => prev.filter((n) => n.id !== id));
+    await supabase.from("anotacoes").delete().eq("id", id);
+  }
+
   const sections = [
     { title: "🔥 Atrasadas", items: notes.filter((n) => !n.done && n.due && n.due < today) },
     { title: "📅 Hoje", items: notes.filter((n) => !n.done && n.due && sameDay(n.due, today)) },
@@ -131,7 +139,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
   ];
 
   return (
-    <div className="flex max-w-[840px] flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Anotações</h1>
         <span className="text-[11.5px] text-mut">rápidas de escrever, impossíveis de esquecer</span>
@@ -173,40 +181,68 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
               <div className="mb-1.5 mt-0.5 text-[11px] font-bold tracking-[0.05em] text-mut">
                 {sec.title} · {sec.items.length}
               </div>
-              <div className="overflow-hidden rounded-xl border border-line bg-card">
-                {sec.items.map((n) => (
-                  <div
-                    key={n.id}
-                    className="flex items-center gap-2.5 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft"
-                  >
-                    <button
-                      onClick={() => toggle(n.id)}
-                      className={`flex size-[17px] flex-none items-center justify-center rounded-md border text-[11px] ${
-                        n.done ? "border-ok bg-ok text-white" : "border-line text-transparent hover:border-brand"
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {sec.items.map((n) => {
+                  const atrasada = !n.done && n.due != null && n.due < today;
+                  return (
+                    <div
+                      key={n.id}
+                      className={`flex flex-col gap-2 rounded-xl border p-3 shadow-[0_1px_2px_rgba(10,26,51,.05)] transition-colors ${
+                        n.done
+                          ? "border-line bg-soft opacity-75"
+                          : atrasada
+                            ? "border-danger/35 bg-danger/[0.04] hover:border-danger/60"
+                            : "border-line bg-card hover:border-brand/50"
                       }`}
                     >
-                      ✓
-                    </button>
-                    <span className={`min-w-0 flex-1 ${n.done ? "text-mut line-through" : "text-ink"}`}>{n.text}</span>
-                    {n.tag && (
-                      <span className="flex-none rounded-full border border-line bg-soft px-2 py-0.5 text-[10px] font-semibold text-mut">
-                        {n.tag}
-                      </span>
-                    )}
-                    {n.detected && !n.done && <IaBadge className="px-1.5 py-px text-[9px]">IA · prazo</IaBadge>}
-                    {n.due ? (
-                      <span
-                        className={`flex-none text-[11px] font-semibold ${
-                          !n.done && n.due < today ? "text-danger" : "text-mut"
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggle(n.id)}
+                          aria-label={n.done ? "Reabrir anotação" : "Concluir anotação"}
+                          title={n.done ? "Reabrir" : "Concluir"}
+                          className={`flex size-[17px] flex-none items-center justify-center rounded-full border text-[11px] ${
+                            n.done ? "border-ok bg-ok text-white" : "border-line text-transparent hover:border-brand"
+                          }`}
+                        >
+                          ✓
+                        </button>
+                        {n.tag && (
+                          <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[10px] font-semibold text-mut">
+                            {n.tag}
+                          </span>
+                        )}
+                        {n.detected && !n.done && <IaBadge className="px-1.5 py-px text-[9px]">IA · prazo</IaBadge>}
+                        <button
+                          onClick={() => remove(n.id)}
+                          aria-label="Excluir anotação"
+                          title="Excluir"
+                          className="ml-auto flex size-5 flex-none items-center justify-center rounded-md text-mut transition-colors hover:bg-danger/10 hover:text-danger"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div
+                        className={`min-h-[34px] text-[12.5px] leading-snug ${
+                          n.done ? "text-mut line-through" : "text-ink"
                         }`}
                       >
-                        {fmt(n.due)}
-                      </span>
-                    ) : (
-                      <span className="flex-none text-[11px] text-mut">sem prazo</span>
-                    )}
-                  </div>
-                ))}
+                        {n.text}
+                      </div>
+
+                      <div className="mt-auto border-t border-dashed border-line pt-1.5">
+                        {n.due ? (
+                          <span className={`text-[11px] font-semibold ${atrasada ? "text-danger" : "text-mut"}`}>
+                            {atrasada ? "⚠ " : "📅 "}
+                            {fmt(n.due)}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-mut">💡 sem prazo</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ),
