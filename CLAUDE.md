@@ -141,7 +141,11 @@ para o resumo diário (tarefa rotineira).
   `proxima_acao_ia` recomputados por regras via `POST /api/crm/recalcular` (botão "Recalcular
   scores"). Dashboard tem "Atenção necessária" real (contas em atraso, projetos em risco,
   leads esfriando). Automações com scheduler ainda não (sugestões são as "próximas ações").
-- **Fase 4:** WhatsApp, portal do cliente, Asaas real, prospecção por CNPJ.
+- **Fase 4 (parcial):** **Prospecção por CNPJ** (`/prospeccao`) via BrasilAPI (grátis, sem
+  chave) — `POST /api/prospeccao/cnpj` + botão "Criar lead". **WhatsApp** via link `wa.me`
+  (botão "Enviar no WhatsApp" no modal de rascunho, usa o telefone do cliente; sem API).
+  Ainda faltam: WhatsApp Business API oficial, portal do cliente, Asaas real (todos dependem
+  de conta/credencial externa).
 
 ## Comandos
 

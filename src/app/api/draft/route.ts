@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
   const { data: cliente, error: clienteError } = await supabase
     .from("clientes")
-    .select("nome, contato_nome, pais, ramo, status, score_ia, proxima_acao_ia, ultima_interacao")
+    .select("nome, contato_nome, pais, ramo, status, score_ia, proxima_acao_ia, ultima_interacao, telefone")
     .eq("id", clienteId)
     .single();
   if (clienteError || !cliente) {
@@ -97,7 +97,11 @@ export async function POST(request: Request) {
       .join("\n")
       .trim();
 
-    return NextResponse.json({ title: titulo, body: body || "Não foi possível gerar o rascunho." });
+    return NextResponse.json({
+      title: titulo,
+      body: body || "Não foi possível gerar o rascunho.",
+      telefone: cliente.telefone ?? null,
+    });
   } catch (err) {
     console.error("[draft]", err);
     return NextResponse.json({ error: "Erro ao gerar rascunho" }, { status: 500 });

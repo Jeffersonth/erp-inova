@@ -7,7 +7,14 @@ import { IaBadge } from "./ia-badge";
 
 export type DraftSpec = { tipo: "cobranca" | "mensagem_cliente"; clienteId: string; recebimentoId?: string };
 
-type ActiveDraft = { title: string; cta?: string; done?: string };
+type ActiveDraft = { title: string; cta?: string; done?: string; telefone?: string | null };
+
+/** Monta o link wa.me a partir de um telefone BR (adiciona 55 se faltar). */
+function whatsappLink(telefone: string, mensagem: string) {
+  let d = telefone.replace(/\D/g, "");
+  if (!d.startsWith("55") && d.length <= 11) d = "55" + d;
+  return `https://wa.me/${d}?text=${encodeURIComponent(mensagem)}`;
+}
 
 type Ctx = {
   openDraft: (key: string) => void;
@@ -58,7 +65,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
-      setActive({ title: data.title ?? fallbackTitle });
+      setActive({ title: data.title ?? fallbackTitle, telefone: data.telefone ?? null });
       setText(data.body);
     } catch {
       showToast("Não foi possível gerar o rascunho. Tente novamente.");
@@ -106,7 +113,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                   {text}
                 </div>
               )}
-              <div className="mt-3.5 flex justify-end gap-2">
+              <div className="mt-3.5 flex flex-wrap items-center justify-end gap-2">
                 <button
                   onClick={() => setEditing((v) => !v)}
                   disabled={loading}
@@ -114,6 +121,19 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                 >
                   {editing ? "Salvar edição" : "Editar"}
                 </button>
+                {active.telefone && (
+                  <a
+                    href={whatsappLink(active.telefone, text)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => showToast("Abrindo o WhatsApp com a mensagem…")}
+                    className={`rounded-lg border border-[#25D366] px-3.5 py-[7px] text-xs font-semibold text-[#128C3E] transition-colors hover:bg-[#25D366]/10 ${
+                      loading ? "pointer-events-none opacity-50" : ""
+                    }`}
+                  >
+                    Enviar no WhatsApp
+                  </a>
+                )}
                 <button
                   onClick={approve}
                   disabled={loading}
