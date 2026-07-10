@@ -56,7 +56,7 @@ export default async function ProjetosPage({
     supabase.from("etapas").select("id, nome, ordem, final").eq("projeto_id", selecionado.id).order("ordem"),
     supabase
       .from("tarefas")
-      .select("id, titulo, tipo, concluida, ordem, etapa_id")
+      .select("id, titulo, descricao, tipo, concluida, ordem, etapa_id")
       .eq("projeto_id", selecionado.id)
       .order("ordem"),
   ]);
@@ -68,7 +68,14 @@ export default async function ProjetosPage({
     final: e.final,
     tarefas: (tarefas ?? [])
       .filter((t) => t.etapa_id === e.id)
-      .map((t) => ({ id: t.id, titulo: t.titulo, tipo: t.tipo, concluida: t.concluida, ordem: t.ordem })),
+      .map((t) => ({
+        id: t.id,
+        titulo: t.titulo,
+        descricao: t.descricao,
+        tipo: t.tipo,
+        concluida: t.concluida,
+        ordem: t.ordem,
+      })),
   }));
 
   const clienteNome = clientesList.find((c) => c.id === selecionado.cliente_id)?.nome ?? null;

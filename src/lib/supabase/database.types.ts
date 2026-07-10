@@ -630,6 +630,7 @@ export type Database = {
         Row: {
           concluida: boolean
           created_at: string
+          descricao: string | null
           etapa_id: string
           id: string
           ordem: number
@@ -641,6 +642,7 @@ export type Database = {
         Insert: {
           concluida?: boolean
           created_at?: string
+          descricao?: string | null
           etapa_id: string
           id?: string
           ordem?: number
@@ -652,6 +654,7 @@ export type Database = {
         Update: {
           concluida?: boolean
           created_at?: string
+          descricao?: string | null
           etapa_id?: string
           id?: string
           ordem?: number

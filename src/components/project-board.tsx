@@ -10,6 +10,7 @@ import { TIPO_META, TIPO_ORDER, type TarefaTipo } from "@/lib/tarefa-tipos";
 export type BoardTarefa = {
   id: string;
   titulo: string;
+  descricao: string | null;
   tipo: TarefaTipo;
   concluida: boolean;
   ordem: number;
@@ -70,7 +71,7 @@ export function ProjectBoard({
     const { data, error } = await supabase
       .from("tarefas")
       .insert({ user_id: userId, projeto_id: projetoId, etapa_id: etapaId, titulo, tipo, ordem, concluida: etapa?.final ?? false })
-      .select("id, titulo, tipo, concluida, ordem")
+      .select("id, titulo, descricao, tipo, concluida, ordem")
       .single();
 
     if (error || !data) {
@@ -124,19 +125,25 @@ export function ProjectBoard({
       .eq("id", d.cardId);
   }
 
-  async function saveCard(titulo: string, tipo: TarefaTipo) {
+  async function saveCard(titulo: string, tipo: TarefaTipo, descricao: string) {
     if (!editing) return;
     const t = titulo.trim();
     if (!t) return;
+    const desc = descricao.trim() || null;
     setCols((prev) =>
       prev.map((c) =>
         c.id === editing.etapaId
-          ? { ...c, tarefas: c.tarefas.map((x) => (x.id === editing.card.id ? { ...x, titulo: t, tipo } : x)) }
+          ? {
+              ...c,
+              tarefas: c.tarefas.map((x) =>
+                x.id === editing.card.id ? { ...x, titulo: t, tipo, descricao: desc } : x,
+              ),
+            }
           : c,
       ),
     );
     setEditing(null);
-    await supabase.from("tarefas").update({ titulo: t, tipo }).eq("id", editing.card.id);
+    await supabase.from("tarefas").update({ titulo: t, tipo, descricao: desc }).eq("id", editing.card.id);
   }
 
   async function deleteCard() {
@@ -282,10 +289,15 @@ export function ProjectBoard({
                       </span>
                     </div>
                     <div
-                      className={`mt-1.5 text-[12px] leading-snug ${t.concluida ? "text-mut line-through" : "text-ink"}`}
+                      className={`mt-1.5 text-[12px] font-semibold leading-snug ${t.concluida ? "text-mut line-through" : "text-ink"}`}
                     >
                       {t.titulo}
                     </div>
+                    {t.descricao && (
+                      <div className={`mt-0.5 line-clamp-3 text-[11px] leading-snug ${t.concluida ? "text-mut" : "text-mut"}`}>
+                        {t.descricao}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -451,7 +463,7 @@ function EditCardDialog({
 }: {
   card: BoardTarefa | null;
   onOpenChange: (open: boolean) => void;
-  onSave: (titulo: string, tipo: TarefaTipo) => void;
+  onSave: (titulo: string, tipo: TarefaTipo, descricao: string) => void;
   onDelete: () => void;
 }) {
   return (
@@ -464,7 +476,11 @@ function EditCardDialog({
               onSubmit={(e) => {
                 e.preventDefault();
                 const form = new FormData(e.currentTarget);
-                onSave(String(form.get("titulo") ?? ""), form.get("tipo") as TarefaTipo);
+                onSave(
+                  String(form.get("titulo") ?? ""),
+                  form.get("tipo") as TarefaTipo,
+                  String(form.get("descricao") ?? ""),
+                );
               }}
               className="mt-3 flex flex-col gap-2.5"
             >
@@ -475,6 +491,16 @@ function EditCardDialog({
                   required
                   defaultValue={card.titulo}
                   className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+                />
+              </div>
+              <div>
+                <label className="text-[10.5px] font-semibold text-mut">Texto / descrição</label>
+                <textarea
+                  name="descricao"
+                  rows={3}
+                  defaultValue={card.descricao ?? ""}
+                  placeholder="Detalhes da tarefa…"
+                  className="mt-1 w-full resize-none rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
                 />
               </div>
               <div>
