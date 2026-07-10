@@ -1,6 +1,7 @@
 import { AiDraftButton } from "@/components/ai-draft-button";
 import { NewClienteDialog } from "@/components/new-cliente-dialog";
 import { EditClienteDialog } from "@/components/edit-cliente-dialog";
+import { RecalcularScores } from "@/components/recalcular-scores";
 import { toneText } from "@/lib/tone";
 import type { Tone } from "@/lib/mock-data";
 import { flagEmoji, relativeInteraction } from "@/lib/format";
@@ -56,6 +57,7 @@ export default async function CrmPage() {
           placeholder="Buscar contato…"
           className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-xs text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
         />
+        <RecalcularScores />
         <NewClienteDialog />
       </div>
 
