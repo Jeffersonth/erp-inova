@@ -368,30 +368,45 @@ export type Database = {
         Row: {
           cliente_id: string | null
           created_at: string
+          dia_inteiro: boolean
+          fim: string | null
           id: string
+          local: string | null
+          notas: string | null
           projeto_id: string | null
           quando: string
           tipo: string | null
+          tipo_ev: Database["public"]["Enums"]["evento_tipo"]
           titulo: string
           user_id: string
         }
         Insert: {
           cliente_id?: string | null
           created_at?: string
+          dia_inteiro?: boolean
+          fim?: string | null
           id?: string
+          local?: string | null
+          notas?: string | null
           projeto_id?: string | null
           quando: string
           tipo?: string | null
+          tipo_ev?: Database["public"]["Enums"]["evento_tipo"]
           titulo: string
           user_id: string
         }
         Update: {
           cliente_id?: string | null
           created_at?: string
+          dia_inteiro?: boolean
+          fim?: string | null
           id?: string
+          local?: string | null
+          notas?: string | null
           projeto_id?: string | null
           quando?: string
           tipo?: string | null
+          tipo_ev?: Database["public"]["Enums"]["evento_tipo"]
           titulo?: string
           user_id?: string
         }
@@ -843,6 +858,7 @@ export type Database = {
         | "frio"
         | "perdido"
       etapa_status: "prevista" | "em_andamento" | "concluida" | "atrasada"
+      evento_tipo: "reuniao" | "lembrete" | "bloco" | "entrega"
       moeda: "BRL" | "USD" | "EUR"
       projeto_status:
         | "briefing"

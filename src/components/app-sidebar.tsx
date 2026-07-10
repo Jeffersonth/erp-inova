@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   ListTodo,
+  CalendarDays,
   Users,
   FolderKanban,
   Wallet,
@@ -28,6 +29,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/projetos", label: "Projetos", icon: FolderKanban },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/tracker", label: "Time Tracker", icon: Timer },
+  { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
