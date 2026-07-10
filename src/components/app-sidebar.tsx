@@ -8,6 +8,7 @@ import {
   ListTodo,
   CalendarDays,
   Users,
+  Building2,
   FolderKanban,
   Wallet,
   Timer,
@@ -26,6 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
   { href: "/crm", label: "CRM", icon: Users },
+  { href: "/prospeccao", label: "Prospecção", icon: Building2 },
   { href: "/projetos", label: "Projetos", icon: FolderKanban },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/tracker", label: "Time Tracker", icon: Timer },
