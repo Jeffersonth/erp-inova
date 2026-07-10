@@ -489,6 +489,30 @@ export type Database = {
           },
         ]
       }
+      metas_financeiras: {
+        Row: {
+          created_at: string
+          id: string
+          mes: string
+          user_id: string
+          valor_meta: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mes: string
+          user_id: string
+          valor_meta?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mes?: string
+          user_id?: string
+          valor_meta?: number
+        }
+        Relationships: []
+      }
       projetos: {
         Row: {
           cliente_id: string | null

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
+import { MetaMesCard } from "@/components/meta-mes-card";
 import { toneText } from "@/lib/tone";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -12,19 +13,32 @@ const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as c
 export default async function DashboardPage() {
   const supabase = createClient();
   const hoje = new Date();
+  const mesInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const mesInicioIso = `${mesInicio.getFullYear()}-${String(mesInicio.getMonth() + 1).padStart(2, "0")}-01`;
+  const proxMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+  const proxMesIso = `${proxMes.getFullYear()}-${String(proxMes.getMonth() + 1).padStart(2, "0")}-01`;
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: projetos }, { data: clientes }, { data: assinaturas }, { data: recebimentos }, { data: perfil }] =
-    await Promise.all([
-      supabase.from("projetos").select("status"),
-      supabase.from("clientes").select("status"),
-      supabase.from("assinaturas").select("valor, status"),
-      supabase.from("recebimentos").select("valor, valor_pago, moeda, status").eq("moeda", "BRL").neq("status", "pago"),
-      user ? supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-    ]);
+  const [
+    { data: projetos },
+    { data: clientes },
+    { data: assinaturas },
+    { data: recebimentos },
+    { data: perfil },
+    { data: metaRow },
+  ] = await Promise.all([
+    supabase.from("projetos").select("status"),
+    supabase.from("clientes").select("status"),
+    supabase.from("assinaturas").select("valor, status"),
+    supabase.from("recebimentos").select("valor, valor_pago, moeda, status, data_pagamento").eq("moeda", "BRL"),
+    user ? supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+    user
+      ? supabase.from("metas_financeiras").select("valor_meta").eq("user_id", user.id).eq("mes", mesInicioIso).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
 
   const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0] || undefined;
 
@@ -35,15 +49,20 @@ export default async function DashboardPage() {
   const mrr = (assinaturas ?? [])
     .filter((a) => a.status === "ativa")
     .reduce((sum, a) => sum + Number(a.valor), 0);
-  const aReceber = (recebimentos ?? []).reduce(
-    (sum, r) => sum + Math.max(0, Number(r.valor) - Number(r.valor_pago)),
-    0,
-  );
+
+  const recs = recebimentos ?? [];
+  const vendasTotais = recs.reduce((s, r) => s + Number(r.valor), 0);
+  const recebido = recs.reduce((s, r) => s + Number(r.valor_pago), 0);
+  const pendente = recs.reduce((s, r) => s + Math.max(0, Number(r.valor) - Number(r.valor_pago)), 0);
+  const recebidoMes = recs
+    .filter((r) => r.data_pagamento && r.data_pagamento >= mesInicioIso && r.data_pagamento < proxMesIso)
+    .reduce((s, r) => s + Number(r.valor_pago), 0);
+  const meta = metaRow ? Number(metaRow.valor_meta) : 0;
 
   const resumo = await gerarResumoDia({
     projetosAtivos,
     leadsAtivos,
-    aReceber: formatMoney(aReceber),
+    aReceber: formatMoney(pendente),
     mrr: formatMoney(mrr),
     nome: primeiroNome,
   });
@@ -53,12 +72,15 @@ export default async function DashboardPage() {
     day: "numeric",
     month: "long",
   }).format(hoje);
+  const mesLabel = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(hoje);
 
   const kpis = [
-    { label: "PROJETOS ATIVOS", value: String(projetosAtivos), delta: "dados reais", tone: "ok" as const },
-    { label: "LEADS ATIVOS", value: String(leadsAtivos), delta: "dados reais", tone: "ok" as const },
-    { label: "A RECEBER", value: formatMoney(aReceber), delta: "dados reais", tone: "ok" as const },
-    { label: "MRR · ASAAS", value: formatMoney(mrr), delta: "dados reais", tone: "ok" as const },
+    { label: "PROJETOS ATIVOS", value: String(projetosAtivos), tone: "ok" as const },
+    { label: "LEADS ATIVOS", value: String(leadsAtivos), tone: "ok" as const },
+    { label: "VENDAS TOTAIS", value: formatMoney(vendasTotais), tone: "ok" as const },
+    { label: "VENDAS PAGAS", value: formatMoney(recebido), tone: "ok" as const },
+    { label: "VENDAS PENDENTES", value: formatMoney(pendente), tone: "amber" as const },
+    { label: "MRR · ASAAS", value: formatMoney(mrr), tone: "ok" as const },
   ];
 
   return (
@@ -87,19 +109,23 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {kpis.map((k) => (
-          <div
-            key={k.label}
-            className={`${card} cursor-pointer px-3 py-2.5 transition-colors hover:border-brand`}
-          >
+          <div key={k.label} className={`${card} px-3 py-2.5 transition-colors hover:border-brand`}>
             <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">{k.label}</div>
-            <div className="mt-0.5 text-[18px] font-extrabold tracking-[-0.02em] text-ink">{k.value}</div>
-            <div className={`mt-0.5 text-[11px] font-semibold ${toneText[k.tone]}`}>{k.delta}</div>
+            <div className={`mt-0.5 text-[17px] font-extrabold tracking-[-0.02em] ${toneText[k.tone]}`}>{k.value}</div>
           </div>
         ))}
       </div>
 
+      {/* Meta do mês */}
+      <MetaMesCard
+        userId={user?.id ?? ""}
+        mesIso={mesInicioIso}
+        mesLabel={mesLabel}
+        meta={meta}
+        recebidoMes={recebidoMes}
+      />
     </div>
   );
 }
