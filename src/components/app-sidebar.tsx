@@ -13,7 +13,6 @@ import {
   Wallet,
   Timer,
   Sparkles,
-  TrendingUp,
   StickyNote,
   Settings,
   Menu,
@@ -34,7 +33,6 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
-  { href: "/insights", label: "Insights", icon: TrendingUp },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];

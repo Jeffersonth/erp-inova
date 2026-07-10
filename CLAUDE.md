@@ -56,9 +56,10 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-Tarefas do dia · CRM · Projetos (quadro de tarefas) · Financeiro · Time Tracker · Agenda ·
-Assistente IA · Anotações · Dashboard · Configurações. (Dashboard fica no fim, antes de
-Configurações.)
+Tarefas do dia · CRM · Prospecção (CNPJ) · Projetos (quadro de tarefas) · Financeiro ·
+Time Tracker · Agenda · Assistente IA · Anotações · Dashboard · Configurações. (Dashboard
+fica no fim, antes de Configurações. Insights não é mais item de sidebar — virou seção no
+rodapé do Dashboard.)
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
@@ -134,13 +135,15 @@ para o resumo diário (tarefa rotineira).
   derivado de % de tarefas concluídas). Ver `src/components/project-board.tsx`.
 - **Fase 2 (parcial):** Assistente global com tools ✅, geração de propostas/cobranças ✅,
   resumo diário ✅ — busca semântica ainda não implementada (ver seção "IA real" acima).
-- **Fase 3 (parcial):** aba **Insights** (`/insights`) com previsão de receita 90d (3 cenários),
-  lucro por cliente, risco de atraso de projetos e risco de inadimplência — cálculos
-  determinísticos reais em `src/lib/insights.ts` + narrativa da IA (Opus) em Suspense
+- **Fase 3 (parcial):** seção **Insights** no rodapé do Dashboard (não é mais aba própria —
+  movida pra dentro do Dashboard) com previsão de receita 90d (3 cenários), lucro por
+  cliente, risco de atraso de projetos e risco de inadimplência — cálculos determinísticos
+  reais em `src/lib/insights.ts` + narrativa da IA (Opus) em Suspense
   (`src/lib/ai/insights-narrativa.ts`). **Lead scoring** real no CRM: `score_ia` e
   `proxima_acao_ia` recomputados por regras via `POST /api/crm/recalcular` (botão "Recalcular
   scores"). Dashboard tem "Atenção necessária" real (contas em atraso, projetos em risco,
-  leads esfriando). Automações com scheduler ainda não (sugestões são as "próximas ações").
+  leads esfriando) e um KPI de "Horas de foco · mês" (soma de `sessoes_foco` do tipo foco).
+  Automações com scheduler ainda não (sugestões são as "próximas ações").
 - **Fase 4 (parcial):** **Prospecção por CNPJ** (`/prospeccao`) via BrasilAPI (grátis, sem
   chave) — `POST /api/prospeccao/cnpj` + botão "Criar lead". **WhatsApp** via link `wa.me`
   (botão "Enviar no WhatsApp" no modal de rascunho, usa o telefone do cliente; sem API).
