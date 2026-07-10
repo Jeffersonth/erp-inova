@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -513,6 +515,41 @@ export type Database = {
         }
         Relationships: []
       }
+      projeto_notas: {
+        Row: {
+          created_at: string
+          id: string
+          prioridade: boolean
+          projeto_id: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prioridade?: boolean
+          projeto_id: string
+          texto: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prioridade?: boolean
+          projeto_id?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projeto_notas_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projetos: {
         Row: {
           cliente_id: string | null
@@ -559,41 +596,6 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      projeto_notas: {
-        Row: {
-          created_at: string
-          id: string
-          prioridade: boolean
-          projeto_id: string
-          texto: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          prioridade?: boolean
-          projeto_id: string
-          texto: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          prioridade?: boolean
-          projeto_id?: string
-          texto?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "projeto_notas_projeto_id_fkey"
-            columns: ["projeto_id"]
-            isOneToOne: false
-            referencedRelation: "projetos"
             referencedColumns: ["id"]
           },
         ]
@@ -654,6 +656,47 @@ export type Database = {
           },
           {
             foreignKeyName: "recebimentos_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessoes_foco: {
+        Row: {
+          duracao_seg: number
+          finalizada_em: string
+          id: string
+          iniciada_em: string
+          projeto_id: string | null
+          rotulo: string | null
+          tipo: Database["public"]["Enums"]["sessao_tipo"]
+          user_id: string
+        }
+        Insert: {
+          duracao_seg: number
+          finalizada_em?: string
+          id?: string
+          iniciada_em?: string
+          projeto_id?: string | null
+          rotulo?: string | null
+          tipo?: Database["public"]["Enums"]["sessao_tipo"]
+          user_id: string
+        }
+        Update: {
+          duracao_seg?: number
+          finalizada_em?: string
+          id?: string
+          iniciada_em?: string
+          projeto_id?: string | null
+          rotulo?: string | null
+          tipo?: Database["public"]["Enums"]["sessao_tipo"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessoes_foco_projeto_id_fkey"
             columns: ["projeto_id"]
             isOneToOne: false
             referencedRelation: "projetos"
@@ -817,6 +860,7 @@ export type Database = {
         | "recorrente"
         | "parcial"
       risco_nivel: "baixo" | "medio" | "alto"
+      sessao_tipo: "foco" | "pausa_curta" | "pausa_longa"
       tarefa_dia_status: "pendente" | "em_andamento" | "concluida"
       tarefa_tipo: "dev" | "design" | "conteudo" | "reuniao" | "bug"
       user_role: "admin" | "gestor" | "colaborador"
@@ -828,7 +872,8 @@ export type Database = {
 }
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-type DefaultSchema = DatabaseWithoutInternals["public"]
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
@@ -925,3 +970,62 @@ export type Enums<
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      assinatura_status: ["ativa", "retry", "inadimplente", "cancelada"],
+      cliente_status: [
+        "lead",
+        "qualificado",
+        "proposta",
+        "negociacao",
+        "cliente",
+        "recorrente",
+        "frio",
+        "perdido",
+      ],
+      etapa_status: ["prevista", "em_andamento", "concluida", "atrasada"],
+      moeda: ["BRL", "USD", "EUR"],
+      projeto_status: [
+        "briefing",
+        "proposta",
+        "aprovado",
+        "dev",
+        "revisao",
+        "entrega",
+        "concluido",
+      ],
+      recebimento_status: [
+        "em_dia",
+        "agendado",
+        "atrasado",
+        "pago",
+        "recorrente",
+        "parcial",
+      ],
+      risco_nivel: ["baixo", "medio", "alto"],
+      sessao_tipo: ["foco", "pausa_curta", "pausa_longa"],
+      tarefa_dia_status: ["pendente", "em_andamento", "concluida"],
+      tarefa_tipo: ["dev", "design", "conteudo", "reuniao", "bug"],
+      user_role: ["admin", "gestor", "colaborador"],
+    },
+  },
+} as const
