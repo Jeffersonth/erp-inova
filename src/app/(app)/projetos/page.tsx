@@ -2,6 +2,7 @@ import Link from "next/link";
 import { NewProjetoDialog } from "@/components/new-projeto-dialog";
 import { ProjectHeader } from "@/components/project-header";
 import { ProjectBoard, type BoardEtapa } from "@/components/project-board";
+import { ArquivosBox } from "@/components/arquivos-box";
 import { formatMoney, relativeDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -123,6 +124,21 @@ export default async function ProjetosPage({
           clientes={clientesList}
         />
         <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
+      </div>
+
+      {/* Arquivos enviados pelo cliente */}
+      <div className={`${card} px-3.5 py-3`}>
+        <div className="mb-2 flex items-center gap-2">
+          <b className="text-[12.5px] text-ink">Arquivos do projeto</b>
+          <span className="text-[11px] text-mut">materiais enviados pelo cliente</span>
+        </div>
+        <ArquivosBox
+          scope="projeto"
+          ownerId={selecionado.id}
+          accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,application/pdf,image/*"
+          titulo="PDF, imagens e documentos"
+          ajuda="Aceita PDF, PNG, JPG e DOC/DOCX (máx. 15 MB por arquivo)."
+        />
       </div>
     </div>
   );
