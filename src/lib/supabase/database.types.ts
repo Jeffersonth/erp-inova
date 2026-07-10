@@ -680,6 +680,7 @@ export type Database = {
       }
       sessoes_foco: {
         Row: {
+          categoria: Database["public"]["Enums"]["sessao_categoria"]
           duracao_seg: number
           finalizada_em: string
           id: string
@@ -690,6 +691,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          categoria?: Database["public"]["Enums"]["sessao_categoria"]
           duracao_seg: number
           finalizada_em?: string
           id?: string
@@ -700,6 +702,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          categoria?: Database["public"]["Enums"]["sessao_categoria"]
           duracao_seg?: number
           finalizada_em?: string
           id?: string
@@ -876,6 +879,7 @@ export type Database = {
         | "recorrente"
         | "parcial"
       risco_nivel: "baixo" | "medio" | "alto"
+      sessao_categoria: "trabalho" | "estudo"
       sessao_tipo: "foco" | "pausa_curta" | "pausa_longa"
       tarefa_dia_status: "pendente" | "em_andamento" | "concluida"
       tarefa_tipo: "dev" | "design" | "conteudo" | "reuniao" | "bug"
@@ -1019,6 +1023,7 @@ export const Constants = {
         "perdido",
       ],
       etapa_status: ["prevista", "em_andamento", "concluida", "atrasada"],
+      evento_tipo: ["reuniao", "lembrete", "bloco", "entrega"],
       moeda: ["BRL", "USD", "EUR"],
       projeto_status: [
         "briefing",
@@ -1038,6 +1043,7 @@ export const Constants = {
         "parcial",
       ],
       risco_nivel: ["baixo", "medio", "alto"],
+      sessao_categoria: ["trabalho", "estudo"],
       sessao_tipo: ["foco", "pausa_curta", "pausa_longa"],
       tarefa_dia_status: ["pendente", "em_andamento", "concluida"],
       tarefa_tipo: ["dev", "design", "conteudo", "reuniao", "bug"],

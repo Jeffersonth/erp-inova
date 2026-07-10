@@ -6,16 +6,37 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
 
 type Modo = "foco" | "pausa_curta" | "pausa_longa";
+type Preset = "classico" | "estendido";
+type Categoria = Enums<"sessao_categoria">;
 
-const CONFIG: Record<Modo, { label: string; min: number; cor: string }> = {
-  foco: { label: "Foco", min: 25, cor: "#1D5BFF" },
-  pausa_curta: { label: "Pausa curta", min: 5, cor: "#0E9F6E" },
-  pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
+const PRESETS: Record<Preset, { label: string; config: Record<Modo, { label: string; min: number; cor: string }> }> = {
+  classico: {
+    label: "25 + 5 min",
+    config: {
+      foco: { label: "Foco", min: 25, cor: "#1D5BFF" },
+      pausa_curta: { label: "Pausa curta", min: 5, cor: "#0E9F6E" },
+      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
+    },
+  },
+  estendido: {
+    label: "50 + 10 min",
+    config: {
+      foco: { label: "Foco", min: 50, cor: "#1D5BFF" },
+      pausa_curta: { label: "Descanso", min: 10, cor: "#0E9F6E" },
+      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
+    },
+  },
+};
+
+const CATEGORIAS: Record<Categoria, { label: string; icone: string }> = {
+  trabalho: { label: "Trabalho", icone: "💼" },
+  estudo: { label: "Estudo", icone: "📚" },
 };
 
 export type SessaoRow = {
   id: string;
   tipo: Enums<"sessao_tipo">;
+  categoria: Categoria;
   duracao_seg: number;
   rotulo: string | null;
   finalizada_em: string;
@@ -62,11 +83,14 @@ export function TimeTracker({
   const { toast } = useApp();
   const supabase = createClient();
 
+  const [preset, setPreset] = useState<Preset>("classico");
   const [modo, setModo] = useState<Modo>("foco");
+  const CONFIG = PRESETS[preset].config;
   const [restante, setRestante] = useState(CONFIG.foco.min * 60);
   const [rodando, setRodando] = useState(false);
   const [projetoId, setProjetoId] = useState("");
   const [rotulo, setRotulo] = useState("");
+  const [categoria, setCategoria] = useState<Categoria>("trabalho");
   const [historico, setHistorico] = useState<SessaoRow[]>(historicoInicial);
   const [focoHoje, setFocoHoje] = useState(totalHojeInicial);
 
@@ -82,19 +106,20 @@ export function TimeTracker({
           user_id: userId,
           projeto_id: projetoId || null,
           tipo,
+          categoria,
           duracao_seg: dur,
           rotulo: rotulo.trim() || null,
           iniciada_em: inicio.toISOString(),
           finalizada_em: new Date().toISOString(),
         })
-        .select("id, tipo, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
+        .select("id, tipo, categoria, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
         .single();
       if (!error && data) {
         setHistorico((prev) => [data as SessaoRow, ...prev]);
         if (tipo === "foco") setFocoHoje((h) => h + dur);
       }
     },
-    [supabase, userId, projetoId, rotulo],
+    [supabase, userId, projetoId, rotulo, categoria],
   );
 
   // tick do timer
@@ -132,6 +157,13 @@ export function TimeTracker({
     setRestante(CONFIG[m].min * 60);
   }
 
+  function trocarPreset(p: Preset) {
+    setPreset(p);
+    setRodando(false);
+    inicioRef.current = null;
+    setRestante(PRESETS[p].config[modo].min * 60);
+  }
+
   function iniciarPausar() {
     if (!rodando) {
       if (inicioRef.current === null) inicioRef.current = Date.now();
@@ -162,7 +194,20 @@ export function TimeTracker({
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1.1fr]">
       {/* Timer */}
       <div className="rounded-xl border border-line bg-card px-3.5 py-4">
-        <div className="flex justify-center gap-1.5">
+        <div className="flex justify-center gap-1">
+          {(Object.keys(PRESETS) as Preset[]).map((p) => (
+            <button
+              key={p}
+              onClick={() => trocarPreset(p)}
+              className={`rounded-full border px-2.5 py-[3px] text-[10.5px] font-semibold transition-colors ${
+                preset === p ? "border-aqua/45 bg-aqua/10 text-ia" : "border-line bg-soft text-mut hover:border-aqua/45"
+              }`}
+            >
+              {PRESETS[p].label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 flex justify-center gap-1.5">
           {(Object.keys(CONFIG) as Modo[]).map((m) => (
             <button
               key={m}
@@ -227,13 +272,24 @@ export function TimeTracker({
               </option>
             ))}
           </select>
-          <input
-            value={rotulo}
-            onChange={(e) => setRotulo(e.target.value)}
-            placeholder="No que está focando?"
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value as Categoria)}
             className="rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
-          />
+          >
+            {(Object.keys(CATEGORIAS) as Categoria[]).map((c) => (
+              <option key={c} value={c}>
+                {CATEGORIAS[c].icone} {CATEGORIAS[c].label}
+              </option>
+            ))}
+          </select>
         </div>
+        <input
+          value={rotulo}
+          onChange={(e) => setRotulo(e.target.value)}
+          placeholder="No que está focando?"
+          className="mt-2 w-full rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+        />
 
         <div className="mt-3 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-center text-[12px] text-mut">
           Foco de hoje: <b className="text-ok">{humano(focoHoje)}</b>
@@ -259,7 +315,7 @@ export function TimeTracker({
                   <span className="size-2 flex-none rounded-full" style={{ background: c.cor }} />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[12px] text-ink">
-                      {s.rotulo || c.label}
+                      {CATEGORIAS[s.categoria]?.icone ?? "💼"} {s.rotulo || c.label}
                       {s.projetos?.titulo && <span className="text-mut"> · {s.projetos.titulo}</span>}
                     </div>
                     <div className="text-[10.5px] text-mut">{quando(s.finalizada_em)}</div>

@@ -15,7 +15,7 @@ export default async function TrackerPage() {
     supabase.from("projetos").select("id, titulo").order("created_at", { ascending: true }),
     supabase
       .from("sessoes_foco")
-      .select("id, tipo, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
+      .select("id, tipo, categoria, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
       .order("finalizada_em", { ascending: false })
       .limit(50),
     supabase
