@@ -145,7 +145,8 @@ para o resumo diário (tarefa rotineira).
   leads esfriando) e um KPI de "Horas de foco · mês" (soma de `sessoes_foco` do tipo foco).
   Automações com scheduler ainda não (sugestões são as "próximas ações").
 - **Fase 4 (parcial):** **Prospecção por CNPJ** (`/prospeccao`) via BrasilAPI (grátis, sem
-  chave) — `POST /api/prospeccao/cnpj` + botão "Criar lead". **WhatsApp** via link `wa.me`
+  chave) — `POST /api/prospeccao/cnpj` + botões "Criar lead" / "Criar cliente" (grava direto
+  com `status: "lead"` ou `"cliente"` em `clientes`). **WhatsApp** via link `wa.me`
   (botão "Enviar no WhatsApp" no modal de rascunho, usa o telefone do cliente; sem API).
   Ainda faltam: WhatsApp Business API oficial, portal do cliente, Asaas real (todos dependem
   de conta/credencial externa).

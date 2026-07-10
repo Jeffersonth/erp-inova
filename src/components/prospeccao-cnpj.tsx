@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
+import type { Enums } from "@/lib/supabase/database.types";
+
+type StatusCriavel = Extract<Enums<"cliente_status">, "lead" | "cliente">;
 
 type Empresa = {
   cnpj: string;
@@ -38,16 +41,16 @@ export function ProspeccaoCnpj() {
 
   const [cnpj, setCnpj] = useState("");
   const [loading, setLoading] = useState(false);
-  const [criando, setCriando] = useState(false);
+  const [criando, setCriando] = useState<StatusCriavel | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
-  const [criado, setCriado] = useState(false);
+  const [criado, setCriado] = useState<StatusCriavel | null>(null);
 
   async function buscar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErro(null);
     setEmpresa(null);
-    setCriado(false);
+    setCriado(null);
     setLoading(true);
     try {
       const res = await fetch("/api/prospeccao/cnpj", {
@@ -68,15 +71,15 @@ export function ProspeccaoCnpj() {
     }
   }
 
-  async function criarLead() {
+  async function criar(status: StatusCriavel) {
     if (!empresa) return;
-    setCriando(true);
+    setCriando(status);
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
       toast("Sessão expirada — faça login novamente.");
-      setCriando(false);
+      setCriando(null);
       return;
     }
     const { error } = await supabase.from("clientes").insert({
@@ -87,18 +90,18 @@ export function ProspeccaoCnpj() {
       telefone: empresa.telefone,
       pais: "BR",
       ramo: empresa.atividade ? empresa.atividade.slice(0, 40) : null,
-      status: "lead",
+      status,
       cnpj_vat: formatCnpj(empresa.cnpj),
       endereco: empresa.endereco,
       origem: "Prospecção CNPJ",
     });
-    setCriando(false);
+    setCriando(null);
     if (error) {
-      toast("Não foi possível criar o lead.");
+      toast(status === "cliente" ? "Não foi possível criar o cliente." : "Não foi possível criar o lead.");
       return;
     }
-    setCriado(true);
-    toast("✓ Lead criado no CRM");
+    setCriado(status);
+    toast(status === "cliente" ? "✓ Cliente criado no CRM" : "✓ Lead criado no CRM");
     router.refresh();
   }
 
@@ -146,13 +149,22 @@ export function ProspeccaoCnpj() {
                 {empresa.situacao}
               </span>
             )}
-            <button
-              onClick={criarLead}
-              disabled={criando || criado}
-              className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
-            >
-              {criado ? "✓ Lead criado" : criando ? "Criando…" : "+ Criar lead no CRM"}
-            </button>
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                onClick={() => criar("lead")}
+                disabled={!!criando || !!criado}
+                className="rounded-lg border border-brand px-3.5 py-[7px] text-xs font-semibold text-brand transition-colors hover:bg-brand/10 disabled:opacity-60"
+              >
+                {criado === "lead" ? "✓ Lead criado" : criando === "lead" ? "Criando…" : "+ Criar lead"}
+              </button>
+              <button
+                onClick={() => criar("cliente")}
+                disabled={!!criando || !!criado}
+                className="rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              >
+                {criado === "cliente" ? "✓ Cliente criado" : criando === "cliente" ? "Criando…" : "+ Criar cliente"}
+              </button>
+            </div>
           </div>
 
           <div className="mt-2.5 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
