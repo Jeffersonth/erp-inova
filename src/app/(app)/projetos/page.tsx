@@ -127,45 +127,47 @@ export default async function ProjetosPage({
         </div>
       )}
 
-      {/* Projeto selecionado */}
-      <div className={`${card} flex flex-col gap-3 px-3.5 py-3`}>
-        <ProjectHeader
-          projeto={{
-            id: selecionado.id,
-            titulo: selecionado.titulo,
-            clienteId: selecionado.cliente_id,
-            valor: selecionado.valor != null ? Number(selecionado.valor) : null,
-            moeda: selecionado.moeda as Enums<"moeda">,
-            dataEntrega: selecionado.data_entrega,
-          }}
-          clienteNome={clienteNome}
-          metaLinha={metaLinha}
-          clientes={clientesList}
-          finalizada={finalizada}
-        />
-        <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
-      </div>
-
-      {/* Anotações importantes do projeto */}
-      <ProjetoNotas
-        projetoId={selecionado.id}
-        userId={user?.id ?? ""}
-        initial={(notas ?? []) as ProjetoNota[]}
-      />
-
-      {/* Arquivos enviados pelo cliente */}
-      <div className={`${card} px-3.5 py-3`}>
-        <div className="mb-2 flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Arquivos do projeto</b>
-          <span className="text-[11px] text-mut">materiais enviados pelo cliente</span>
+      {/* Projeto selecionado — key força reset completo do estado ao trocar de projeto */}
+      <div key={selecionado.id} className="flex flex-col gap-3">
+        <div className={`${card} flex flex-col gap-3 px-3.5 py-3`}>
+          <ProjectHeader
+            projeto={{
+              id: selecionado.id,
+              titulo: selecionado.titulo,
+              clienteId: selecionado.cliente_id,
+              valor: selecionado.valor != null ? Number(selecionado.valor) : null,
+              moeda: selecionado.moeda as Enums<"moeda">,
+              dataEntrega: selecionado.data_entrega,
+            }}
+            clienteNome={clienteNome}
+            metaLinha={metaLinha}
+            clientes={clientesList}
+            finalizada={finalizada}
+          />
+          <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
         </div>
-        <ArquivosBox
-          scope="projeto"
-          ownerId={selecionado.id}
-          accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,application/pdf,image/*"
-          titulo="PDF, imagens e documentos"
-          ajuda="Aceita PDF, PNG, JPG e DOC/DOCX (máx. 15 MB por arquivo)."
+
+        {/* Anotações importantes do projeto */}
+        <ProjetoNotas
+          projetoId={selecionado.id}
+          userId={user?.id ?? ""}
+          initial={(notas ?? []) as ProjetoNota[]}
         />
+
+        {/* Arquivos enviados pelo cliente */}
+        <div className={`${card} px-3.5 py-3`}>
+          <div className="mb-2 flex items-center gap-2">
+            <b className="text-[12.5px] text-ink">Arquivos do projeto</b>
+            <span className="text-[11px] text-mut">materiais enviados pelo cliente</span>
+          </div>
+          <ArquivosBox
+            scope="projeto"
+            ownerId={selecionado.id}
+            accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,application/pdf,image/*"
+            titulo="PDF, imagens e documentos"
+            ajuda="Aceita PDF, PNG, JPG e DOC/DOCX (máx. 15 MB por arquivo)."
+          />
+        </div>
       </div>
 
       {/* Projetos finalizados (arquivados) */}
