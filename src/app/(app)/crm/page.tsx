@@ -48,6 +48,16 @@ export default async function CrmPage() {
     .select("*")
     .order("score_ia", { ascending: false, nullsFirst: false });
 
+  const paisesMap = new Map<string, number>();
+  for (const c of contatos ?? []) {
+    if (!c.pais) continue;
+    paisesMap.set(c.pais, (paisesMap.get(c.pais) ?? 0) + 1);
+  }
+  const totalComPais = Array.from(paisesMap.values()).reduce((s, n) => s + n, 0);
+  const distribuicaoPaises = Array.from(paisesMap.entries())
+    .map(([pais, count]) => ({ pais, count, pct: totalComPais ? Math.round((count / totalComPais) * 100) : 0 }))
+    .sort((a, b) => b.count - a.count);
+
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}
@@ -124,6 +134,27 @@ export default async function CrmPage() {
         </div>
       </div>
 
+      {/* Distribuição por país — dados reais dos contatos */}
+      {distribuicaoPaises.length > 0 && (
+        <div className={`${card} px-3.5 py-3`}>
+          <b className="text-[12.5px] text-ink">Distribuição por país</b>
+          <div className="mt-2.5 flex flex-col gap-2">
+            {distribuicaoPaises.map((d) => (
+              <div key={d.pais} className="grid grid-cols-[70px_1fr_70px] items-center gap-2 text-[11.5px]">
+                <span className="text-ink">
+                  {flagEmoji(d.pais)} {d.pais}
+                </span>
+                <div className="h-2.5 overflow-hidden rounded-full bg-soft">
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${d.pct}%` }} />
+                </div>
+                <span className="text-right text-mut">
+                  {d.count} · {d.pct}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
