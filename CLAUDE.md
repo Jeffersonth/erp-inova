@@ -56,7 +56,9 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-Dashboard · Tarefas do dia · CRM · Projetos (quadro de tarefas) · Financeiro · Assistente IA · Anotações · Configurações.
+Tarefas do dia · CRM · Projetos (quadro de tarefas) · Financeiro · Time Tracker · Agenda ·
+Assistente IA · Anotações · Dashboard · Configurações. (Dashboard fica no fim, antes de
+Configurações.)
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.

@@ -24,13 +24,15 @@ export default async function ProjetosPage({
   const [{ data: projetos }, { data: clientes }] = await Promise.all([
     supabase
       .from("projetos")
-      .select("id, titulo, cliente_id, valor, moeda, data_entrega")
+      .select("id, titulo, cliente_id, valor, moeda, data_entrega, status")
       .order("created_at", { ascending: true }),
     supabase.from("clientes").select("id, nome").order("nome"),
   ]);
 
   const lista = projetos ?? [];
   const clientesList = clientes ?? [];
+  const ativos = lista.filter((p) => p.status !== "concluido");
+  const arquivados = lista.filter((p) => p.status === "concluido");
 
   // Nenhum projeto ainda
   if (lista.length === 0) {
@@ -50,8 +52,9 @@ export default async function ProjetosPage({
     );
   }
 
-  // Projeto selecionado (via ?p=; fallback = primeiro)
-  const selecionado = lista.find((p) => p.id === searchParams.p) ?? lista[0];
+  // Projeto selecionado (via ?p=; fallback = primeiro ativo, senão primeiro da lista)
+  const selecionado = lista.find((p) => p.id === searchParams.p) ?? ativos[0] ?? lista[0];
+  const finalizada = selecionado.status === "concluido";
 
   const [{ data: etapas }, { data: tarefas }, { data: notas }] = await Promise.all([
     supabase.from("etapas").select("id, nome, ordem, final").eq("projeto_id", selecionado.id).order("ordem"),
@@ -102,25 +105,27 @@ export default async function ProjetosPage({
         <NewProjetoDialog clientes={clientesList} />
       </div>
 
-      {/* Seletor de projetos */}
-      <div className="thin-scroll -mb-1 flex gap-1.5 overflow-x-auto pb-1">
-        {lista.map((p) => {
-          const ativo = p.id === selecionado.id;
-          return (
-            <Link
-              key={p.id}
-              href={`/projetos?p=${p.id}`}
-              className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
-                ativo
-                  ? "border-brand bg-brand/[0.06] text-brand"
-                  : "border-line bg-card text-mut hover:border-brand hover:text-ink"
-              }`}
-            >
-              {p.titulo}
-            </Link>
-          );
-        })}
-      </div>
+      {/* Seletor de projetos ativos */}
+      {ativos.length > 0 && (
+        <div className="thin-scroll -mb-1 flex gap-1.5 overflow-x-auto pb-1">
+          {ativos.map((p) => {
+            const ativo = p.id === selecionado.id;
+            return (
+              <Link
+                key={p.id}
+                href={`/projetos?p=${p.id}`}
+                className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+                  ativo
+                    ? "border-brand bg-brand/[0.06] text-brand"
+                    : "border-line bg-card text-mut hover:border-brand hover:text-ink"
+                }`}
+              >
+                {p.titulo}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Projeto selecionado */}
       <div className={`${card} flex flex-col gap-3 px-3.5 py-3`}>
@@ -136,6 +141,7 @@ export default async function ProjetosPage({
           clienteNome={clienteNome}
           metaLinha={metaLinha}
           clientes={clientesList}
+          finalizada={finalizada}
         />
         <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
       </div>
@@ -161,6 +167,39 @@ export default async function ProjetosPage({
           ajuda="Aceita PDF, PNG, JPG e DOC/DOCX (máx. 15 MB por arquivo)."
         />
       </div>
+
+      {/* Projetos finalizados (arquivados) */}
+      {arquivados.length > 0 && (
+        <div className="mt-2">
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.07em] text-mut">Projetos finalizados</span>
+            <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px] text-mut">{arquivados.length}</span>
+            <div className="h-px flex-1 bg-line" />
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {arquivados.map((p) => {
+              const nome = clientesList.find((c) => c.id === p.cliente_id)?.nome;
+              const ativo = p.id === selecionado.id;
+              return (
+                <Link
+                  key={p.id}
+                  href={`/projetos?p=${p.id}`}
+                  className={`${card} flex items-center gap-2 px-3 py-2.5 opacity-90 transition-colors hover:border-brand hover:opacity-100 ${
+                    ativo ? "border-brand" : ""
+                  }`}
+                >
+                  <span className="flex-none text-ok">✓</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[12.5px] font-semibold text-ink">{p.titulo}</div>
+                    <div className="truncate text-[11px] text-mut">{nome ?? "sem cliente"}</div>
+                  </div>
+                  <span className="flex-none text-[11px] font-semibold text-mut">abrir →</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
