@@ -3,6 +3,7 @@ import { NewProjetoDialog } from "@/components/new-projeto-dialog";
 import { ProjectHeader } from "@/components/project-header";
 import { ProjectBoard, type BoardEtapa } from "@/components/project-board";
 import { ArquivosBox } from "@/components/arquivos-box";
+import { ProjetoNotas, type ProjetoNota } from "@/components/projeto-notas";
 import { formatMoney, relativeDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -52,13 +53,19 @@ export default async function ProjetosPage({
   // Projeto selecionado (via ?p=; fallback = primeiro)
   const selecionado = lista.find((p) => p.id === searchParams.p) ?? lista[0];
 
-  const [{ data: etapas }, { data: tarefas }] = await Promise.all([
+  const [{ data: etapas }, { data: tarefas }, { data: notas }] = await Promise.all([
     supabase.from("etapas").select("id, nome, ordem, final").eq("projeto_id", selecionado.id).order("ordem"),
     supabase
       .from("tarefas")
       .select("id, titulo, descricao, tipo, concluida, ordem, etapa_id")
       .eq("projeto_id", selecionado.id)
       .order("ordem"),
+    supabase
+      .from("projeto_notas")
+      .select("id, texto, prioridade")
+      .eq("projeto_id", selecionado.id)
+      .order("prioridade", { ascending: false })
+      .order("created_at", { ascending: false }),
   ]);
 
   const boardEtapas: BoardEtapa[] = (etapas ?? []).map((e) => ({
@@ -132,6 +139,13 @@ export default async function ProjetosPage({
         />
         <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
       </div>
+
+      {/* Anotações importantes do projeto */}
+      <ProjetoNotas
+        projetoId={selecionado.id}
+        userId={user?.id ?? ""}
+        initial={(notas ?? []) as ProjetoNota[]}
+      />
 
       {/* Arquivos enviados pelo cliente */}
       <div className={`${card} px-3.5 py-3`}>

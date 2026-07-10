@@ -563,6 +563,41 @@ export type Database = {
           },
         ]
       }
+      projeto_notas: {
+        Row: {
+          created_at: string
+          id: string
+          prioridade: boolean
+          projeto_id: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prioridade?: boolean
+          projeto_id: string
+          texto: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prioridade?: boolean
+          projeto_id?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projeto_notas_projeto_id_fkey"
+            columns: ["projeto_id"]
+            isOneToOne: false
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recebimentos: {
         Row: {
           cliente_id: string | null
