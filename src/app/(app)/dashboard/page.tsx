@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
@@ -9,6 +10,19 @@ import { gerarResumoDia } from "@/lib/ai/resumo";
 
 const card = "rounded-xl border border-line bg-card";
 const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as const;
+
+// Resumo do dia (IA) — isolado num boundary de Suspense para NÃO bloquear
+// a renderização dos KPIs enquanto a IA responde.
+async function ResumoDia(props: {
+  projetosAtivos: number;
+  leadsAtivos: number;
+  aReceber: string;
+  mrr: string;
+  nome?: string;
+}) {
+  const resumo = await gerarResumoDia(props);
+  return <RichText text={resumo} />;
+}
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -59,14 +73,6 @@ export default async function DashboardPage() {
     .reduce((s, r) => s + Number(r.valor_pago), 0);
   const meta = metaRow ? Number(metaRow.valor_meta) : 0;
 
-  const resumo = await gerarResumoDia({
-    projetosAtivos,
-    leadsAtivos,
-    aReceber: formatMoney(pendente),
-    mrr: formatMoney(mrr),
-    nome: primeiroNome,
-  });
-
   const dataHoje = new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
     day: "numeric",
@@ -98,7 +104,15 @@ export default async function DashboardPage() {
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
         <div className="min-w-0 text-[12.5px] leading-[1.5] text-ink">
-          <RichText text={resumo} />
+          <Suspense fallback={<span className="text-mut">Gerando o resumo do dia…</span>}>
+            <ResumoDia
+              projetosAtivos={projetosAtivos}
+              leadsAtivos={leadsAtivos}
+              aReceber={formatMoney(pendente)}
+              mrr={formatMoney(mrr)}
+              nome={primeiroNome}
+            />
+          </Suspense>
         </div>
         <Link
           href="/assistente"

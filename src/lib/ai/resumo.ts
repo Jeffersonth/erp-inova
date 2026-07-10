@@ -17,17 +17,20 @@ export async function gerarResumoDia(input: {
   const saudacao = input.nome ? `Olá, ${input.nome}! ` : "";
   const fallback = `${saudacao}Confira os números do seu dia abaixo.`;
   try {
-    const response = await anthropic.messages.create({
-      model: MODEL_CHEAP,
-      max_tokens: 200,
-      system: systemPrompt(input.nome),
-      messages: [
-        {
-          role: "user",
-          content: `Dados de hoje:\n- Projetos ativos: ${input.projetosAtivos}\n- Leads ativos: ${input.leadsAtivos}\n- A receber (saldo em aberto): ${input.aReceber}\n- MRR (receita recorrente ativa): ${input.mrr}`,
-        },
-      ],
-    });
+    const response = await anthropic.messages.create(
+      {
+        model: MODEL_CHEAP,
+        max_tokens: 200,
+        system: systemPrompt(input.nome),
+        messages: [
+          {
+            role: "user",
+            content: `Dados de hoje:\n- Projetos ativos: ${input.projetosAtivos}\n- Leads ativos: ${input.leadsAtivos}\n- A receber (saldo em aberto): ${input.aReceber}\n- MRR (receita recorrente ativa): ${input.mrr}`,
+          },
+        ],
+      },
+      { timeout: 8000, maxRetries: 1 },
+    );
     const text = response.content
       .filter((b) => b.type === "text")
       .map((b) => ("text" in b ? b.text : ""))
