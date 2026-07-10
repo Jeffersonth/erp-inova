@@ -7,6 +7,8 @@ import { toneText } from "@/lib/tone";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { gerarResumoDia } from "@/lib/ai/resumo";
+import { projetosEmRisco, inadimplencia } from "@/lib/insights";
+import type { Enums } from "@/lib/supabase/database.types";
 
 const card = "rounded-xl border border-line bg-card";
 const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as const;
@@ -44,10 +46,13 @@ export default async function DashboardPage() {
     { data: perfil },
     { data: metaRow },
   ] = await Promise.all([
-    supabase.from("projetos").select("status"),
-    supabase.from("clientes").select("status"),
+    supabase.from("projetos").select("id, titulo, status, progresso, data_entrega"),
+    supabase.from("clientes").select("nome, status, ultima_interacao"),
     supabase.from("assinaturas").select("valor, status"),
-    supabase.from("recebimentos").select("valor, valor_pago, moeda, status, data_pagamento").eq("moeda", "BRL"),
+    supabase
+      .from("recebimentos")
+      .select("cliente_id, valor, valor_pago, moeda, status, vencimento, data_pagamento, clientes(nome)")
+      .eq("moeda", "BRL"),
     user ? supabase.from("usuarios").select("nome").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
     user
       ? supabase.from("metas_financeiras").select("valor_meta").eq("user_id", user.id).eq("mes", mesInicioIso).maybeSingle()
@@ -72,6 +77,54 @@ export default async function DashboardPage() {
     .filter((r) => r.data_pagamento && r.data_pagamento >= mesInicioIso && r.data_pagamento < proxMesIso)
     .reduce((s, r) => s + Number(r.valor_pago), 0);
   const meta = metaRow ? Number(metaRow.valor_meta) : 0;
+
+  // Atenção necessária — priorizada por impacto (dados reais)
+  type Alerta = { valor: string; texto: string; tone: "danger" | "amber" | "brand"; href: string; label: string; peso: number };
+  const alertas: Alerta[] = [];
+
+  for (const c of inadimplencia(recs).slice(0, 4)) {
+    if (c.risco < 35) continue;
+    alertas.push({
+      valor: formatMoney(c.saldo, c.moeda as Enums<"moeda">),
+      texto: `**${c.clienteNome}** com saldo em aberto${c.diasAtraso > 0 ? ` (${c.diasAtraso} dia(s) em atraso)` : ""}`,
+      tone: c.risco >= 60 ? "danger" : "amber",
+      href: "/financeiro",
+      label: "Cobrar",
+      peso: c.risco,
+    });
+  }
+  for (const p of projetosEmRisco(projetos ?? []).slice(0, 3)) {
+    if (p.risco < 50) continue;
+    alertas.push({
+      valor: `${p.risco}%`,
+      texto: `Projeto **${p.titulo}** com risco de atraso`,
+      tone: p.risco >= 70 ? "danger" : "amber",
+      href: "/projetos",
+      label: "Ver projeto",
+      peso: p.risco - 5,
+    });
+  }
+  const hojeMs = hoje.getTime();
+  const leadsFrios = (clientes ?? [])
+    .filter((c) => (leadsAtivosStatus as readonly string[]).includes(c.status))
+    .map((c) => ({
+      nome: c.nome,
+      dias: c.ultima_interacao ? Math.round((hojeMs - new Date(c.ultima_interacao).getTime()) / 86_400_000) : 999,
+    }))
+    .filter((c) => c.dias >= 14)
+    .sort((a, b) => b.dias - a.dias);
+  for (const l of leadsFrios.slice(0, 2)) {
+    alertas.push({
+      valor: l.dias >= 999 ? "sem contato" : `${l.dias}d`,
+      texto: `Lead **${l.nome}** esfriando — sem interação`,
+      tone: "brand",
+      href: "/crm",
+      label: "Reengajar",
+      peso: 40,
+    });
+  }
+  alertas.sort((a, b) => b.peso - a.peso);
+  const topAlertas = alertas.slice(0, 5);
 
   const dataHoje = new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
@@ -140,6 +193,41 @@ export default async function DashboardPage() {
         meta={meta}
         recebidoMes={recebidoMes}
       />
+
+      {/* Atenção necessária */}
+      {topAlertas.length > 0 && (
+        <div className={`${card} px-3.5 py-3`}>
+          <div className="flex items-center gap-2">
+            <b className="text-[12.5px] text-ink">Atenção necessária</b>
+            <span className="text-[11px] text-mut">priorizado por impacto</span>
+            <IaBadge />
+          </div>
+          <div className="mt-2 flex flex-col">
+            {topAlertas.map((a, i) => (
+              <div key={i} className="flex items-center gap-2.5 border-t border-line py-2">
+                <span className={`flex-none rounded-md border px-2 py-[3px] text-[11px] font-bold ${
+                  a.tone === "danger"
+                    ? "border-danger/40 bg-danger/[0.08] text-danger"
+                    : a.tone === "amber"
+                      ? "border-warn/40 bg-warn/[0.08] text-warn"
+                      : "border-line bg-soft text-ink"
+                }`}>
+                  {a.valor}
+                </span>
+                <span className="min-w-0 flex-1 text-[12.5px] text-ink">
+                  <RichText text={a.texto} />
+                </span>
+                <Link
+                  href={a.href}
+                  className="ml-auto flex-none rounded-lg border border-line px-3 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+                >
+                  {a.label}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

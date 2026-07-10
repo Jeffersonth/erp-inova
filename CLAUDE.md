@@ -134,8 +134,14 @@ para o resumo diário (tarefa rotineira).
   derivado de % de tarefas concluídas). Ver `src/components/project-board.tsx`.
 - **Fase 2 (parcial):** Assistente global com tools ✅, geração de propostas/cobranças ✅,
   resumo diário ✅ — busca semântica ainda não implementada (ver seção "IA real" acima).
-- **Fase 3:** Previsões (receita, atraso, inadimplência), lead scoring, automações, lucro por cliente.
-- **Fase 4:** WhatsApp, portal do cliente, controle de horas, prospecção por CNPJ.
+- **Fase 3 (parcial):** aba **Insights** (`/insights`) com previsão de receita 90d (3 cenários),
+  lucro por cliente, risco de atraso de projetos e risco de inadimplência — cálculos
+  determinísticos reais em `src/lib/insights.ts` + narrativa da IA (Opus) em Suspense
+  (`src/lib/ai/insights-narrativa.ts`). **Lead scoring** real no CRM: `score_ia` e
+  `proxima_acao_ia` recomputados por regras via `POST /api/crm/recalcular` (botão "Recalcular
+  scores"). Dashboard tem "Atenção necessária" real (contas em atraso, projetos em risco,
+  leads esfriando). Automações com scheduler ainda não (sugestões são as "próximas ações").
+- **Fase 4:** WhatsApp, portal do cliente, Asaas real, prospecção por CNPJ.
 
 ## Comandos
 
