@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
 import { AiDraftButton } from "@/components/ai-draft-button";
 import {
@@ -16,7 +17,17 @@ const recCols = "grid-cols-[1.7fr_0.9fr_0.9fr_0.9fr_0.8fr_0.9fr_0.7fr]";
 export default async function FinanceiroPage() {
   const supabase = createClient();
 
-  const [{ data: recebimentos }, { data: assinaturas }, { data: clientes }, { data: projetos }, { data: custos }] =
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const hoje = new Date();
+  const hojeIso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  const mesInicioIso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-01`;
+  const proxMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+  const proxMesIso = `${proxMes.getFullYear()}-${String(proxMes.getMonth() + 1).padStart(2, "0")}-01`;
+
+  const [{ data: recebimentos }, { data: assinaturas }, { data: clientes }, { data: projetos }, { data: custos }, { data: metaRow }] =
     await Promise.all([
       supabase
         .from("recebimentos")
@@ -26,6 +37,9 @@ export default async function FinanceiroPage() {
       supabase.from("clientes").select("id, nome").order("nome"),
       supabase.from("projetos").select("id, titulo, cliente_id").order("titulo"),
       supabase.from("custos").select("*, clientes(nome)").order("data", { ascending: false }),
+      user
+        ? supabase.from("metas_financeiras").select("valor_meta").eq("user_id", user.id).eq("mes", mesInicioIso).maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
 
   const clientesList = clientes ?? [];
@@ -47,6 +61,23 @@ export default async function FinanceiroPage() {
   const despesas = (custos ?? []).reduce((s, c) => s + Number(c.valor), 0);
   const lucro = recebido - despesas;
 
+  // Visão do dia (design mobile): receber hoje, pagar hoje e saldo previsto
+  const receberHoje = brl
+    .filter((r) => r.vencimento === hojeIso)
+    .reduce((s, r) => s + Math.max(0, Number(r.valor) - Number(r.valor_pago)), 0);
+  const pagarHoje = (custos ?? []).filter((c) => c.data === hojeIso).reduce((s, c) => s + Number(c.valor), 0);
+  const saldoPrevisto = receberHoje - pagarHoje;
+
+  // Meta mensal + projeção da IA (determinística)
+  const meta = metaRow ? Number(metaRow.valor_meta) : 0;
+  const recebidoMes = brl
+    .filter((r) => r.data_pagamento && r.data_pagamento >= mesInicioIso && r.data_pagamento < proxMesIso)
+    .reduce((s, r) => s + Number(r.valor_pago), 0);
+  const pctMeta = meta > 0 ? Math.round((recebidoMes / meta) * 100) : 0;
+  const contasEmAberto = brl.filter((r) => Number(r.valor) - Number(r.valor_pago) > 0).length;
+  const pctSeReceber = meta > 0 ? Math.round(((recebidoMes + aReceber) / meta) * 100) : 0;
+  const mesLabel = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(hoje);
+
   return (
     <div className="flex flex-col gap-3">
       {/* Header */}
@@ -56,6 +87,64 @@ export default async function FinanceiroPage() {
           R$ · US$ · €
         </span>
         <NewRecebimentoDialog clientes={clientesList} projetos={projetosList} />
+      </div>
+
+      {/* Visão do dia (design mobile) */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RECEBER HOJE</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-ok">{formatMoney(receberHoje)}</div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">PAGAR HOJE</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-danger">{formatMoney(pagarHoje)}</div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">SALDO PREVISTO</div>
+          <div className={`mt-0.5 text-[17px] font-extrabold ${saldoPrevisto >= 0 ? "text-ink" : "text-danger"}`}>
+            {formatMoney(saldoPrevisto)}
+          </div>
+        </div>
+        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">MRR · ASAAS</div>
+          <div className="mt-0.5 text-[17px] font-extrabold text-ink">{formatMoney(mrr)}</div>
+        </div>
+      </div>
+
+      {/* Meta mensal */}
+      <div className={`${card} px-3.5 py-3`}>
+        {meta > 0 ? (
+          <>
+            <div className="flex items-center text-[11.5px] text-mut">
+              <span>
+                Meta mensal · <b className="text-ink">{formatMoney(meta)}</b>
+              </span>
+              <b className="ml-auto text-[12.5px] text-ink">{pctMeta}%</b>
+            </div>
+            <div className="mt-1.5 h-[9px] overflow-hidden rounded-full bg-soft">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.min(100, pctMeta)}%`, background: "linear-gradient(90deg,#1D5BFF,#00D1FF)" }}
+              />
+            </div>
+            {aReceber > 0 && pctSeReceber > pctMeta && (
+              <div className="mt-2 flex items-center gap-1.5 text-[11.5px] text-mut">
+                <IaBadge className="px-1.5 py-px text-[9px]" />
+                <span>
+                  recebendo as {contasEmAberto} conta(s) em aberto, você atinge{" "}
+                  <b className="text-ink">{pctSeReceber}% da meta</b>.
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-mut">
+            Sem meta definida para {mesLabel} —
+            <Link href="/dashboard" className="font-semibold text-brand hover:underline">
+              defina no Painel
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Resumo: receita, despesas e lucro */}
