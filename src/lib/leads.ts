@@ -126,6 +126,37 @@ export function porMes(regs: LeadRegistro[], nMeses: number, ref = new Date()) {
   return meses;
 }
 
+export type LeadMetaMetrica = "contatos" | "respostas" | "propostas" | "vendas" | "receita" | "manual";
+
+export type LeadMeta = {
+  id: string;
+  canal_id: string | null;
+  titulo: string;
+  metrica: LeadMetaMetrica;
+  alvo: number;
+  atual_manual: number;
+  mes: string; // YYYY-MM-01
+};
+
+export const METRICA_LABEL: Record<LeadMetaMetrica, string> = {
+  contatos: "Contatos",
+  respostas: "Respostas",
+  propostas: "Propostas",
+  vendas: "Vendas",
+  receita: "Receita (R$)",
+  manual: "Manual (ex: sites, IA, dashboards)",
+};
+
+/** Valor atual da meta — automático a partir dos registros do mês, ou manual. */
+export function progressoMeta(meta: LeadMeta, regs: LeadRegistro[]): number {
+  if (meta.metrica === "manual") return Number(meta.atual_manual);
+  const prefixo = meta.mes.slice(0, 7);
+  const doMes = regs.filter((r) => r.data.startsWith(prefixo) && (!meta.canal_id || r.canal_id === meta.canal_id));
+  const t = totais(doMes);
+  if (meta.metrica === "receita") return t.receita;
+  return t[meta.metrica];
+}
+
 export type FunilEtapa = { label: string; valor: number; pctDoTopo: number; pctEtapa: number | null };
 
 export function funil(t: Totais): FunilEtapa[] {

@@ -12,8 +12,12 @@ import {
   porDia,
   porMes,
   funil,
+  progressoMeta,
+  METRICA_LABEL,
   type LeadCanal,
   type LeadRegistro,
+  type LeadMeta,
+  type LeadMetaMetrica,
 } from "@/lib/leads";
 
 const card = "rounded-xl border border-line bg-card";
@@ -42,9 +46,11 @@ type Props = {
   userId: string;
   canais: LeadCanal[];
   registrosInicial: LeadRegistro[];
+  metasInicial: LeadMeta[];
+  mesInicioIso: string;
 };
 
-export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
+export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mesInicioIso }: Props) {
   const { toast } = useApp();
   const supabase = createClient();
 
@@ -56,6 +62,8 @@ export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
   const [dialogReg, setDialogReg] = useState<LeadRegistro | "novo" | null>(null);
   const [calRef, setCalRef] = useState(() => new Date(hoje.getFullYear(), hoje.getMonth(), 1));
   const [selDia, setSelDia] = useState<string | null>(iso(hoje));
+  const [metas, setMetas] = useState<LeadMeta[]>(metasInicial);
+  const [dialogMeta, setDialogMeta] = useState<LeadMeta | "nova" | null>(null);
 
   /* ---------------- período selecionado ---------------- */
   const { ini, fim } = useMemo(() => {
@@ -128,6 +136,59 @@ export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
     setRegs((prev) => prev.filter((x) => x.id !== r.id));
     setDialogReg(null);
     await supabase.from("leads_registros").delete().eq("id", r.id);
+  }
+
+  /* ---------------- metas ---------------- */
+  async function salvarMeta(form: FormData, existente: LeadMeta | null) {
+    const metrica = String(form.get("metrica") || "contatos") as LeadMetaMetrica;
+    const canalId = String(form.get("canal_id") || "") || null;
+    const alvo = Math.max(0, Number(String(form.get("alvo")).replace(",", ".")) || 0);
+    let titulo = String(form.get("titulo") || "").trim();
+    if (!titulo) {
+      const canal = canalId ? canalNome.get(canalId) : null;
+      titulo = `${METRICA_LABEL[metrica].split(" (")[0]}${canal ? ` · ${canal}` : ""}`;
+    }
+    if (alvo <= 0) {
+      toast("Informe o alvo da meta (maior que zero).");
+      return;
+    }
+    const payload = { titulo, metrica, canal_id: metrica === "manual" ? null : canalId, alvo, mes: mesInicioIso };
+
+    if (existente) {
+      const { error } = await supabase.from("leads_metas").update(payload).eq("id", existente.id);
+      if (error) {
+        toast("Não foi possível salvar a meta.");
+        return;
+      }
+      setMetas((prev) => prev.map((m) => (m.id === existente.id ? { ...m, ...payload } : m)));
+      toast("✓ Meta atualizada");
+    } else {
+      const { data, error } = await supabase
+        .from("leads_metas")
+        .insert({ ...payload, user_id: userId })
+        .select("id, canal_id, titulo, metrica, alvo, atual_manual, mes")
+        .single();
+      if (error || !data) {
+        toast("Não foi possível criar a meta.");
+        return;
+      }
+      setMetas((prev) => [...prev, data as LeadMeta]);
+      toast("✓ Meta criada");
+    }
+    setDialogMeta(null);
+  }
+
+  async function excluirMeta(m: LeadMeta) {
+    if (!confirm(`Excluir a meta "${m.titulo}"?`)) return;
+    setMetas((prev) => prev.filter((x) => x.id !== m.id));
+    setDialogMeta(null);
+    await supabase.from("leads_metas").delete().eq("id", m.id);
+  }
+
+  async function ajustarMetaManual(m: LeadMeta, delta: number) {
+    const novo = Math.max(0, Number(m.atual_manual) + delta);
+    setMetas((prev) => prev.map((x) => (x.id === m.id ? { ...x, atual_manual: novo } : x)));
+    await supabase.from("leads_metas").update({ atual_manual: novo }).eq("id", m.id);
   }
 
   /* ---------------- calendário ---------------- */
@@ -430,6 +491,74 @@ export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
         </div>
       </div>
 
+      {/* Metas do mês */}
+      <div className={`${card} px-3.5 py-3`}>
+        <div className="flex items-center gap-2">
+          <b className="text-[12.5px] text-ink">Metas de {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(mesInicioIso + "T00:00:00"))}</b>
+          <span className="text-[11px] text-mut">progresso automático a partir dos registros</span>
+          <button
+            onClick={() => setDialogMeta("nova")}
+            className="ml-auto rounded-lg border border-line px-2.5 py-1 text-[11px] font-semibold text-ink transition-colors hover:border-brand"
+          >
+            + Nova meta
+          </button>
+        </div>
+        {metas.length === 0 ? (
+          <div className="mt-2.5 text-[11.5px] text-mut">
+            Nenhuma meta ainda. Ex: enviar 5.000 e-mails, realizar 120 ligações, fechar 15 clientes, R$ 30.000 no mês, 3 sites…
+          </div>
+        ) : (
+          <div className="mt-2.5 grid grid-cols-1 gap-x-5 gap-y-2.5 lg:grid-cols-2">
+            {metas.map((m) => {
+              const atual = progressoMeta(m, regs);
+              const pctM = Math.round((atual / Number(m.alvo)) * 100);
+              const ehReceita = m.metrica === "receita";
+              const fmt = (v: number) => (ehReceita ? formatMoney(v) : String(Math.round(v)));
+              return (
+                <div key={m.id}>
+                  <div className="flex items-center gap-2 text-[11.5px]">
+                    <button onClick={() => setDialogMeta(m)} className="truncate font-semibold text-ink hover:text-brand" title="Editar meta">
+                      {m.titulo}
+                    </button>
+                    {m.metrica === "manual" && (
+                      <span className="flex flex-none items-center gap-1">
+                        <button
+                          onClick={() => ajustarMetaManual(m, -1)}
+                          aria-label="Diminuir progresso"
+                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[11px] text-mut hover:border-brand hover:text-ink"
+                        >
+                          −
+                        </button>
+                        <button
+                          onClick={() => ajustarMetaManual(m, 1)}
+                          aria-label="Aumentar progresso"
+                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[11px] text-mut hover:border-brand hover:text-ink"
+                        >
+                          +
+                        </button>
+                      </span>
+                    )}
+                    <span className="ml-auto flex-none text-mut">
+                      {fmt(atual)} / {fmt(Number(m.alvo))}
+                    </span>
+                    <b className={`w-[40px] flex-none text-right ${pctM >= 100 ? "text-ok" : "text-ink"}`}>{pctM}%</b>
+                  </div>
+                  <div className="mt-1 h-[7px] overflow-hidden rounded-full bg-soft">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(100, pctM)}%`,
+                        background: pctM >= 100 ? "#0E9F6E" : "linear-gradient(90deg,#1D5BFF,#00D1FF)",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Calendário + dia selecionado */}
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.1fr_1fr]">
         <div className={`${card} px-3.5 py-3`}>
@@ -608,6 +737,22 @@ export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
         </div>
       </div>
 
+      {/* Dialog nova/editar meta */}
+      <Dialog open={dialogMeta !== null} onOpenChange={(o) => !o && setDialogMeta(null)}>
+        <DialogContent className="w-[420px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[420px]">
+          {dialogMeta !== null && (
+            <MetaForm
+              key={dialogMeta === "nova" ? "nova" : dialogMeta.id}
+              canais={canais}
+              meta={dialogMeta === "nova" ? null : dialogMeta}
+              onSave={(form) => salvarMeta(form, dialogMeta === "nova" ? null : dialogMeta)}
+              onDelete={dialogMeta === "nova" ? undefined : () => excluirMeta(dialogMeta as LeadMeta)}
+              onClose={() => setDialogMeta(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog novo/editar registro */}
       <Dialog open={dialogReg !== null} onOpenChange={(o) => !o && setDialogReg(null)}>
         <DialogContent className="w-[440px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[440px]">
@@ -631,6 +776,118 @@ export function LeadsBoard({ userId, canais, registrosInicial }: Props) {
 const fieldCls =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
 const labelCls = "text-[10.5px] font-semibold text-mut";
+
+function MetaForm({
+  canais,
+  meta,
+  onSave,
+  onDelete,
+  onClose,
+}: {
+  canais: LeadCanal[];
+  meta: LeadMeta | null;
+  onSave: (form: FormData) => void;
+  onDelete?: () => void;
+  onClose: () => void;
+}) {
+  const [metrica, setMetrica] = useState<LeadMetaMetrica>(meta?.metrica ?? "contatos");
+  return (
+    <>
+      <DialogTitle className="text-[14.5px] font-bold text-ink">{meta ? "Editar meta" : "Nova meta do mês"}</DialogTitle>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave(new FormData(e.currentTarget));
+        }}
+        className="mt-3 flex flex-col gap-2.5"
+      >
+        <div>
+          <label className={labelCls}>O que você quer medir? *</label>
+          <select
+            name="metrica"
+            value={metrica}
+            onChange={(e) => setMetrica(e.target.value as LeadMetaMetrica)}
+            className={fieldCls}
+          >
+            {(Object.keys(METRICA_LABEL) as LeadMetaMetrica[]).map((m) => (
+              <option key={m} value={m}>
+                {METRICA_LABEL[m]}
+              </option>
+            ))}
+          </select>
+        </div>
+        {metrica !== "manual" && (
+          <div>
+            <label className={labelCls}>Canal</label>
+            <select name="canal_id" defaultValue={meta?.canal_id ?? ""} className={fieldCls}>
+              <option value="">Todos os canais</option>
+              {canais.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div>
+          <label className={labelCls}>Alvo *</label>
+          <input
+            name="alvo"
+            type="number"
+            min="1"
+            step={metrica === "receita" ? "0.01" : "1"}
+            required
+            defaultValue={meta ? Number(meta.alvo) : ""}
+            placeholder={metrica === "receita" ? "30000" : metrica === "manual" ? "3" : "5000"}
+            className={fieldCls}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Título (opcional — gerado automaticamente)</label>
+          <input
+            name="titulo"
+            defaultValue={meta?.titulo ?? ""}
+            placeholder={metrica === "manual" ? "Ex: Sites entregues, Projetos de IA…" : "Ex: Enviar 5.000 e-mails"}
+            className={fieldCls}
+          />
+        </div>
+        {metrica === "manual" && (
+          <div className="rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-[11px] text-mut">
+            Metas manuais (sites, IA &amp; automações, dashboards…) têm o progresso ajustado pelos botões − / + na lista.
+          </div>
+        )}
+        <div className="mt-1 flex items-center justify-between gap-2">
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+            >
+              Excluir
+            </button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+            >
+              {meta ? "Salvar" : "Criar meta"}
+            </button>
+          </div>
+        </div>
+      </form>
+    </>
+  );
+}
 
 function RegistroForm({
   canais,
