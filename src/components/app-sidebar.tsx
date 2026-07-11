@@ -39,6 +39,31 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
+// Título + subtítulo por tela no header mobile (do design ERP Pessoal Mobile)
+const mobileTitles: Record<string, [string, string]> = {
+  "/hoje": ["Hoje", "sua central de execução"],
+  "/tarefas": ["Tarefas do dia", "arraste para reordenar"],
+  "/crm": ["CRM", "clientes e leads"],
+  "/prospeccao": ["Prospecção", "consulte um CNPJ e vire lead"],
+  "/projetos": ["Projetos", "quadro de tarefas"],
+  "/financeiro": ["Finanças", "R$ · US$ · €"],
+  "/tracker": ["Time Tracker", "foco, pausas e histórico"],
+  "/agenda": ["Agenda", "mês · semana · dia"],
+  "/assistente": ["Assistente IA", "toda ação vira rascunho"],
+  "/anotacoes": ["Anotações", "a IA detecta o prazo"],
+  "/dashboard": ["Painel", "visão do negócio"],
+  "/configuracoes": ["Configurações", "perfil e integrações"],
+};
+
+// Bottom nav mobile — 5 atalhos do design (glifos do próprio design)
+const bottomTabs: { href: string; icon: string; label: string }[] = [
+  { href: "/hoje", icon: "◎", label: "Hoje" },
+  { href: "/dashboard", icon: "▣", label: "Painel" },
+  { href: "/assistente", icon: "✦", label: "IA" },
+  { href: "/anotacoes", icon: "✎", label: "Notas" },
+  { href: "/financeiro", icon: "$", label: "Finanças" },
+];
+
 function Logo() {
   return (
     <span className="flex items-baseline gap-px text-[17px] font-extrabold tracking-[-0.02em] text-soft">
@@ -76,19 +101,42 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
     router.refresh();
   }
 
+  const [titulo, subtitulo] =
+    mobileTitles[
+      Object.keys(mobileTitles).find((k) => pathname === k || pathname.startsWith(k + "/")) ?? "/hoje"
+    ] ?? ["inova labs", "ERP pessoal"];
+
   return (
     <>
-      {/* Barra superior — só mobile/tablet */}
-      <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/10 bg-navy px-4 py-3 text-soft md:hidden">
+      {/* Barra superior — só mobile/tablet (header do design) */}
+      <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-white/10 bg-navy px-3 py-2.5 text-soft md:hidden">
         <button
           onClick={() => setOpen(true)}
           aria-label="Abrir menu"
-          className="flex size-8 items-center justify-center rounded-lg hover:bg-white/10"
+          className="flex size-8 flex-none items-center justify-center rounded-lg hover:bg-white/10"
         >
           <Menu className="size-5" />
         </button>
-        <Link href="/hoje">
-          <Logo />
+        <Link
+          href="/hoje"
+          className="flex size-[30px] flex-none items-center justify-center rounded-[9px] text-[12px] font-extrabold text-white"
+          style={{ background: "linear-gradient(135deg,#1D5BFF,#00D1FF)" }}
+        >
+          in
+        </Link>
+        <div className="min-w-0">
+          <div className="truncate text-[14px] font-extrabold tracking-[-0.01em]">{titulo}</div>
+          <div className="truncate text-[10.5px] text-[#8DA2C0]">{subtitulo}</div>
+        </div>
+        <Link href="/configuracoes" className="ml-auto flex-none" aria-label="Perfil">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" className="size-[30px] rounded-full object-cover" />
+          ) : (
+            <span className="flex size-[30px] items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
+              {iniciais}
+            </span>
+          )}
         </Link>
       </div>
 
@@ -175,6 +223,29 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
           </button>
         </div>
       </nav>
+
+      {/* Bottom nav — só mobile (5 atalhos do design) */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#1C3560] bg-navy px-1 pt-1.5 md:hidden"
+        style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
+      >
+        {bottomTabs.map((t) => {
+          const ativo = pathname === t.href || pathname.startsWith(t.href + "/");
+          return (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={cn(
+                "flex min-h-[48px] flex-col items-center justify-center gap-[3px] py-1.5",
+                ativo ? "text-aqua" : "text-[#8DA2C0]",
+              )}
+            >
+              <span className="text-[17px] leading-none">{t.icon}</span>
+              <span className="text-[9.5px] font-semibold">{t.label}</span>
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 }
