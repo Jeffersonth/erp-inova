@@ -109,6 +109,34 @@ export default async function DashboardPage() {
 
   const horasFocoMes = (focoMes ?? []).reduce((s, r) => s + Number(r.duracao_seg), 0);
 
+  // Receita + previsão — recebido (valor_pago BRL) por mês nos últimos 5 meses
+  // + projeção do próximo mês (média dos últimos 3). Layout do design mobile.
+  const mesesRef: { label: string; ini: string; fim: string }[] = [];
+  for (let i = 4; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const f = new Date(hoje.getFullYear(), hoje.getMonth() - i + 1, 1);
+    mesesRef.push({
+      label: new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(d).replace(".", ""),
+      ini: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`,
+      fim: `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}-01`,
+    });
+  }
+  const serie = mesesRef.map((m) =>
+    recs
+      .filter((r) => r.data_pagamento && r.data_pagamento >= m.ini && r.data_pagamento < m.fim)
+      .reduce((s, r) => s + Number(r.valor_pago), 0),
+  );
+  const previsao = Math.round(serie.slice(-3).reduce((s, v) => s + v, 0) / 3);
+  const proxLabel = new Intl.DateTimeFormat("pt-BR", { month: "short" })
+    .format(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1))
+    .replace(".", "");
+  const maxV = Math.max(...serie, previsao, 1);
+  const chartX = (i: number) => Math.round((i * 340) / 5);
+  const chartY = (v: number) => Math.round(90 - (v / maxV) * 72);
+  const histPath = serie.map((v, i) => `${i === 0 ? "M" : "L"}${chartX(i)},${chartY(v)}`).join(" ");
+  const areaPath = `${histPath} L${chartX(4)},90 L0,90 Z`;
+  const prevPath = `M${chartX(4)},${chartY(serie[4])} L${chartX(5)},${chartY(previsao)}`;
+
   // Insights (previsões, lucro por cliente, riscos) — mesmos cálculos determinísticos
   // que alimentavam a antiga aba /insights, agora dentro do Dashboard.
   const contas = inadimplencia(recs);
@@ -253,6 +281,46 @@ export default async function DashboardPage() {
         meta={meta}
         recebidoMes={recebidoMes}
       />
+
+      {/* Receita + previsão */}
+      <div className={`${card} px-3.5 py-3`}>
+        <div className="flex items-center gap-2">
+          <b className="text-[12.5px] text-ink">Receita + previsão</b>
+          <IaBadge />
+        </div>
+        <svg
+          width="100%"
+          height="110"
+          viewBox="0 0 340 110"
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={`Receita recebida por mês nos últimos 5 meses e previsão de ${formatMoney(previsao)} para ${proxLabel}`}
+          className="mt-2"
+        >
+          <line x1="0" y1="90" x2="340" y2="90" stroke="#DCE4F0" />
+          <path d={areaPath} fill="rgba(29,91,255,.07)" />
+          <path d={histPath} fill="none" stroke="#1D5BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={prevPath} fill="none" stroke="#00D1FF" strokeWidth="2.5" strokeDasharray="6 5" strokeLinecap="round" />
+          <circle cx={chartX(4)} cy={chartY(serie[4])} r="3.5" fill="#1D5BFF" />
+          {serie.map((v, i) => (
+            <circle key={i} cx={chartX(i)} cy={chartY(v)} r="9" fill="transparent">
+              <title>{`${mesesRef[i].label}: ${formatMoney(v)}`}</title>
+            </circle>
+          ))}
+          <circle cx={chartX(5)} cy={chartY(previsao)} r="9" fill="transparent">
+            <title>{`${proxLabel} (previsão): ${formatMoney(previsao)}`}</title>
+          </circle>
+        </svg>
+        <div className="mt-1 flex justify-between text-[10px] text-mut">
+          {mesesRef.map((m) => (
+            <span key={m.ini}>{m.label}</span>
+          ))}
+          <span className="font-semibold text-ia">{proxLabel}·prev</span>
+        </div>
+        <div className="mt-1.5 text-[11px] text-mut">
+          Previsão de {proxLabel}: <b className="text-ink">{formatMoney(previsao)}</b> — média dos últimos 3 meses recebidos
+        </div>
+      </div>
 
       {/* Atenção necessária */}
       {topAlertas.length > 0 && (

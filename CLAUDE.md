@@ -11,6 +11,7 @@ responsivo para tablet/celular.
 ## Fontes da verdade (ler antes de mexer no visual)
 
 - **Design final (autoritativo):** [`Docs/design-source/erp-pessoal-para-freelancer/project/ERP Pessoal.dc.html`](Docs/design-source/erp-pessoal-para-freelancer/project/ERP%20Pessoal.dc.html) — export do Claude Design (claude.ai/design), **tema claro Inova Labs**. É o que estamos reconstruindo pixel-a-pixel.
+- **Design mobile (autoritativo p/ responsividade + tela Hoje):** [`Docs/design-source/erp-pessoal-para-freelancer/project/ERP Pessoal Mobile.dc.html`](Docs/design-source/erp-pessoal-para-freelancer/project/ERP%20Pessoal%20Mobile.dc.html) — 5 abas (Hoje/Painel/IA/Notas/Finanças), header navy mobile e bottom nav; a aba **Hoje** é a Central de Trabalho.
 - Protótipo funcional anterior (tema escuro, referência de interação/dados): [`Docs/dashboard-erp-prototipo.html`](Docs/dashboard-erp-prototipo.html).
 - Especificação completa (features, IA por módulo, schema, roadmap): [`Docs/erp-pessoal-analise-e-melhorias-ia.md`](Docs/erp-pessoal-analise-e-melhorias-ia.md).
 - Manual de marca: `Docs/design-source/.../uploads/Inova_Labs_Manual_de_Marca.pdf`.
@@ -56,10 +57,19 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-Tarefas do dia · CRM · Prospecção (CNPJ) · Projetos (quadro de tarefas) · Financeiro ·
-Time Tracker · Agenda · Assistente IA · Anotações · Dashboard · Configurações. (Dashboard
-fica no fim, antes de Configurações. Insights não é mais item de sidebar — virou seção no
-rodapé do Dashboard.)
+**Hoje (Central de Trabalho — 1ª tela após o login)** · Tarefas do dia · CRM · Prospecção
+(CNPJ) · Projetos (quadro de tarefas) · Financeiro · Time Tracker · Agenda · Assistente IA ·
+Anotações · Dashboard · Configurações. (Dashboard fica no fim, antes de Configurações.
+Insights não é mais item de sidebar — virou seção no rodapé do Dashboard.)
+No **mobile**, o shell segue o design mobile: header navy (quadrado gradiente "in" + título
+da tela + avatar) e **bottom nav fixa** com 5 atalhos (◎ Hoje, ▣ Painel, ✦ IA, ✎ Notas,
+$ Finanças); o menu completo continua no drawer (hambúrguer).
+A **Central de Trabalho** (`/hoje`, `src/components/central-hoje.tsx` + `src/lib/central.ts`)
+é a tela de execução: progresso do dia, cards Tarefas/A receber/Reuniões/Meta de horas
+(meta em `usuarios.meta_horas_dia`, editável no perfil), "IA recomenda" com ação em 1 clique
+(abre rascunho de cobrança/mensagem), sessão de foco pomodoro que grava em `sessoes_foco`,
+Prioridade máxima (lê/escreve `tarefas_dia`) e Radar (vencidos, riscos, leads esfriando,
+meta do mês).
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
@@ -77,7 +87,10 @@ pendente/em_andamento/concluida, `data_finalizar`, `ordem` para drag-reorder). M
 `usuarios` no cadastro, `0003_restrict_handle_new_user_rpc`, `0004`/`0005` avatars storage,
 `0006_tarefas_kanban_projeto` — quadro de tarefas + backfill de etapas,
 `0007_recebimentos_pagamento_parcial` — vendas com valor_pago/data_pagamento,
-`0008_custos_data`, `0009_tarefas_dia`). RLS dono-por-linha (`user_id = auth.uid()`);
+`0008_custos_data`, `0009_tarefas_dia`, `0010_metas_financeiras`, `0011_arquivos_bucket`,
+`0012_tarefas_descricao`, `0013_projeto_notas`, `0014_sessoes_foco`, `0015_agenda_eventos`,
+`0016_avatars_owner_select_policy`, `0017_sessoes_foco_categoria`,
+`0018_usuarios_meta_horas_dia`). RLS dono-por-linha (`user_id = auth.uid()`);
 `historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
 `src/lib/supabase/database.types.ts`.
 
