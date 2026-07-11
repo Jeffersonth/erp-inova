@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
 import { formatMoney } from "@/lib/format";
+import { IaBadge } from "@/components/ia-badge";
+import { RichText } from "@/components/rich-text";
 import {
   totais,
   porCanal,
@@ -13,6 +15,7 @@ import {
   porMes,
   funil,
   progressoMeta,
+  insightsLeads,
   METRICA_LABEL,
   type LeadCanal,
   type LeadRegistro,
@@ -48,9 +51,10 @@ type Props = {
   registrosInicial: LeadRegistro[];
   metasInicial: LeadMeta[];
   mesInicioIso: string;
+  analiseIa: React.ReactNode;
 };
 
-export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mesInicioIso }: Props) {
+export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mesInicioIso, analiseIa }: Props) {
   const { toast } = useApp();
   const supabase = createClient();
 
@@ -89,6 +93,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
   const serie30 = useMemo(() => porDia(regs, iso(addDias(new Date(), -29)), iso(new Date())), [regs]);
   const meses6 = useMemo(() => porMes(regs, 6), [regs]);
   const canalNome = useMemo(() => new Map(canais.map((c) => [c.id, c.nome])), [canais]);
+  const achados = useMemo(() => insightsLeads(regs, canais), [regs, canais]);
 
   /* ---------------- CRUD ---------------- */
   async function salvar(form: FormData, existente: LeadRegistro | null) {
@@ -558,6 +563,34 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
           </div>
         )}
       </div>
+
+      {/* Insights Inteligentes */}
+      <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
+        <IaBadge className="mt-px" />
+        <div className="min-w-0 whitespace-pre-wrap text-[12.5px] leading-[1.55] text-ink">{analiseIa}</div>
+      </div>
+      {achados.length > 0 && (
+        <div className={`${card} px-3.5 py-3`}>
+          <div className="flex items-center gap-2">
+            <b className="text-[12.5px] text-ink">Insights Inteligentes</b>
+            <IaBadge />
+            <span className="text-[11px] text-mut">calculados de todo o seu histórico</span>
+          </div>
+          <div className="mt-2 flex flex-col gap-2 text-[12px]">
+            {achados.map((a, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <span
+                  className="mt-[5px] size-2 flex-none rounded-full"
+                  style={{ background: a.tone === "ok" ? "#0E9F6E" : a.tone === "warn" ? "#C77700" : "#1D5BFF" }}
+                />
+                <span className="min-w-0 text-ink">
+                  <RichText text={a.texto} />
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Calendário + dia selecionado */}
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.1fr_1fr]">

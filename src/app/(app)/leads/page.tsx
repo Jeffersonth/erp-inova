@@ -1,6 +1,15 @@
+import { Suspense } from "react";
 import { LeadsBoard } from "@/components/leads-board";
+import { RichText } from "@/components/rich-text";
+import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import type { LeadCanal, LeadMeta, LeadRegistro } from "@/lib/leads";
+import { totais, insightsLeads, type LeadCanal, type LeadMeta, type LeadRegistro } from "@/lib/leads";
+import { gerarAnaliseLeads, type LeadsNarrativaInput } from "@/lib/ai/leads-narrativa";
+
+async function AnaliseLeadsIA(props: LeadsNarrativaInput) {
+  const texto = await gerarAnaliseLeads(props);
+  return <RichText text={texto} />;
+}
 
 export default async function LeadsPage() {
   const supabase = createClient();
@@ -25,13 +34,37 @@ export default async function LeadsPage() {
       .order("created_at"),
   ]);
 
+  const canaisList = (canais ?? []) as LeadCanal[];
+  const regs = (registros ?? []) as LeadRegistro[];
+
+  // Narrativa da IA (Opus) sobre o mês atual + achados determinísticos
+  const regsMes = regs.filter((r) => r.data.startsWith(mesInicioIso.slice(0, 7)));
+  const totMes = totais(regsMes);
+  const achados = insightsLeads(regs, canaisList, hoje);
+  const narrativa: LeadsNarrativaInput = {
+    mesLabel: new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(hoje),
+    contatos: totMes.contatos,
+    respostas: totMes.respostas,
+    propostas: totMes.propostas,
+    vendas: totMes.vendas,
+    receita: formatMoney(totMes.receita),
+    taxaResposta: totMes.taxaResposta,
+    taxaConversao: totMes.taxaConversao,
+    achados: achados.map((a) => a.texto.replace(/\*\*/g, "")),
+  };
+
   return (
     <LeadsBoard
       userId={user?.id ?? ""}
-      canais={(canais ?? []) as LeadCanal[]}
-      registrosInicial={(registros ?? []) as LeadRegistro[]}
+      canais={canaisList}
+      registrosInicial={regs}
       metasInicial={(metas ?? []) as LeadMeta[]}
       mesInicioIso={mesInicioIso}
+      analiseIa={
+        <Suspense fallback={<span className="text-mut">Analisando sua prospecção…</span>}>
+          <AnaliseLeadsIA {...narrativa} />
+        </Suspense>
+      }
     />
   );
 }
