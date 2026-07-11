@@ -15,6 +15,7 @@ type Perfil = {
   telefone: string | null;
   funcao: string | null;
   avatar_url: string | null;
+  meta_horas_dia: number;
 };
 
 function iniciaisDe(nome: string) {
@@ -38,15 +39,17 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
   const [nome, setNome] = useState(perfil.nome);
   const [telefone, setTelefone] = useState(perfil.telefone ?? "");
   const [funcao, setFuncao] = useState(perfil.funcao ?? "");
+  const [metaHoras, setMetaHoras] = useState(String(perfil.meta_horas_dia ?? 6));
   const [avatarUrl, setAvatarUrl] = useState(perfil.avatar_url);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   async function salvar() {
     setSaving(true);
+    const meta = Math.min(24, Math.max(0.5, Number(metaHoras.replace(",", ".")) || 6));
     const { error } = await supabase
       .from("usuarios")
-      .update({ nome, telefone: telefone || null, funcao: funcao || null })
+      .update({ nome, telefone: telefone || null, funcao: funcao || null, meta_horas_dia: meta })
       .eq("id", perfil.id);
     setSaving(false);
 
@@ -133,6 +136,16 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
           <div>
             <label className="text-[10.5px] font-semibold text-mut">Função</label>
             <input value={funcao} onChange={(e) => setFuncao(e.target.value)} className={field} />
+          </div>
+          <div>
+            <label className="text-[10.5px] font-semibold text-mut">Meta de foco por dia (horas)</label>
+            <input
+              value={metaHoras}
+              onChange={(e) => setMetaHoras(e.target.value)}
+              inputMode="decimal"
+              placeholder="6"
+              className={field}
+            />
           </div>
         </div>
       </div>

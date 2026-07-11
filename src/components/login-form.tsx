@@ -36,7 +36,7 @@ export function LoginForm() {
         setError(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message);
         return;
       }
-      router.push("/dashboard");
+      router.push("/hoje");
       router.refresh();
       return;
     }
@@ -49,7 +49,7 @@ export function LoginForm() {
       return;
     }
     if (data.session) {
-      router.push("/dashboard");
+      router.push("/hoje");
       router.refresh();
       return;
     }

@@ -1,0 +1,376 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { IaBadge } from "@/components/ia-badge";
+import { RichText } from "@/components/rich-text";
+import { useApp } from "@/components/app-providers";
+import { createClient } from "@/lib/supabase/client";
+import type { Recomendacao, RadarItem } from "@/lib/central";
+
+const card = "rounded-xl border border-line bg-card";
+const POMO_SEG = 25 * 60;
+
+export type PrioTarefa = { id: string; titulo: string; status: "pendente" | "em_andamento" | "concluida"; ordem: number };
+
+type Props = {
+  userId: string;
+  nome: string;
+  dataHoje: string;
+  metaHorasDia: number;
+  focoHojeSegInicial: number;
+  tarefasInicial: PrioTarefa[];
+  aReceber: { valor: string; sub: string };
+  reunioes: { total: number; sub: string };
+  recomendacao: Recomendacao;
+  radar: RadarItem[];
+  projetosAtivos: { id: string; titulo: string }[];
+};
+
+function mmss(seg: number) {
+  return `${String(Math.floor(seg / 60)).padStart(2, "0")}:${String(seg % 60).padStart(2, "0")}`;
+}
+
+function horas(seg: number) {
+  const h = Math.floor(seg / 3600);
+  const m = Math.round((seg % 3600) / 60);
+  if (h === 0) return `${m}min`;
+  return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
+}
+
+function metaLabel(h: number) {
+  const inteiro = Math.floor(h);
+  const min = Math.round((h - inteiro) * 60);
+  return min ? `${inteiro}h${String(min).padStart(2, "0")}` : `${inteiro}h`;
+}
+
+export function CentralHoje({
+  userId,
+  nome,
+  dataHoje,
+  metaHorasDia,
+  focoHojeSegInicial,
+  tarefasInicial,
+  aReceber,
+  reunioes,
+  recomendacao,
+  radar,
+  projetosAtivos,
+}: Props) {
+  const { toast, openAiDraft } = useApp();
+  const supabase = createClient();
+
+  const [saudacao, setSaudacao] = useState("Olá");
+  useEffect(() => {
+    const h = new Date().getHours();
+    setSaudacao(h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite");
+  }, []);
+
+  /* ---------------- prioridades (tarefas_dia) ---------------- */
+  const [tarefas, setTarefas] = useState<PrioTarefa[]>(tarefasInicial);
+  const [novaPrio, setNovaPrio] = useState("");
+  const concluidas = tarefas.filter((t) => t.status === "concluida").length;
+  const pct = tarefas.length ? Math.round((concluidas / tarefas.length) * 100) : 0;
+
+  async function togglePrio(id: string) {
+    const t = tarefas.find((x) => x.id === id);
+    if (!t) return;
+    const novo = t.status === "concluida" ? "pendente" : "concluida";
+    setTarefas((prev) => prev.map((x) => (x.id === id ? { ...x, status: novo } : x)));
+    await supabase
+      .from("tarefas_dia")
+      .update({ status: novo, concluida_em: novo === "concluida" ? new Date().toISOString() : null })
+      .eq("id", id);
+  }
+
+  async function addPrio(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const titulo = novaPrio.trim();
+    if (!titulo) return;
+    const ordem = tarefas.length ? Math.max(...tarefas.map((t) => t.ordem)) + 1 : 0;
+    const { data, error } = await supabase
+      .from("tarefas_dia")
+      .insert({ user_id: userId, titulo, status: "pendente", ordem })
+      .select("id, titulo, status, ordem")
+      .single();
+    if (error || !data) {
+      toast("Não foi possível criar a prioridade.");
+      return;
+    }
+    setTarefas((prev) => [...prev, data as PrioTarefa]);
+    setNovaPrio("");
+  }
+
+  /* ---------------- sessão de foco (pomodoro 25min) ---------------- */
+  const [restante, setRestante] = useState(POMO_SEG);
+  const [rodando, setRodando] = useState(false);
+  const [projetoId, setProjetoId] = useState("");
+  const [rotulo, setRotulo] = useState("");
+  const [focoHoje, setFocoHoje] = useState(focoHojeSegInicial);
+  const inicioRef = useRef<number | null>(null);
+
+  const registrar = useCallback(
+    async (dur: number) => {
+      const inicio = inicioRef.current ? new Date(inicioRef.current) : new Date(Date.now() - dur * 1000);
+      const { error } = await supabase.from("sessoes_foco").insert({
+        user_id: userId,
+        projeto_id: projetoId || null,
+        tipo: "foco",
+        categoria: "trabalho",
+        duracao_seg: dur,
+        rotulo: rotulo.trim() || null,
+        iniciada_em: inicio.toISOString(),
+        finalizada_em: new Date().toISOString(),
+      });
+      if (!error) setFocoHoje((h) => h + dur);
+    },
+    [supabase, userId, projetoId, rotulo],
+  );
+
+  useEffect(() => {
+    if (!rodando) return;
+    const id = setInterval(() => {
+      setRestante((r) => (r <= 1 ? 0 : r - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [rodando]);
+
+  useEffect(() => {
+    if (rodando && restante === 0) {
+      setRodando(false);
+      registrar(POMO_SEG);
+      inicioRef.current = null;
+      setRestante(POMO_SEG);
+      toast("✓ Sessão de foco concluída!");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restante, rodando]);
+
+  function toggleFoco() {
+    if (!rodando && inicioRef.current === null) inicioRef.current = Date.now();
+    setRodando((r) => !r);
+  }
+
+  async function finalizarFoco() {
+    const decorrido = POMO_SEG - restante;
+    setRodando(false);
+    if (decorrido >= 60) {
+      await registrar(decorrido);
+      toast(`Sessão salva: ${horas(decorrido)} de foco`);
+    }
+    inicioRef.current = null;
+    setRestante(POMO_SEG);
+  }
+
+  const ringDeg = ((POMO_SEG - restante) / POMO_SEG) * 360;
+
+  /* ---------------- recomendação ---------------- */
+  function agirRecomendacao() {
+    if (!recomendacao.acao || recomendacao.acao.tipo !== "draft") return;
+    const a = recomendacao.acao;
+    openAiDraft(
+      { tipo: a.draft, clienteId: a.clienteId, recebimentoId: a.recebimentoId },
+      a.draft === "cobranca" ? "Cobrança" : "Mensagem",
+    );
+  }
+
+  const dot: Record<RadarItem["cor"], string> = { danger: "#E5484D", warn: "#C77700", ok: "#0E9F6E" };
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">
+          {saudacao}, {nome} 👋
+        </h1>
+        <span className="text-[11.5px] text-mut">{dataHoje} · sua central de execução</span>
+      </div>
+
+      {/* Progresso do dia */}
+      <div className={`${card} flex items-center gap-2.5 px-3.5 py-2.5`}>
+        <span className="text-[11.5px] font-semibold text-mut">Progresso do dia</span>
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-soft">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${pct}%`, background: "linear-gradient(90deg,#1D5BFF,#00D1FF)" }}
+          />
+        </div>
+        <b className="text-[12.5px] text-ink">{pct}%</b>
+      </div>
+
+      {/* KPIs do dia */}
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <div className={`${card} px-3.5 py-2.5`}>
+          <div className="text-[10px] font-semibold tracking-[0.06em] text-mut">TAREFAS</div>
+          <b className="text-[18px] text-ink">{tarefas.length}</b>
+          <div className="text-[10.5px] text-mut">{concluidas} concluída(s)</div>
+        </div>
+        <div className={`${card} px-3.5 py-2.5`}>
+          <div className="text-[10px] font-semibold tracking-[0.06em] text-mut">A RECEBER</div>
+          <b className="text-[18px] text-ok">{aReceber.valor}</b>
+          <div className="truncate text-[10.5px] text-mut">{aReceber.sub}</div>
+        </div>
+        <div className={`${card} px-3.5 py-2.5`}>
+          <div className="text-[10px] font-semibold tracking-[0.06em] text-mut">REUNIÕES</div>
+          <b className="text-[18px] text-ink">{reunioes.total}</b>
+          <div className="truncate text-[10.5px] text-mut">{reunioes.sub}</div>
+        </div>
+        <div className={`${card} px-3.5 py-2.5`}>
+          <div className="text-[10px] font-semibold tracking-[0.06em] text-mut">META DE HORAS</div>
+          <b className="text-[18px] text-ink">{horas(focoHoje)}</b>
+          <div className="text-[10.5px] text-mut">de {metaLabel(metaHorasDia)}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-2.5">
+          {/* IA recomenda */}
+          <div className="flex flex-col gap-2 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-3">
+            <IaBadge className="self-start">IA RECOMENDA</IaBadge>
+            <div className="text-[12px] leading-[1.5] text-ink">
+              <RichText text={recomendacao.texto} />
+            </div>
+            {recomendacao.acao?.tipo === "draft" && (
+              <button
+                onClick={agirRecomendacao}
+                className="self-start rounded-lg bg-brand px-3.5 py-2 text-[11.5px] font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {recomendacao.acao.label}
+              </button>
+            )}
+            {recomendacao.acao?.tipo === "link" && (
+              <Link
+                href={recomendacao.acao.href}
+                className="self-start rounded-lg bg-brand px-3.5 py-2 text-[11.5px] font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {recomendacao.acao.label}
+              </Link>
+            )}
+          </div>
+
+          {/* Sessão de foco */}
+          <div
+            className="flex items-center gap-3.5 rounded-[14px] border border-[#1C3560] p-3.5 text-soft"
+            style={{ background: "linear-gradient(160deg,#0A1A33,#0E2547)" }}
+          >
+            <div
+              className="flex size-[78px] flex-none items-center justify-center rounded-full"
+              style={{ background: `conic-gradient(#00D1FF ${ringDeg}deg, rgba(244,247,251,.12) ${ringDeg}deg)` }}
+            >
+              <div className="flex size-[66px] items-center justify-center rounded-full bg-[#0A1A33] text-[15px] font-extrabold tabular-nums">
+                {mmss(restante)}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <b className="text-[12.5px]">Sessão de foco</b>
+              <div className="mt-0.5 flex items-center gap-1 text-[10.5px] text-[#8DA2C0]">
+                <select
+                  value={projetoId}
+                  onChange={(e) => setProjetoId(e.target.value)}
+                  className="max-w-[45%] cursor-pointer truncate border-none bg-transparent text-[10.5px] text-[#8DA2C0] outline-none"
+                >
+                  <option value="">Sem projeto</option>
+                  {projetosAtivos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.titulo}
+                    </option>
+                  ))}
+                </select>
+                ·
+                <input
+                  value={rotulo}
+                  onChange={(e) => setRotulo(e.target.value)}
+                  placeholder="no que vai focar?"
+                  className="min-w-0 flex-1 border-none bg-transparent text-[10.5px] text-[#B9C6DC] outline-none placeholder:text-[#8DA2C0]"
+                />
+              </div>
+              <div className="mt-2 flex items-center gap-1.5">
+                <button
+                  onClick={toggleFoco}
+                  className="min-h-[36px] rounded-lg px-4 py-2 text-[12px] font-bold text-white"
+                  style={{ background: "linear-gradient(135deg,#1D5BFF,#00D1FF)" }}
+                >
+                  {rodando ? "❚❚ Pausar" : restante === POMO_SEG ? "▶ Iniciar" : "▶ Retomar"}
+                </button>
+                <button
+                  onClick={finalizarFoco}
+                  disabled={restante === POMO_SEG && !rodando}
+                  title="Finalizar e salvar sessão"
+                  className="min-h-[36px] rounded-lg border border-white/20 px-3 py-2 text-[12px] font-semibold text-[#B9C6DC] transition-colors hover:border-white/50 disabled:opacity-40"
+                >
+                  ⟲
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-2.5">
+          {/* Prioridade máxima */}
+          <div className={`${card} px-3.5 py-3`}>
+            <div className="flex items-center gap-2">
+              <b className="text-[12.5px] text-ink">Prioridade máxima</b>
+              <Link href="/tarefas" className="ml-auto text-[11px] font-semibold text-mut transition-colors hover:text-brand">
+                Ver todas →
+              </Link>
+            </div>
+            <div className="mt-2.5 flex flex-col gap-2.5">
+              {tarefas.length === 0 && (
+                <div className="py-1 text-[12px] text-mut">Nenhuma prioridade ainda — adicione a primeira abaixo.</div>
+              )}
+              {tarefas.slice(0, 6).map((t) => {
+                const done = t.status === "concluida";
+                return (
+                  <div key={t.id} className="flex items-center gap-2.5">
+                    <button
+                      onClick={() => togglePrio(t.id)}
+                      aria-label={done ? "Reabrir" : "Concluir"}
+                      className={`flex size-[22px] flex-none items-center justify-center rounded-[7px] border text-[12px] font-bold transition-colors ${
+                        done ? "border-ok bg-ok text-white" : "border-line bg-card text-transparent hover:border-brand"
+                      }`}
+                    >
+                      ✓
+                    </button>
+                    <span className={`min-w-0 flex-1 truncate text-[12.5px] ${done ? "text-mut line-through" : "text-ink"}`}>
+                      {t.titulo}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <form onSubmit={addPrio} className="mt-2.5 flex gap-1.5 border-t border-dashed border-line pt-2.5">
+              <input
+                value={novaPrio}
+                onChange={(e) => setNovaPrio(e.target.value)}
+                placeholder="Nova prioridade…"
+                className="min-w-0 flex-1 rounded-lg border border-line bg-soft px-3 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+              />
+              <button
+                type="submit"
+                className="flex-none rounded-lg bg-brand px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                +
+              </button>
+            </form>
+          </div>
+
+          {/* Radar */}
+          <div className={`${card} px-3.5 py-3`}>
+            <b className="text-[12.5px] text-ink">Radar</b>
+            <div className="mt-2 flex flex-col gap-2 text-[12px]">
+              {radar.length === 0 && <div className="py-1 text-mut">Nada no radar — tudo sob controle. 🎉</div>}
+              {radar.map((r, i) => (
+                <div key={i} className="flex items-center gap-2.5">
+                  <span className="size-2 flex-none rounded-full" style={{ background: dot[r.cor] }} />
+                  <span className="min-w-0 text-ink">
+                    <RichText text={r.texto} />
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

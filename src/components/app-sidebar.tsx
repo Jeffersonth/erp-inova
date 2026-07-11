@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ListTodo,
   CalendarDays,
+  Target,
   Users,
   Building2,
   FolderKanban,
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/hoje", label: "Hoje", icon: Target },
   { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
   { href: "/crm", label: "CRM", icon: Users },
   { href: "/prospeccao", label: "Prospecção", icon: Building2 },
@@ -85,7 +87,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
         >
           <Menu className="size-5" />
         </button>
-        <Link href="/dashboard">
+        <Link href="/hoje">
           <Logo />
         </Link>
       </div>
@@ -107,7 +109,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
         )}
       >
         <div className="flex items-center justify-between px-2.5 pb-[18px] pt-1">
-          <Link href="/dashboard">
+          <Link href="/hoje">
             <Logo />
           </Link>
           <button

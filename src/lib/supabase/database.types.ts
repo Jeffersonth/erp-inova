@@ -816,6 +816,7 @@ export type Database = {
           email: string
           funcao: string | null
           id: string
+          meta_horas_dia: number
           nome: string
           role: Database["public"]["Enums"]["user_role"]
           telefone: string | null
@@ -826,6 +827,7 @@ export type Database = {
           email: string
           funcao?: string | null
           id: string
+          meta_horas_dia?: number
           nome: string
           role?: Database["public"]["Enums"]["user_role"]
           telefone?: string | null
@@ -836,6 +838,7 @@ export type Database = {
           email?: string
           funcao?: string | null
           id?: string
+          meta_horas_dia?: number
           nome?: string
           role?: Database["public"]["Enums"]["user_role"]
           telefone?: string | null
