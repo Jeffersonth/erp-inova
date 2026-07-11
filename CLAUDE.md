@@ -57,10 +57,11 @@ com gradiente azul→ciano.
 
 ## Módulos (sidebar)
 
-**Hoje (Central de Trabalho — 1ª tela após o login)** · Tarefas do dia · CRM · Prospecção
-(CNPJ) · Projetos (quadro de tarefas) · Financeiro · Time Tracker · Agenda · Assistente IA ·
-Anotações · Dashboard · Configurações. (Dashboard fica no fim, antes de Configurações.
-Insights não é mais item de sidebar — virou seção no rodapé do Dashboard.)
+**Hoje (Central de Trabalho — 1ª tela após o login)** · Tarefas do dia · CRM · **Leads
+(inteligência comercial)** · Prospecção (CNPJ) · Projetos (quadro de tarefas) · Financeiro ·
+Time Tracker · Agenda · Assistente IA · Anotações · Dashboard · Configurações. (Dashboard
+fica no fim, antes de Configurações. Insights não é mais item de sidebar — virou seção no
+rodapé do Dashboard.)
 No **mobile**, o shell segue o design mobile: header navy (quadrado gradiente "in" + título
 da tela + avatar) e **bottom nav fixa** com 5 atalhos (◎ Hoje, ▣ Painel, ✦ IA, ✎ Notas,
 $ Finanças); o menu completo continua no drawer (hambúrguer).
@@ -70,6 +71,15 @@ A **Central de Trabalho** (`/hoje`, `src/components/central-hoje.tsx` + `src/lib
 (abre rascunho de cobrança/mensagem), sessão de foco pomodoro que grava em `sessoes_foco`,
 Prioridade máxima (lê/escreve `tarefas_dia`) e Radar (vencidos, riscos, leads esfriando,
 meta do mês).
+O módulo **Leads** (`/leads`, `src/components/leads-board.tsx` + `src/lib/leads.ts`) registra
+a prospecção diária por canal (tabelas `leads_canais` — 10 canais padrão seedados por
+usuário via trigger —, `leads_registros` e `leads_metas`, migração 0019): filtros de período,
+8 indicadores, funil Contatos→Respostas→Propostas→Vendas, gráficos por dia/mês/canal,
+ranking, calendário clicável, timeline, metas com progresso automático (ou manual p/
+sites/IA/dashboards), Insights Inteligentes (regras em `insightsLeads` + narrativa Opus em
+`src/lib/ai/leads-narrativa.ts`) e conversão lead→cliente (`lead-converter.tsx`: cria
+cliente no CRM com origem, histórico, projeto opcional com etapas padrão e tarefa inicial).
+O Dashboard principal mostra o funil de prospecção do mês + melhor canal.
 Componente-chave reutilizado em todo o sistema: **modal "Rascunho da IA"** (título, selo
 "Gerado por IA · revise antes de enviar", corpo editável, botões *Editar* / *Aprovar e
 enviar*) + **toast** de confirmação.
@@ -90,7 +100,8 @@ pendente/em_andamento/concluida, `data_finalizar`, `ordem` para drag-reorder). M
 `0008_custos_data`, `0009_tarefas_dia`, `0010_metas_financeiras`, `0011_arquivos_bucket`,
 `0012_tarefas_descricao`, `0013_projeto_notas`, `0014_sessoes_foco`, `0015_agenda_eventos`,
 `0016_avatars_owner_select_policy`, `0017_sessoes_foco_categoria`,
-`0018_usuarios_meta_horas_dia`). RLS dono-por-linha (`user_id = auth.uid()`);
+`0018_usuarios_meta_horas_dia`, `0019_leads_prospeccao` — canais/registros/metas de
+prospecção). RLS dono-por-linha (`user_id = auth.uid()`);
 `historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
 `src/lib/supabase/database.types.ts`.
 

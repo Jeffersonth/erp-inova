@@ -14,6 +14,7 @@ import {
   inadimplencia,
   type RecebimentoLike,
 } from "@/lib/insights";
+import { totais as totaisLeads, porCanal as leadsPorCanal, type LeadCanal, type LeadRegistro } from "@/lib/leads";
 import { gerarAnaliseInsights, type NarrativaInput } from "@/lib/ai/insights-narrativa";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -72,6 +73,8 @@ export default async function DashboardPage() {
     { data: perfil },
     { data: metaRow },
     { data: focoMes },
+    { data: leadsCanais },
+    { data: leadsRegs },
   ] = await Promise.all([
     supabase.from("projetos").select("id, titulo, status, progresso, data_entrega"),
     supabase.from("clientes").select("id, nome, status, ultima_interacao"),
@@ -86,6 +89,11 @@ export default async function DashboardPage() {
       ? supabase.from("metas_financeiras").select("valor_meta").eq("user_id", user.id).eq("mes", mesInicioIso).maybeSingle()
       : Promise.resolve({ data: null }),
     supabase.from("sessoes_foco").select("duracao_seg").eq("tipo", "foco").gte("finalizada_em", mesInicioIso),
+    supabase.from("leads_canais").select("id, nome, ordem").order("ordem"),
+    supabase
+      .from("leads_registros")
+      .select("id, canal_id, data, contatos, respostas, propostas, vendas, valor_vendido, observacoes")
+      .gte("data", mesInicioIso),
   ]);
 
   const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0] || undefined;
@@ -108,6 +116,11 @@ export default async function DashboardPage() {
   const meta = metaRow ? Number(metaRow.valor_meta) : 0;
 
   const horasFocoMes = (focoMes ?? []).reduce((s, r) => s + Number(r.duracao_seg), 0);
+
+  // Prospecção do mês (módulo Leads) — funil + melhor canal
+  const leadsMes = totaisLeads((leadsRegs ?? []) as LeadRegistro[]);
+  const melhorCanalMes = leadsPorCanal((leadsRegs ?? []) as LeadRegistro[], (leadsCanais ?? []) as LeadCanal[])
+    .sort((a, b) => b.receita - a.receita || b.vendas - a.vendas || b.contatos - a.contatos)[0];
 
   // Receita + previsão — recebido (valor_pago BRL) por mês nos últimos 5 meses
   // + projeção do próximo mês (média dos últimos 3). Layout do design mobile.
@@ -320,6 +333,51 @@ export default async function DashboardPage() {
         <div className="mt-1.5 text-[11px] text-mut">
           Previsão de {proxLabel}: <b className="text-ink">{formatMoney(previsao)}</b> — média dos últimos 3 meses recebidos
         </div>
+      </div>
+
+      {/* Prospecção do mês (módulo Leads) */}
+      <div className={`${card} px-3.5 py-3`}>
+        <div className="flex items-center gap-2">
+          <b className="text-[12.5px] text-ink">Prospecção · mês</b>
+          <span className="text-[11px] text-mut">funil do módulo Leads</span>
+          <Link
+            href="/leads"
+            className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+          >
+            Abrir Leads
+          </Link>
+        </div>
+        {leadsMes.contatos === 0 ? (
+          <div className="mt-2 text-[11.5px] text-mut">
+            Nenhum registro de prospecção neste mês — registre em <b className="text-ink">Leads</b> e o funil aparece aqui.
+          </div>
+        ) : (
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[12px]">
+            {[
+              { l: "Contatos", v: String(leadsMes.contatos) },
+              { l: "Respostas", v: String(leadsMes.respostas) },
+              { l: "Propostas", v: String(leadsMes.propostas) },
+              { l: "Vendas", v: String(leadsMes.vendas) },
+            ].map((e, i) => (
+              <span key={e.l} className="flex items-center gap-2">
+                {i > 0 && <span className="text-mut">→</span>}
+                <span className="rounded-lg border border-line bg-soft px-2.5 py-1.5">
+                  <b className="text-ink">{e.v}</b> <span className="text-[10.5px] text-mut">{e.l.toLowerCase()}</span>
+                </span>
+              </span>
+            ))}
+            <span className="ml-auto text-[11.5px] text-mut">
+              conversão <b className="text-ink">{leadsMes.taxaConversao}%</b> · receita{" "}
+              <b className="text-ok">{formatMoney(leadsMes.receita)}</b>
+              {melhorCanalMes && (
+                <>
+                  {" "}
+                  · melhor canal <b className="text-ink">{melhorCanalMes.nome}</b>
+                </>
+              )}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Atenção necessária */}

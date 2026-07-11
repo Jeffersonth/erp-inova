@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatMoney } from "@/lib/format";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
+import { LeadConverter } from "@/components/lead-converter";
 import {
   totais,
   porCanal,
@@ -269,12 +270,15 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Leads</h1>
         <span className="text-[11.5px] text-mut">inteligência comercial da sua prospecção</span>
-        <button
-          onClick={() => setDialogReg("novo")}
-          className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
-        >
-          + Novo registro
-        </button>
+        <div className="ml-auto flex items-center gap-1.5">
+          <LeadConverter userId={userId} canais={canais} />
+          <button
+            onClick={() => setDialogReg("novo")}
+            className="rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+          >
+            + Novo registro
+          </button>
+        </div>
       </div>
 
       {/* Filtro de período */}
