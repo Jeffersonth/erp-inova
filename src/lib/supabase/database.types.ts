@@ -468,6 +468,124 @@ export type Database = {
           },
         ]
       }
+      leads_canais: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      leads_metas: {
+        Row: {
+          alvo: number
+          atual_manual: number
+          canal_id: string | null
+          created_at: string
+          id: string
+          mes: string
+          metrica: Database["public"]["Enums"]["leads_meta_metrica"]
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          alvo: number
+          atual_manual?: number
+          canal_id?: string | null
+          created_at?: string
+          id?: string
+          mes?: string
+          metrica?: Database["public"]["Enums"]["leads_meta_metrica"]
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          alvo?: number
+          atual_manual?: number
+          canal_id?: string | null
+          created_at?: string
+          id?: string
+          mes?: string
+          metrica?: Database["public"]["Enums"]["leads_meta_metrica"]
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_metas_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "leads_canais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads_registros: {
+        Row: {
+          canal_id: string
+          contatos: number
+          created_at: string
+          data: string
+          id: string
+          observacoes: string | null
+          propostas: number
+          respostas: number
+          user_id: string
+          valor_vendido: number
+          vendas: number
+        }
+        Insert: {
+          canal_id: string
+          contatos?: number
+          created_at?: string
+          data?: string
+          id?: string
+          observacoes?: string | null
+          propostas?: number
+          respostas?: number
+          user_id: string
+          valor_vendido?: number
+          vendas?: number
+        }
+        Update: {
+          canal_id?: string
+          contatos?: number
+          created_at?: string
+          data?: string
+          id?: string
+          observacoes?: string | null
+          propostas?: number
+          respostas?: number
+          user_id?: string
+          valor_vendido?: number
+          vendas?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_registros_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "leads_canais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_pipeline: {
         Row: {
           cliente_id: string | null
@@ -865,6 +983,13 @@ export type Database = {
         | "perdido"
       etapa_status: "prevista" | "em_andamento" | "concluida" | "atrasada"
       evento_tipo: "reuniao" | "lembrete" | "bloco" | "entrega"
+      leads_meta_metrica:
+        | "contatos"
+        | "respostas"
+        | "propostas"
+        | "vendas"
+        | "receita"
+        | "manual"
       moeda: "BRL" | "USD" | "EUR"
       projeto_status:
         | "briefing"
@@ -1027,6 +1152,14 @@ export const Constants = {
       ],
       etapa_status: ["prevista", "em_andamento", "concluida", "atrasada"],
       evento_tipo: ["reuniao", "lembrete", "bloco", "entrega"],
+      leads_meta_metrica: [
+        "contatos",
+        "respostas",
+        "propostas",
+        "vendas",
+        "receita",
+        "manual",
+      ],
       moeda: ["BRL", "USD", "EUR"],
       projeto_status: [
         "briefing",
