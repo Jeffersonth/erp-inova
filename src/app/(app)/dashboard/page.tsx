@@ -15,6 +15,7 @@ import {
   type RecebimentoLike,
 } from "@/lib/insights";
 import { totais as totaisLeads, porCanal as leadsPorCanal, type LeadCanal, type LeadRegistro } from "@/lib/leads";
+import { getStripeResumo } from "@/lib/stripe";
 import { gerarAnaliseInsights, type NarrativaInput } from "@/lib/ai/insights-narrativa";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -102,9 +103,11 @@ export default async function DashboardPage() {
   const leadsAtivos = (clientes ?? []).filter((c) =>
     (leadsAtivosStatus as readonly string[]).includes(c.status),
   ).length;
-  const mrr = (assinaturas ?? [])
+  const stripeResumo = await getStripeResumo();
+  const mrrLocal = (assinaturas ?? [])
     .filter((a) => a.status === "ativa")
     .reduce((sum, a) => sum + Number(a.valor), 0);
+  const mrr = stripeResumo?.mrr ?? mrrLocal;
 
   const recs = recebimentos ?? [];
   const vendasTotais = recs.reduce((s, r) => s + Number(r.valor), 0);
@@ -239,7 +242,7 @@ export default async function DashboardPage() {
     { label: "VENDAS TOTAIS", value: formatMoney(vendasTotais), tone: "ok" as const },
     { label: "VENDAS PAGAS", value: formatMoney(recebido), tone: "ok" as const },
     { label: "VENDAS PENDENTES", value: formatMoney(pendente), tone: "amber" as const },
-    { label: "MRR · ASAAS", value: formatMoney(mrr), tone: "ok" as const },
+    { label: "MRR · STRIPE", value: formatMoney(mrr), tone: "ok" as const },
     { label: "HORAS DE FOCO · MÊS", value: formatHoras(horasFocoMes), tone: "ok" as const },
   ];
 

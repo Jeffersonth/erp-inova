@@ -9,6 +9,7 @@ import { NewCustoDialog, EditCustoButton } from "@/components/custo-dialogs";
 import { toneText } from "@/lib/tone";
 import { formatMoney, relativeDate } from "@/lib/format";
 import { pagamentoInfo } from "@/lib/recebimento";
+import { getStripeResumo } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
 const card = "rounded-xl border border-line bg-card";
@@ -45,10 +46,14 @@ export default async function FinanceiroPage() {
   const clientesList = clientes ?? [];
   const projetosList = projetos ?? [];
 
-  const mrr = (assinaturas ?? [])
+  // MRR/assinaturas: direto da Stripe quando a chave está configurada;
+  // senão, cai no espelho local (tabela assinaturas).
+  const stripe = await getStripeResumo();
+  const mrrLocal = (assinaturas ?? [])
     .filter((a) => a.status === "ativa")
     .reduce((sum, a) => sum + Number(a.valor), 0);
-  const ativas = (assinaturas ?? []).filter((a) => a.status === "ativa").length;
+  const mrr = stripe?.mrr ?? mrrLocal;
+  const ativas = stripe?.ativas ?? (assinaturas ?? []).filter((a) => a.status === "ativa").length;
   const retry = (assinaturas ?? []).find((a) => a.status === "retry");
   const inadimplente = (assinaturas ?? [])
     .filter((a) => a.status === "inadimplente")
@@ -106,7 +111,7 @@ export default async function FinanceiroPage() {
           </div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">MRR · ASAAS</div>
+          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">MRR · STRIPE</div>
           <div className="mt-0.5 text-[17px] font-extrabold text-ink">{formatMoney(mrr)}</div>
         </div>
       </div>
@@ -305,13 +310,16 @@ export default async function FinanceiroPage() {
         </div>
       </div>
 
-      {/* Assinaturas recorrentes (Asaas) */}
+      {/* Assinaturas recorrentes (Stripe) */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
           <b className="text-[12.5px] text-ink">Assinaturas recorrentes</b>
           <span className="rounded-full border border-line bg-soft px-2.5 py-0.5 text-[10.5px] font-semibold text-mut">
-            integrado ao Asaas
+            {stripe ? "● integrado ao Stripe" : "Stripe não conectado"}
           </span>
+          {!stripe && (
+            <span className="text-[10.5px] text-mut">adicione STRIPE_SECRET_KEY nas variáveis da Vercel</span>
+          )}
         </div>
         <div className="mt-2.5 grid grid-cols-2 gap-2 lg:grid-cols-4">
           <div className="rounded-[10px] border border-line bg-soft px-3 py-2.5">

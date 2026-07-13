@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 const features = [
   { icon: "✦", title: "Assistente que conhece seus clientes", sub: "responde e rascunha com os seus dados" },
   { icon: "↗", title: "Previsão de receita e risco de atraso", sub: "3 cenários de caixa para 90 dias" },
-  { icon: "⟳", title: "Cobranças automáticas via Asaas", sub: "lembretes, retry de cartão e MRR" },
+  { icon: "⟳", title: "Assinaturas e MRR via Stripe", sub: "receita recorrente direto da sua conta" },
   { icon: "✍", title: "Contratos gerados por IA", sub: "preenchidos com os dados do projeto" },
 ];
 

@@ -76,14 +76,18 @@ export default async function ConfiguracoesPage() {
         <b className="text-[12.5px] text-ink">Integrações</b>
 
         <div className="mt-1.5 flex items-center gap-2.5 border-b border-line py-2.5">
-          <span className="flex size-[30px] flex-none items-center justify-center rounded-lg border border-line bg-soft text-[12px] font-extrabold text-brand">
-            A
+          <span className="flex size-[30px] flex-none items-center justify-center rounded-lg border border-line bg-soft text-[12px] font-extrabold text-[#635BFF]">
+            S
           </span>
           <div>
-            <b className="text-[12px] text-ink">Asaas</b>
-            <div className="text-[11px] text-mut">cobranças, assinaturas e retry de cartão</div>
+            <b className="text-[12px] text-ink">Stripe</b>
+            <div className="text-[11px] text-mut">assinaturas ativas e MRR direto da sua conta</div>
           </div>
-          <span className="ml-auto text-[11px] font-bold text-ok">● Conectado</span>
+          {process.env.STRIPE_SECRET_KEY ? (
+            <span className="ml-auto text-[11px] font-bold text-ok">● Conectado</span>
+          ) : (
+            <span className="ml-auto text-[11px] font-semibold text-mut">configure STRIPE_SECRET_KEY</span>
+          )}
         </div>
 
         <div className="flex items-center gap-2.5 border-b border-line py-2.5">
