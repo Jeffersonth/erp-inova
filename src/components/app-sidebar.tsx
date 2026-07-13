@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   LogOut,
+  ExternalLink,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,16 +28,15 @@ import { createClient } from "@/lib/supabase/client";
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/hoje", label: "Hoje", icon: Target },
   { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
-  { href: "/crm", label: "CRM", icon: Users },
-  { href: "/leads", label: "Leads", icon: Megaphone },
   { href: "/projetos", label: "Projetos", icon: FolderKanban },
+  { href: "/leads", label: "Leads", icon: Megaphone },
+  { href: "/crm", label: "CRM", icon: Users },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "/tracker", label: "Time Tracker", icon: Timer },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
-  { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
+  { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/configuracoes", label: "Configurações", icon: Settings },
+  { href: "/tracker", label: "Time Tracker", icon: Timer },
 ];
 
 // Título + subtítulo por tela no header mobile (do design ERP Pessoal Mobile)
@@ -169,7 +169,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
           </button>
         </div>
 
-        <div className="px-2.5 pb-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500">
+        <div className="px-2.5 pb-2 text-[10px] font-semibold tracking-[0.08em] text-white/70">
           ERP PESSOAL
         </div>
 
@@ -182,10 +182,8 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors",
-                active
-                  ? "bg-white/10 font-semibold text-white"
-                  : "text-[#B9C6DC] hover:bg-white/[0.08] hover:text-white",
+                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-white transition-colors",
+                active ? "bg-white/10 font-semibold" : "hover:bg-white/[0.08]",
               )}
             >
               <Icon className="size-[15px]" strokeWidth={2} />
@@ -193,6 +191,17 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
             </Link>
           );
         })}
+
+        {/* Prospector (app externo) */}
+        <a
+          href="https://prospector.inovalabs.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-white transition-colors hover:bg-white/[0.08]"
+        >
+          <ExternalLink className="size-[15px]" strokeWidth={2} />
+          Prospector
+        </a>
 
         <div className="mt-auto flex items-center gap-1.5 border-t border-white/10 px-2.5 pb-1 pt-3">
           <Link href="/configuracoes" className="flex min-w-0 flex-1 items-center gap-2">
@@ -210,14 +219,22 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
             )}
             <div className="min-w-0">
               <div className="truncate text-[12px] font-semibold text-white">{nome}</div>
-              <div className="truncate text-[10.5px] text-slate-500">{funcao}</div>
+              <div className="truncate text-[10.5px] text-white/70">{funcao}</div>
             </div>
+          </Link>
+          <Link
+            href="/configuracoes"
+            aria-label="Configurações"
+            title="Configurações"
+            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Settings className="size-4" strokeWidth={2} />
           </Link>
           <button
             onClick={signOut}
             aria-label="Sair"
             title="Sair"
-            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           >
             <LogOut className="size-4" strokeWidth={2} />
           </button>
