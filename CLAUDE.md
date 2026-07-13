@@ -25,7 +25,7 @@ protótipo antigo era todo escuro — **use o `.dc.html` como referência visual
 - **Tailwind CSS** + **shadcn/ui** (Radix) + `lucide-react`
 - **Supabase** (Postgres, Auth, Storage, Edge Functions, Realtime, pgvector) — único backend
 - Fonte: **Inter**
-- Roadmap posterior: TanStack Query + Zustand, Recharts, dnd-kit, Vercel AI SDK, Asaas
+- Roadmap posterior: TanStack Query + Zustand, Recharts, dnd-kit, Vercel AI SDK
 
 ## Design system (tokens Inova Labs — tema claro)
 
@@ -58,7 +58,7 @@ com gradiente azul→ciano.
 ## Módulos (sidebar)
 
 **Hoje (Central de Trabalho — 1ª tela após o login)** · Tarefas do dia · CRM · **Leads
-(inteligência comercial)** · Prospecção (CNPJ) · Projetos (quadro de tarefas) · Financeiro ·
+(inteligência comercial)** · Projetos (quadro de tarefas) · Financeiro ·
 Time Tracker · Agenda · Assistente IA · Anotações · Dashboard · Configurações. (Dashboard
 fica no fim, antes de Configurações. Insights não é mais item de sidebar — virou seção no
 rodapé do Dashboard.)
@@ -90,7 +90,7 @@ Projeto real ativo (`stktqyttljgdopsdupcj`, região `sa-east-1`). Tabelas: `usua
 `clientes`, `historico` (append-only, imutável), `projetos`, `etapas` (colunas do quadro do
 projeto; `final = true` marca a etapa de conclusão), `tarefas` (cards do quadro, com `tipo`
 e `concluida`), `checklist_itens`, `arquivos`, `recebimentos`, `assinaturas` (espelho do
-Asaas), `custos` (despesas, com coluna `data`), `anotacoes`, `leads_pipeline`,
+Stripe), `custos` (despesas, com coluna `data`), `anotacoes`, `leads_pipeline`,
 `eventos_agenda`, `tarefas_dia` (lista "Tarefas do dia": status
 pendente/em_andamento/concluida, `data_finalizar`, `ordem` para drag-reorder). Migrações em
 `supabase/migrations/` (`0001_init`, `0002_handle_new_user` — trigger que cria a linha em
@@ -168,12 +168,14 @@ para o resumo diário (tarefa rotineira).
   scores"). Dashboard tem "Atenção necessária" real (contas em atraso, projetos em risco,
   leads esfriando) e um KPI de "Horas de foco · mês" (soma de `sessoes_foco` do tipo foco).
   Automações com scheduler ainda não (sugestões são as "próximas ações").
-- **Fase 4 (parcial):** **Prospecção por CNPJ** (`/prospeccao`) via BrasilAPI (grátis, sem
-  chave) — `POST /api/prospeccao/cnpj` + botões "Criar lead" / "Criar cliente" (grava direto
-  com `status: "lead"` ou `"cliente"` em `clientes`). **WhatsApp** via link `wa.me`
-  (botão "Enviar no WhatsApp" no modal de rascunho, usa o telefone do cliente; sem API).
-  Ainda faltam: WhatsApp Business API oficial, portal do cliente, Asaas real (todos dependem
-  de conta/credencial externa).
+- **Fase 4:** **WhatsApp** via link `wa.me` (botão "Enviar no WhatsApp" no modal de
+  rascunho, usa o telefone do cliente; sem API). **Stripe** conectado
+  (`src/lib/stripe.ts` lê `STRIPE_SECRET_KEY` — assinaturas ativas e MRR reais no
+  Financeiro/Dashboard, fallback para a tabela `assinaturas` sem chave). Decisões do
+  usuário (jul/2026): o módulo **Prospecção por CNPJ foi removido** (usa o Prospector
+  externo em prospector.inovalabs.io); **WhatsApp Business API, portal do cliente e SMTP
+  não serão feitos**; Asaas foi substituído pela Stripe. O sistema é de **usuário único**
+  (Jefferson) — cadastro de novos usuários bloqueado.
 
 ## Comandos
 
