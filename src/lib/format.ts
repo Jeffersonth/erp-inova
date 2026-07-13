@@ -53,3 +53,11 @@ export function relativeInteraction(iso: string | null) {
   if (d < -1) return `há ${Math.abs(d)} dias`;
   return "hoje";
 }
+
+/** Segundos → "45min", "2h", "2h05" (usado em foco/meta de horas). */
+export function formatDuracao(seg: number) {
+  const h = Math.floor(seg / 3600);
+  const m = Math.round((seg % 3600) / 60);
+  if (h === 0) return `${m}min`;
+  return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
+}

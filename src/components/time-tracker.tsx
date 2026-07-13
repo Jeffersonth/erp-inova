@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
+import { formatDuracao } from "@/lib/format";
 import type { Enums } from "@/lib/supabase/database.types";
 
 type Modo = "foco" | "pausa_curta" | "pausa_longa";
@@ -49,13 +50,6 @@ function mmss(seg: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-function humano(seg: number) {
-  const m = Math.round(seg / 60);
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60);
-  const r = m % 60;
-  return r ? `${h}h${String(r).padStart(2, "0")}` : `${h}h`;
-}
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -179,7 +173,7 @@ export function TimeTracker({
     setRodando(false);
     if (decorrido >= 60) {
       await registrar(modo, decorrido);
-      toast(`Sessão salva: ${humano(decorrido)} de ${CONFIG[modo].label.toLowerCase()}`);
+      toast(`Sessão salva: ${formatDuracao(decorrido)} de ${CONFIG[modo].label.toLowerCase()}`);
     }
     inicioRef.current = null;
     setRestante(duracaoTotal);
@@ -292,7 +286,7 @@ export function TimeTracker({
         />
 
         <div className="mt-3 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-center text-[13px] text-mut">
-          Foco de hoje: <b className="text-ok">{humano(focoHoje)}</b>
+          Foco de hoje: <b className="text-ok">{formatDuracao(focoHoje)}</b>
         </div>
       </div>
 
@@ -320,7 +314,7 @@ export function TimeTracker({
                     </div>
                     <div className="text-[11.5px] text-mut">{quando(s.finalizada_em)}</div>
                   </div>
-                  <span className="flex-none text-[13px] font-semibold text-ink">{humano(s.duracao_seg)}</span>
+                  <span className="flex-none text-[13px] font-semibold text-ink">{formatDuracao(s.duracao_seg)}</span>
                 </div>
               );
             })

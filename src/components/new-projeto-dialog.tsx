@@ -12,17 +12,12 @@ import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
 import { TIPO_META, TIPO_ORDER, type TarefaTipo } from "@/lib/tarefa-tipos";
+import { DEFAULT_ETAPAS } from "@/lib/etapas-padrao";
 
 const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
 const label = "text-[11.5px] font-semibold text-mut";
 
-const DEFAULT_ETAPAS = [
-  { nome: "A fazer", ordem: 0, final: false },
-  { nome: "Em andamento", ordem: 1, final: false },
-  { nome: "Revisão", ordem: 2, final: false },
-  { nome: "Concluído", ordem: 3, final: true },
-];
 
 type CardDraft = { titulo: string; tipo: TarefaTipo };
 

@@ -7,6 +7,7 @@ import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
 import type { LeadCanal } from "@/lib/leads";
+import { DEFAULT_ETAPAS } from "@/lib/etapas-padrao";
 
 const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
@@ -32,12 +33,6 @@ const paisOptions = [
   { value: "ES", label: "🇪🇸 Espanha" },
 ];
 
-const DEFAULT_ETAPAS = [
-  { nome: "A fazer", ordem: 0, final: false },
-  { nome: "Em andamento", ordem: 1, final: false },
-  { nome: "Revisão", ordem: 2, final: false },
-  { nome: "Concluído", ordem: 3, final: true },
-];
 
 /** Registra um lead/cliente da prospecção direto no CRM (com os mesmos campos do
  *  "Novo contato"), + projeto opcional com etapas padrão e tarefa inicial. */

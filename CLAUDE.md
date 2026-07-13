@@ -101,17 +101,18 @@ pendente/em_andamento/concluida, `data_finalizar`, `ordem` para drag-reorder). M
 `0012_tarefas_descricao`, `0013_projeto_notas`, `0014_sessoes_foco`, `0015_agenda_eventos`,
 `0016_avatars_owner_select_policy`, `0017_sessoes_foco_categoria`,
 `0018_usuarios_meta_horas_dia`, `0019_leads_prospeccao` — canais/registros/metas de
-prospecção). RLS dono-por-linha (`user_id = auth.uid()`);
+prospecção, `0020_bloquear_novos_cadastros` — signup só para o dono). RLS dono-por-linha
+(`user_id = auth.uid()`);
 `historico` só permite SELECT/INSERT (nunca UPDATE/DELETE). Tipos gerados em
 `src/lib/supabase/database.types.ts`.
 
-**Auth real**: login/cadastro via Supabase Auth (`src/components/login-form.tsx`), sessão via
-cookies com `@supabase/ssr` (`src/middleware.ts` renova o token a cada request). Rotas
-`(app)/*` são protegidas em `src/app/(app)/layout.tsx` (redireciona para `/login` sem
-sessão); `/login` redireciona para `/dashboard` se já autenticado. Confirmação de e-mail está
-ligada no projeto — usuários novos recebem "verifique seu e-mail" (não há SMTP configurado
-para dev, então confirme manualmente via SQL: `update auth.users set email_confirmed_at =
-now() where email = '...'`).
+**Auth real (usuário único)**: login por e-mail+senha via Supabase Auth
+(`src/components/login-form.tsx` — sem cadastro público nem OAuth), sessão via cookies com
+`@supabase/ssr` (`src/middleware.ts` renova o token a cada request). Rotas `(app)/*` são
+protegidas em `src/app/(app)/layout.tsx` (redireciona para `/login` sem sessão); `/login`
+redireciona para `/hoje` se já autenticado. A migração `0020_bloquear_novos_cadastros` faz o
+trigger de signup rejeitar qualquer e-mail que não seja o do dono — criar conta falha até
+por chamada direta à API de Auth.
 
 **Dados reais vs. ilustrativos (Fase 1):** CRM, Projetos (kanban com persistência de status
 ao arrastar) e Financeiro (contas a receber, assinaturas/MRR) leem do Supabase de verdade.
@@ -137,10 +138,6 @@ para o resumo diário (tarefa rotineira).
   (`tipo: "mensagem_cliente"`) e Financeiro (`tipo: "cobranca"`).
 - **Resumo diário** (`src/lib/ai/resumo.ts`, chamado direto do Server Component do
   Dashboard): 1 parágrafo curto via Haiku a partir dos KPIs reais.
-- O catálogo estático antigo (`src/lib/mock-data.ts` → `drafts`, usado por
-  `src/components/draft-button.tsx` / `DraftButton`) continua servindo os botões sem dados
-  reais modelados ainda: `anomalia` (Dashboard), `prazosIA` e `contrato` (Projetos — exigem
-  mais contexto/escrita de volta no banco que ainda não foi implementada).
 - Toda função de IA tem fallback silencioso em caso de erro (`try/catch` retornando texto
   padrão ou toast) — a tela nunca quebra se a API da Anthropic falhar ou o saldo da conta
   estiver baixo.
@@ -196,6 +193,5 @@ Variáveis de ambiente em `.env.local` (não versionado — ver `.env.example`):
   interação client-side (quadro de tarefas com drag-and-drop, chat, anotações, modal) delegam
   para um Client Component correspondente (`project-board.tsx`, `notes-board.tsx`,
   `login-form.tsx`) que usa `src/lib/supabase/client.ts`.
-- Conteúdo ainda ilustrativo/estático (charts de IA, catálogo de rascunhos) em
-  `src/lib/mock-data.ts` — trocar por geração real na Fase 2/3.
-- Textos da UI em **português (pt-BR)**.
+- Textos da UI em **português (pt-BR)**. Não há mais dados mockados — `src/lib/mock-data.ts`
+  foi removido; tudo vem do Supabase/Stripe/IA com fallbacks.

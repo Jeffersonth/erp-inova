@@ -6,6 +6,7 @@ import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
 import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
+import { formatDuracao } from "@/lib/format";
 import type { Recomendacao, RadarItem } from "@/lib/central";
 
 const card = "rounded-xl border border-line bg-card";
@@ -31,12 +32,6 @@ function mmss(seg: number) {
   return `${String(Math.floor(seg / 60)).padStart(2, "0")}:${String(seg % 60).padStart(2, "0")}`;
 }
 
-function horas(seg: number) {
-  const h = Math.floor(seg / 3600);
-  const m = Math.round((seg % 3600) / 60);
-  if (h === 0) return `${m}min`;
-  return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
-}
 
 function metaLabel(h: number) {
   const inteiro = Math.floor(h);
@@ -156,7 +151,7 @@ export function CentralHoje({
     setRodando(false);
     if (decorrido >= 60) {
       await registrar(decorrido);
-      toast(`Sessão salva: ${horas(decorrido)} de foco`);
+      toast(`Sessão salva: ${formatDuracao(decorrido)} de foco`);
     }
     inicioRef.current = null;
     setRestante(POMO_SEG);
@@ -217,7 +212,7 @@ export function CentralHoje({
         </div>
         <div className={`${card} px-3.5 py-2.5`}>
           <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">META DE HORAS</div>
-          <b className="text-[19px] text-ink">{horas(focoHoje)}</b>
+          <b className="text-[19px] text-ink">{formatDuracao(focoHoje)}</b>
           <div className="text-[11.5px] text-mut">de {metaLabel(metaHorasDia)}</div>
         </div>
       </div>

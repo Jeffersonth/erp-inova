@@ -15,55 +15,27 @@ export function LoginForm() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
 
+  // Sistema de uso pessoal: sem cadastro público nem OAuth — só e-mail + senha
+  // do dono (novos signups também são rejeitados no banco, migração 0020).
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
     setLoading(true);
 
-    if (mode === "signin") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      setLoading(false);
-      if (error) {
-        setError(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message);
-        return;
-      }
-      router.push("/hoje");
-      router.refresh();
-      return;
-    }
-
-    // signup
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(error.message === "Invalid login credentials" ? "E-mail ou senha inválidos." : error.message);
       return;
     }
-    if (data.session) {
-      router.push("/hoje");
-      router.refresh();
-      return;
-    }
-    setInfo("Conta criada! Verifique seu e-mail para confirmar antes de entrar.");
-    setMode("signin");
-  }
-
-  async function withGoogle() {
-    setError(null);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) setError("Login com Google ainda não configurado neste projeto.");
+    router.push("/hoje");
+    router.refresh();
   }
 
   return (
@@ -107,12 +79,8 @@ export function LoginForm() {
         {/* Form */}
         <form onSubmit={submit} className="flex flex-col gap-3.5 bg-[#060F1F]/40 p-[38px] text-soft">
           <div>
-            <div className="text-[20px] font-extrabold tracking-[-0.01em]">
-              {mode === "signin" ? "Bem-vindo de volta" : "Criar sua conta"}
-            </div>
-            <div className="mt-[3px] text-[13px] text-[#8DA2C0]">
-              {mode === "signin" ? "Entre para continuar de onde parou." : "Leva menos de um minuto."}
-            </div>
+            <div className="text-[20px] font-extrabold tracking-[-0.01em]">Bem-vindo de volta</div>
+            <div className="mt-[3px] text-[13px] text-[#8DA2C0]">Entre para continuar de onde parou.</div>
           </div>
 
           <label className="mt-1.5 flex flex-col gap-1.5">
@@ -153,24 +121,16 @@ export function LoginForm() {
             </div>
           </label>
 
-          {mode === "signin" && (
-            <div className="flex items-center gap-2 text-[12.5px] text-[#8DA2C0]">
-              <label className="flex cursor-pointer items-center gap-[7px]">
-                <input type="checkbox" defaultChecked className="accent-brand" />
-                Lembrar de mim
-              </label>
-              <a href="#" className="ml-auto font-semibold text-aqua">Esqueci a senha</a>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-[12.5px] text-[#8DA2C0]">
+            <label className="flex cursor-pointer items-center gap-[7px]">
+              <input type="checkbox" defaultChecked className="accent-brand" />
+              Lembrar de mim
+            </label>
+          </div>
 
           {error && (
             <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-red-300">
               {error}
-            </div>
-          )}
-          {info && (
-            <div className="rounded-lg border border-aqua/40 bg-aqua/10 px-3 py-2 text-[12.5px] text-aqua">
-              {info}
             </div>
           )}
 
@@ -179,41 +139,10 @@ export function LoginForm() {
             disabled={loading}
             className="mt-1 rounded-[10px] bg-gradient-to-br from-[#1D5BFF] to-[#00D1FF] p-3 text-[14px] font-bold text-white shadow-[0_12px_32px_rgba(29,91,255,.45)] transition hover:shadow-[0_14px_38px_rgba(0,209,255,.5)] disabled:opacity-60"
           >
-            {loading ? "Aguarde…" : mode === "signin" ? "Entrar" : "Criar conta"}
+            {loading ? "Aguarde…" : "Entrar"}
           </button>
 
-          <div className="flex items-center gap-2.5 text-[12px] text-[#64748B]">
-            <div className="h-px flex-1 bg-white/[0.12]" />
-            ou
-            <div className="h-px flex-1 bg-white/[0.12]" />
-          </div>
-
-          <button
-            type="button"
-            onClick={withGoogle}
-            className="flex items-center justify-center gap-2.5 rounded-[10px] border border-white/[0.16] bg-white/[0.06] p-[11px] text-[13.5px] font-semibold text-soft transition hover:border-white/40"
-          >
-            <span className="bg-gradient-to-br from-[#4285F4] via-[#EA4335] to-[#34A853] bg-clip-text text-[14px] font-extrabold text-transparent">
-              G
-            </span>
-            Continuar com Google
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setMode((m) => (m === "signin" ? "signup" : "signin"));
-              setError(null);
-              setInfo(null);
-            }}
-            className="text-center text-[12.5px] text-[#8DA2C0]"
-          >
-            {mode === "signin" ? (
-              <>Não tem conta? <span className="font-semibold text-aqua">Criar conta</span></>
-            ) : (
-              <>Já tem conta? <span className="font-semibold text-aqua">Entrar</span></>
-            )}
-          </button>
+          <div className="text-center text-[12px] text-[#64748B]">Acesso restrito — sistema de uso pessoal.</div>
         </form>
       </div>
     </div>

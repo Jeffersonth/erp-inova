@@ -1,4 +1,4 @@
-import type { Tone } from "./mock-data";
+export type Tone = "ok" | "amber" | "danger" | "brand" | "mut";
 
 export const toneText: Record<Tone, string> = {
   ok: "text-ok",

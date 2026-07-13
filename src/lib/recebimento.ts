@@ -1,4 +1,4 @@
-import type { Tone } from "@/lib/mock-data";
+import type { Tone } from "@/lib/tone";
 
 /** Situação de pagamento derivada de valor total x valor pago. */
 export function pagamentoInfo(valor: number, valorPago: number): {

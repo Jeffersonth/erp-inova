@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { drafts as draftCatalog } from "@/lib/mock-data";
 import { IaBadge } from "./ia-badge";
 
 export type DraftSpec = { tipo: "cobranca" | "mensagem_cliente"; clienteId: string; recebimentoId?: string };
 
-type ActiveDraft = { title: string; cta?: string; done?: string; telefone?: string | null };
+type ActiveDraft = { title: string; telefone?: string | null };
 
 /** Monta o link wa.me a partir de um telefone BR (adiciona 55 se faltar). */
 function whatsappLink(telefone: string, mensagem: string) {
@@ -17,7 +16,6 @@ function whatsappLink(telefone: string, mensagem: string) {
 }
 
 type Ctx = {
-  openDraft: (key: string) => void;
   openAiDraft: (spec: DraftSpec, fallbackTitle: string) => void;
   toast: (msg: string) => void;
 };
@@ -41,15 +39,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     setToastMsg(msg);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setToastMsg(null), 2800);
-  }, []);
-
-  const openDraft = React.useCallback((key: string) => {
-    const d = draftCatalog[key];
-    if (!d) return;
-    setActive({ title: d.title, cta: d.cta, done: d.done });
-    setEditing(false);
-    setLoading(false);
-    setText(d.body);
   }, []);
 
   const openAiDraft = React.useCallback(async (spec: DraftSpec, fallbackTitle: string) => {
@@ -76,13 +65,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const approve = () => {
-    const done = active?.done ?? "✓ Enviado e registrado no histórico do cliente";
     setActive(null);
-    showToast(done);
+    showToast("✓ Enviado e registrado no histórico do cliente");
   };
 
   return (
-    <AppCtx.Provider value={{ openDraft, openAiDraft, toast: showToast }}>
+    <AppCtx.Provider value={{ openAiDraft, toast: showToast }}>
       {children}
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
@@ -139,7 +127,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                   disabled={loading}
                   className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                 >
-                  {active.cta ?? "✓ Aprovar e enviar"}
+                  ✓ Aprovar e enviar
                 </button>
               </div>
             </>

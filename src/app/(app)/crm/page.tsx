@@ -3,7 +3,7 @@ import { NewClienteDialog } from "@/components/new-cliente-dialog";
 import { EditClienteDialog } from "@/components/edit-cliente-dialog";
 import { RecalcularScores } from "@/components/recalcular-scores";
 import { toneText } from "@/lib/tone";
-import type { Tone } from "@/lib/mock-data";
+import type { Tone } from "@/lib/tone";
 import { flagEmoji, relativeInteraction } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -41,12 +41,20 @@ function scoreTone(score: number | null): Tone {
   return "danger";
 }
 
-export default async function CrmPage() {
+export default async function CrmPage({ searchParams }: { searchParams: { q?: string } }) {
   const supabase = createClient();
-  const { data: contatos } = await supabase
+  const { data: todos } = await supabase
     .from("clientes")
     .select("*")
     .order("score_ia", { ascending: false, nullsFirst: false });
+
+  // Busca simples por nome, contato, e-mail ou ramo (?q=)
+  const q = (searchParams.q ?? "").trim().toLowerCase();
+  const contatos = q
+    ? (todos ?? []).filter((c) =>
+        [c.nome, c.contato_nome, c.email, c.ramo].some((v) => v?.toLowerCase().includes(q)),
+      )
+    : todos;
 
   const paisesMap = new Map<string, number>();
   for (const c of contatos ?? []) {
@@ -63,10 +71,22 @@ export default async function CrmPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">CRM · Contatos</h1>
-        <input
-          placeholder="Buscar contato…"
-          className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
-        />
+        <form method="GET" className="order-last flex w-full min-w-0 basis-full items-center gap-1.5 sm:order-none sm:w-auto sm:basis-auto">
+          <input
+            name="q"
+            defaultValue={searchParams.q ?? ""}
+            placeholder="Buscar contato…"
+            className="w-full min-w-0 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink outline-none focus:border-brand sm:w-[220px]"
+          />
+          {q && (
+            <a
+              href="/crm"
+              className="flex-none rounded-lg border border-line px-2 py-1.5 text-[12px] font-semibold text-mut transition-colors hover:border-brand hover:text-ink"
+            >
+              ✕
+            </a>
+          )}
+        </form>
         <RecalcularScores />
         <NewClienteDialog />
       </div>
@@ -85,7 +105,12 @@ export default async function CrmPage() {
               <span>PRÓXIMA AÇÃO · IA</span>
               <span />
             </div>
-            {!contatos?.length && (
+            {!contatos?.length && q && (
+              <div className="px-3.5 py-8 text-center text-[13.5px] text-mut">
+                Nenhum contato encontrado para &ldquo;{searchParams.q}&rdquo;.
+              </div>
+            )}
+            {!contatos?.length && !q && (
               <div className="px-3.5 py-8 text-center text-[13.5px] text-mut">
                 Nenhum contato ainda. Clique em &ldquo;+ Novo contato&rdquo; para começar.
               </div>

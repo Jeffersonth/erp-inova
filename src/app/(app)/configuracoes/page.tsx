@@ -4,7 +4,6 @@ import { PerfilForm } from "@/components/perfil-form";
 import { createClient } from "@/lib/supabase/server";
 
 const card = "rounded-xl border border-line bg-card";
-const usersCols = "grid-cols-[1.4fr_1fr_2fr]";
 
 export default async function ConfiguracoesPage() {
   const supabase = createClient();
@@ -25,50 +24,13 @@ export default async function ConfiguracoesPage() {
 
       {/* Usuário administrador */}
       <div className={`${card} px-[18px] py-4`}>
-        <b className="text-[13.5px] text-ink">Usuário administrador</b>
+        <div className="flex flex-wrap items-center gap-2">
+          <b className="text-[13.5px] text-ink">Usuário administrador</b>
+          <span className="rounded-full border border-line bg-soft px-2.5 py-[3px] text-[11px] font-semibold text-mut">
+            sistema de uso pessoal · cadastro de novos usuários bloqueado
+          </span>
+        </div>
         {perfil && <PerfilForm perfil={perfil} />}
-      </div>
-
-      {/* Usuários e permissões */}
-      <div className={`${card} overflow-hidden`}>
-        <div className="flex items-center gap-2 px-4 pb-2 pt-3">
-          <b className="text-[13.5px] text-ink">Usuários e permissões</b>
-          <button className="ml-auto rounded-lg border border-line px-2.5 py-1 text-[12px] font-semibold text-ink transition-colors hover:border-brand">
-            + Convidar usuário
-          </button>
-        </div>
-        <div className={`grid ${usersCols} gap-2 border-b border-line px-4 py-2 text-[11px] font-semibold tracking-[0.07em] text-mut`}>
-          <span>USUÁRIO</span>
-          <span>PAPEL</span>
-          <span>MÓDULOS</span>
-        </div>
-        <div className={`grid ${usersCols} items-center gap-2 border-b border-line px-4 py-2.5 text-[13px]`}>
-          <div>
-            <b className="text-ink">{perfil?.nome ?? user.email}</b>
-            <div className="text-[11.5px] text-mut">{perfil?.email ?? user.email}</div>
-          </div>
-          <span className="text-[12px] font-bold text-brand">Administrador</span>
-          <div>
-            <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[11px] font-semibold text-mut">
-              Todos os módulos
-            </span>
-          </div>
-        </div>
-        <div className={`grid ${usersCols} items-center gap-2 px-4 py-2.5 text-[13px]`}>
-          <div>
-            <b className="text-ink">Cléa Contábil</b>
-            <div className="text-[11.5px] text-mut">clea@contabil.com.br</div>
-          </div>
-          <span className="text-[12px] font-bold text-mut">Convidada</span>
-          <div className="flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[11px] font-semibold text-mut">
-              Financeiro · leitura
-            </span>
-            <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[11px] font-semibold text-mut">
-              Notas fiscais · edição
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Integrações */}
@@ -90,7 +52,7 @@ export default async function ConfiguracoesPage() {
           )}
         </div>
 
-        <div className="flex items-center gap-2.5 border-b border-line py-2.5">
+        <div className="flex items-center gap-2.5 py-2.5">
           <span className="flex size-[30px] flex-none items-center justify-center rounded-lg border border-aqua/45 bg-aqua/10 text-[13px] font-extrabold text-ia">
             ✦
           </span>
@@ -100,24 +62,12 @@ export default async function ConfiguracoesPage() {
           </div>
           <span className="ml-auto text-[12px] font-bold text-ok">● Conectado</span>
         </div>
-
-        <div className="flex items-center gap-2.5 py-2.5">
-          <span className="flex size-[30px] flex-none items-center justify-center rounded-lg border border-line bg-soft text-[13px] font-extrabold text-ok">
-            W
-          </span>
-          <div>
-            <b className="text-[13px] text-ink">WhatsApp Business</b>
-            <div className="text-[12px] text-mut">enviar cobranças e follow-ups aprovados</div>
-          </div>
-          <button className="ml-auto rounded-lg border border-line px-3 py-1.5 text-[12px] font-semibold text-ink transition-colors hover:border-brand">
-            Conectar
-          </button>
-        </div>
       </div>
 
       <div className="flex items-center gap-2 pt-1 text-[12px] text-mut">
         <IaBadge className="px-1.5 py-px text-[10px]" />
-        Perfil e foto salvos de verdade no Supabase. Convite de usuários e permissões por módulo entram na Fase 4.
+        Perfil e foto salvos no Supabase. WhatsApp funciona pelo botão &ldquo;Enviar no WhatsApp&rdquo; dos rascunhos
+        (link wa.me, sem integração).
       </div>
     </div>
   );

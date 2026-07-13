@@ -4,7 +4,7 @@ import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
 import { MetaMesCard } from "@/components/meta-mes-card";
 import { toneText } from "@/lib/tone";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDuracao } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { gerarResumoDia } from "@/lib/ai/resumo";
 import {
@@ -28,12 +28,6 @@ function riscoTone(r: number) {
   return { txt: "text-ok", bg: "#0E9F6E" };
 }
 
-function formatHoras(seg: number) {
-  const h = Math.floor(seg / 3600);
-  const m = Math.round((seg % 3600) / 60);
-  if (h === 0) return `${m}min`;
-  return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
-}
 
 // Resumo do dia (IA) — isolado num boundary de Suspense para NÃO bloquear
 // a renderização dos KPIs enquanto a IA responde.
@@ -243,7 +237,7 @@ export default async function DashboardPage() {
     { label: "VENDAS PAGAS", value: formatMoney(recebido), tone: "ok" as const },
     { label: "VENDAS PENDENTES", value: formatMoney(pendente), tone: "amber" as const },
     { label: "MRR · STRIPE", value: formatMoney(mrr), tone: "ok" as const },
-    { label: "HORAS DE FOCO · MÊS", value: formatHoras(horasFocoMes), tone: "ok" as const },
+    { label: "HORAS DE FOCO · MÊS", value: formatDuracao(horasFocoMes), tone: "ok" as const },
   ];
 
   return (
@@ -252,9 +246,6 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Dashboard</h1>
         <span className="text-[12.5px] text-mut">{dataHoje}</span>
-        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark">
-          + Novo
-        </button>
       </div>
 
       {/* Resumo do dia (IA) */}
