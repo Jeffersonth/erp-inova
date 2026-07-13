@@ -14,8 +14,8 @@ import type { Enums } from "@/lib/supabase/database.types";
 import { TIPO_META, TIPO_ORDER, type TarefaTipo } from "@/lib/tarefa-tipos";
 
 const field =
-  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-const label = "text-[10.5px] font-semibold text-mut";
+  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+const label = "text-[11.5px] font-semibold text-mut";
 
 const DEFAULT_ETAPAS = [
   { nome: "A fazer", ordem: 0, final: false },
@@ -148,12 +148,12 @@ export function NewProjetoDialog({
       }}
     >
       <DialogTrigger asChild>
-        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
+        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark">
           + Novo projeto
         </button>
       </DialogTrigger>
       <DialogContent className="w-[460px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[460px]">
-        <DialogTitle className="text-[14.5px] font-bold text-ink">Novo projeto</DialogTitle>
+        <DialogTitle className="text-[15.5px] font-bold text-ink">Novo projeto</DialogTitle>
         <form onSubmit={submit} className="mt-3 flex flex-col gap-2.5">
           <div>
             <label className={label}>Título *</label>
@@ -193,7 +193,7 @@ export function NewProjetoDialog({
           <div className="rounded-lg border border-line bg-soft px-3 py-2.5">
             <div className="flex items-center gap-2">
               <span className={label}>Cards iniciais (opcional)</span>
-              <span className="text-[10.5px] text-mut">entram na etapa &ldquo;A fazer&rdquo;</span>
+              <span className="text-[11.5px] text-mut">entram na etapa &ldquo;A fazer&rdquo;</span>
             </div>
 
             {cards.length > 0 && (
@@ -201,12 +201,12 @@ export function NewProjetoDialog({
                 {cards.map((c, i) => (
                   <div key={i} className="flex items-center gap-2 rounded-md border border-line bg-card px-2 py-1">
                     <span
-                      className="rounded-full px-1.5 py-px text-[10px] font-semibold"
+                      className="rounded-full px-1.5 py-px text-[11px] font-semibold"
                       style={{ background: TIPO_META[c.tipo].tint, color: TIPO_META[c.tipo].text }}
                     >
                       {TIPO_META[c.tipo].label}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[12px] text-ink">{c.titulo}</span>
+                    <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{c.titulo}</span>
                     <button
                       type="button"
                       onClick={() => setCards((prev) => prev.filter((_, j) => j !== i))}
@@ -229,7 +229,7 @@ export function NewProjetoDialog({
                     key={tipo}
                     type="button"
                     onClick={() => setCardTipo(tipo)}
-                    className="rounded-full border px-1.5 py-px text-[10px] font-semibold transition-colors"
+                    className="rounded-full border px-1.5 py-px text-[11px] font-semibold transition-colors"
                     style={
                       active
                         ? { background: meta.tint, borderColor: meta.border, color: meta.text }
@@ -252,12 +252,12 @@ export function NewProjetoDialog({
                   }
                 }}
                 placeholder="Título do card"
-                className="min-w-0 flex-1 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+                className="min-w-0 flex-1 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand"
               />
               <button
                 type="button"
                 onClick={addCard}
-                className="rounded-lg border border-line px-2.5 py-1.5 text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+                className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] font-semibold text-ink transition-colors hover:border-brand"
               >
                 + Add
               </button>
@@ -265,7 +265,7 @@ export function NewProjetoDialog({
           </div>
 
           {error && (
-            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">
+            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-danger">
               {error}
             </div>
           )}
@@ -274,14 +274,14 @@ export function NewProjetoDialog({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+              className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
             >
               {loading ? "Criando…" : "Criar projeto"}
             </button>

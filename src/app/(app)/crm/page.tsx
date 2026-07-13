@@ -62,10 +62,10 @@ export default async function CrmPage() {
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">CRM · Contatos</h1>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">CRM · Contatos</h1>
         <input
           placeholder="Buscar contato…"
-          className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-xs text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
+          className="order-last w-full min-w-0 basis-full rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink outline-none focus:border-brand sm:order-none sm:w-[220px] sm:basis-auto"
         />
         <RecalcularScores />
         <NewClienteDialog />
@@ -75,7 +75,7 @@ export default async function CrmPage() {
       <div className={`${card} overflow-hidden`}>
         <div className="thin-scroll overflow-x-auto">
           <div className="min-w-[940px]">
-            <div className={`grid ${cols} gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut`}>
+            <div className={`grid ${cols} gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.07em] text-mut`}>
               <span>NOME</span>
               <span>PAÍS</span>
               <span>RAMO</span>
@@ -86,7 +86,7 @@ export default async function CrmPage() {
               <span />
             </div>
             {!contatos?.length && (
-              <div className="px-3.5 py-8 text-center text-[12.5px] text-mut">
+              <div className="px-3.5 py-8 text-center text-[13.5px] text-mut">
                 Nenhum contato ainda. Clique em &ldquo;+ Novo contato&rdquo; para começar.
               </div>
             )}
@@ -97,33 +97,33 @@ export default async function CrmPage() {
                   className={`grid ${cols} items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft`}
                 >
                   <div className="min-w-0">
-                    <b className="text-[12.5px] text-ink">{c.nome}</b>
-                    <div className="truncate text-[11px] text-mut">
+                    <b className="text-[13.5px] text-ink">{c.nome}</b>
+                    <div className="truncate text-[12px] text-mut">
                       {[c.contato_nome, c.email].filter(Boolean).join(" · ")}
                     </div>
                   </div>
-                  <span className="text-[12px]">
+                  <span className="text-[13px]">
                     {flagEmoji(c.pais)} {c.pais}
                   </span>
                   <span>
                     {c.ramo && (
-                      <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[10.5px] font-semibold text-ink">
+                      <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[11.5px] font-semibold text-ink">
                         {c.ramo}
                       </span>
                     )}
                   </span>
-                  <span className={`text-[11.5px] font-semibold ${toneText[statusTone[c.status]]}`}>
+                  <span className={`text-[12.5px] font-semibold ${toneText[statusTone[c.status]]}`}>
                     ● {statusLabel[c.status]}
                   </span>
-                  <b className={`text-[13px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
-                  <span className="text-[11.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>
-                  <span className="text-[11.5px] text-ia">{c.proxima_acao_ia ?? "—"}</span>
+                  <b className={`text-[14px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
+                  <span className="text-[12.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>
+                  <span className="text-[12.5px] text-ia">{c.proxima_acao_ia ?? "—"}</span>
                   <div className="flex items-center gap-1.5 justify-self-start">
                     <AiDraftButton
                       spec={{ tipo: "mensagem_cliente", clienteId: c.id }}
                       fallbackTitle={`Mensagem — ${c.nome}`}
                       label="Rascunhar"
-                      className="px-2.5 py-1 text-[11px]"
+                      className="px-2.5 py-1 text-[12px]"
                     />
                     <EditClienteDialog cliente={c} />
                   </div>
@@ -137,10 +137,10 @@ export default async function CrmPage() {
       {/* Distribuição por país — dados reais dos contatos */}
       {distribuicaoPaises.length > 0 && (
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Distribuição por país</b>
+          <b className="text-[13.5px] text-ink">Distribuição por país</b>
           <div className="mt-2.5 flex flex-col gap-2">
             {distribuicaoPaises.map((d) => (
-              <div key={d.pais} className="grid grid-cols-[70px_1fr_70px] items-center gap-2 text-[11.5px]">
+              <div key={d.pais} className="grid grid-cols-[70px_1fr_70px] items-center gap-2 text-[12.5px]">
                 <span className="text-ink">
                   {flagEmoji(d.pais)} {d.pais}
                 </span>

@@ -6,7 +6,7 @@ import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
 
 const field =
-  "w-full mt-1 rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
+  "w-full mt-1 rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
 
 type Perfil = {
   id: string;
@@ -106,7 +106,7 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
           onClick={() => fileRef.current?.click()}
           title="Alterar foto"
           disabled={uploading}
-          className="relative flex size-[84px] flex-none items-center justify-center overflow-hidden rounded-full border-2 border-line bg-brand text-[26px] font-extrabold text-white disabled:opacity-70"
+          className="relative flex size-[84px] flex-none items-center justify-center overflow-hidden rounded-full border-2 border-line bg-brand text-[27px] font-extrabold text-white disabled:opacity-70"
         >
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -114,7 +114,7 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
           ) : (
             iniciaisDe(nome)
           )}
-          <span className="absolute -bottom-0.5 -right-0.5 flex size-[26px] items-center justify-center rounded-full border-2 border-card bg-navy text-[12px] text-aqua">
+          <span className="absolute -bottom-0.5 -right-0.5 flex size-[26px] items-center justify-center rounded-full border-2 border-card bg-navy text-[13px] text-aqua">
             {uploading ? "…" : "📷"}
           </span>
         </button>
@@ -122,23 +122,23 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
 
         <div className="grid flex-1 grid-cols-1 gap-x-3 gap-y-2.5 sm:grid-cols-2">
           <div>
-            <label className="text-[10.5px] font-semibold text-mut">Nome</label>
+            <label className="text-[11.5px] font-semibold text-mut">Nome</label>
             <input value={nome} onChange={(e) => setNome(e.target.value)} className={field} />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold text-mut">E-mail</label>
+            <label className="text-[11.5px] font-semibold text-mut">E-mail</label>
             <input value={perfil.email} disabled className={`${field} opacity-60`} />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold text-mut">Telefone</label>
+            <label className="text-[11.5px] font-semibold text-mut">Telefone</label>
             <input value={telefone} onChange={(e) => setTelefone(e.target.value)} className={field} />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold text-mut">Função</label>
+            <label className="text-[11.5px] font-semibold text-mut">Função</label>
             <input value={funcao} onChange={(e) => setFuncao(e.target.value)} className={field} />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold text-mut">Meta de foco por dia (horas)</label>
+            <label className="text-[11.5px] font-semibold text-mut">Meta de foco por dia (horas)</label>
             <input
               value={metaHoras}
               onChange={(e) => setMetaHoras(e.target.value)}
@@ -153,11 +153,11 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
         <button
           onClick={salvar}
           disabled={saving}
-          className="rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+          className="rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
         >
           {saving ? "Salvando…" : "✓ Salvar perfil"}
         </button>
-        <span className="text-[11px] text-mut">
+        <span className="text-[12px] text-mut">
           A foto aparece na sidebar e nas mensagens enviadas pelo sistema.
         </span>
       </div>

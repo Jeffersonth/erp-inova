@@ -37,7 +37,7 @@ export default async function AppLayout({
           avatarUrl={perfil?.avatar_url ?? null}
           iniciais={iniciais || "?"}
         />
-        <main className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-[88px] pt-4 text-[13px] leading-[1.45] md:px-[22px] md:pb-7 md:pt-[18px]">
+        <main className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-[88px] pt-4 text-[14px] leading-[1.45] md:px-[22px] md:pb-7 md:pt-[18px]">
           {children}
         </main>
       </div>

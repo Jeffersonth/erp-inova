@@ -30,8 +30,8 @@ export default async function TrackerPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Time Tracker</h1>
-        <span className="text-[11.5px] text-mut">pomodoro · foque, faça pausas, acompanhe seu tempo</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Time Tracker</h1>
+        <span className="text-[12.5px] text-mut">pomodoro · foque, faça pausas, acompanhe seu tempo</span>
       </div>
 
       <TimeTracker

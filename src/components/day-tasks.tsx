@@ -16,7 +16,7 @@ export type DayTask = {
 };
 
 const field =
-  "rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
+  "rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
 
 function prazoInfo(data: string | null, concluida: boolean) {
   if (!data) return { label: "sem prazo", cls: "text-mut" };
@@ -128,7 +128,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
         } ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
       >
         {draggable && (
-          <span className="select-none text-[13px] leading-none text-mut" title="Arraste para reordenar">
+          <span className="select-none text-[14px] leading-none text-mut" title="Arraste para reordenar">
             ⠿
           </span>
         )}
@@ -137,7 +137,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
           onClick={() => setStatus(t.id, concluida ? "pendente" : "concluida")}
           aria-label={concluida ? "Reabrir tarefa" : "Concluir tarefa"}
           title={concluida ? "Reabrir" : "Concluir"}
-          className="flex size-[18px] flex-none items-center justify-center rounded-full border text-[11px] leading-none transition-colors"
+          className="flex size-[18px] flex-none items-center justify-center rounded-full border text-[12px] leading-none transition-colors"
           style={
             concluida
               ? { background: "#0E9F6E", borderColor: "#0E9F6E", color: "#fff" }
@@ -148,7 +148,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
         </button>
 
         <span
-          className={`min-w-0 flex-1 truncate text-[12.5px] ${concluida ? "text-mut line-through" : "text-ink"}`}
+          className={`min-w-0 flex-1 truncate text-[13.5px] ${concluida ? "text-mut line-through" : "text-ink"}`}
         >
           {t.titulo}
         </span>
@@ -157,7 +157,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
           <button
             type="button"
             onClick={() => setStatus(t.id, emAndamento ? "pendente" : "em_andamento")}
-            className={`flex-none rounded-full border px-2 py-[2px] text-[10.5px] font-semibold transition-colors ${
+            className={`flex-none rounded-full border px-2 py-[2px] text-[11.5px] font-semibold transition-colors ${
               emAndamento
                 ? "border-brand/40 bg-brand/[0.08] text-brand"
                 : "border-line bg-soft text-mut hover:border-brand hover:text-brand"
@@ -167,7 +167,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
           </button>
         )}
 
-        <span className={`w-[118px] flex-none text-right text-[11px] ${prazo.cls}`}>{prazo.label}</span>
+        <span className={`w-[118px] flex-none text-right text-[12px] ${prazo.cls}`}>{prazo.label}</span>
 
         <button
           type="button"
@@ -193,12 +193,12 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
           className={`min-w-0 flex-1 basis-[200px] ${field}`}
         />
         <div className="flex items-center gap-1.5">
-          <label className="text-[10.5px] font-semibold text-mut">Finalizar até</label>
+          <label className="text-[11.5px] font-semibold text-mut">Finalizar até</label>
           <input type="date" value={novaData} onChange={(e) => setNovaData(e.target.value)} className={field} />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-brand px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+          className="rounded-lg bg-brand px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
         >
           + Adicionar
         </button>
@@ -208,8 +208,8 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
       <div className="flex flex-col gap-1.5">
         {ativas.length === 0 && concluidas.length === 0 && (
           <div className="rounded-xl border border-line bg-card px-3.5 py-10 text-center">
-            <div className="text-[13px] font-semibold text-ink">Nenhuma tarefa ainda</div>
-            <div className="mt-1 text-[12px] text-mut">Adicione a primeira tarefa do seu dia acima.</div>
+            <div className="text-[14px] font-semibold text-ink">Nenhuma tarefa ainda</div>
+            <div className="mt-1 text-[13px] text-mut">Adicione a primeira tarefa do seu dia acima.</div>
           </div>
         )}
         {ativas.map((t) => (
@@ -221,10 +221,10 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
       {concluidas.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-[10.5px] font-bold uppercase tracking-[0.07em] text-mut">
+            <span className="text-[11.5px] font-bold uppercase tracking-[0.07em] text-mut">
               Concluídas
             </span>
-            <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px] text-mut">
+            <span className="rounded-full border border-line bg-card px-1.5 text-[10.5px] text-mut">
               {concluidas.length}
             </span>
             <div className="h-px flex-1 bg-line" />
@@ -240,7 +240,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
         <DialogContent className="w-[400px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[400px]">
           {editing && (
             <>
-              <DialogTitle className="text-[14.5px] font-bold text-ink">Editar tarefa</DialogTitle>
+              <DialogTitle className="text-[15.5px] font-bold text-ink">Editar tarefa</DialogTitle>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -250,11 +250,11 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
                 className="mt-3 flex flex-col gap-2.5"
               >
                 <div>
-                  <label className="text-[10.5px] font-semibold text-mut">Título *</label>
+                  <label className="text-[11.5px] font-semibold text-mut">Título *</label>
                   <input name="titulo" required defaultValue={editing.titulo} className={`mt-1 w-full ${field}`} />
                 </div>
                 <div>
-                  <label className="text-[10.5px] font-semibold text-mut">Finalizar até</label>
+                  <label className="text-[11.5px] font-semibold text-mut">Finalizar até</label>
                   <input
                     name="data"
                     type="date"
@@ -266,7 +266,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
                   <button
                     type="button"
                     onClick={deleteTask}
-                    className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+                    className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10"
                   >
                     Excluir
                   </button>
@@ -274,13 +274,13 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
                     <button
                       type="button"
                       onClick={() => setEditing(null)}
-                      className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+                      className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+                      className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
                     >
                       Salvar
                     </button>

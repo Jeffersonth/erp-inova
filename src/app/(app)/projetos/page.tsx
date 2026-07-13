@@ -39,12 +39,12 @@ export default async function ProjetosPage({
     return (
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
+          <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
           <NewProjetoDialog clientes={clientesList} />
         </div>
         <div className={`${card} px-3.5 py-12 text-center`}>
-          <div className="text-[13px] font-semibold text-ink">Nenhum projeto ainda</div>
-          <div className="mt-1 text-[12px] text-mut">
+          <div className="text-[14px] font-semibold text-ink">Nenhum projeto ainda</div>
+          <div className="mt-1 text-[13px] text-mut">
             Crie seu primeiro projeto e monte o quadro de tarefas com as etapas e cards que quiser.
           </div>
         </div>
@@ -100,8 +100,8 @@ export default async function ProjetosPage({
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
-        <span className="text-[11.5px] text-mut">arraste os cards entre as etapas</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
+        <span className="text-[12.5px] text-mut">arraste os cards entre as etapas</span>
         <NewProjetoDialog clientes={clientesList} />
       </div>
 
@@ -114,7 +114,7 @@ export default async function ProjetosPage({
               <Link
                 key={p.id}
                 href={`/projetos?p=${p.id}`}
-                className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+                className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                   ativo
                     ? "border-brand bg-brand/[0.06] text-brand"
                     : "border-line bg-card text-mut hover:border-brand hover:text-ink"
@@ -157,8 +157,8 @@ export default async function ProjetosPage({
         {/* Arquivos enviados pelo cliente */}
         <div className={`${card} px-3.5 py-3`}>
           <div className="mb-2 flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Arquivos do projeto</b>
-            <span className="text-[11px] text-mut">materiais enviados pelo cliente</span>
+            <b className="text-[13.5px] text-ink">Arquivos do projeto</b>
+            <span className="text-[12px] text-mut">materiais enviados pelo cliente</span>
           </div>
           <ArquivosBox
             scope="projeto"
@@ -174,8 +174,8 @@ export default async function ProjetosPage({
       {arquivados.length > 0 && (
         <div className="mt-2">
           <div className="mb-1.5 flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.07em] text-mut">Projetos finalizados</span>
-            <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px] text-mut">{arquivados.length}</span>
+            <span className="text-[12px] font-bold uppercase tracking-[0.07em] text-mut">Projetos finalizados</span>
+            <span className="rounded-full border border-line bg-card px-1.5 text-[10.5px] text-mut">{arquivados.length}</span>
             <div className="h-px flex-1 bg-line" />
           </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -192,10 +192,10 @@ export default async function ProjetosPage({
                 >
                   <span className="flex-none text-ok">✓</span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[12.5px] font-semibold text-ink">{p.titulo}</div>
-                    <div className="truncate text-[11px] text-mut">{nome ?? "sem cliente"}</div>
+                    <div className="truncate text-[13.5px] font-semibold text-ink">{p.titulo}</div>
+                    <div className="truncate text-[12px] text-mut">{nome ?? "sem cliente"}</div>
                   </div>
-                  <span className="flex-none text-[11px] font-semibold text-mut">abrir →</span>
+                  <span className="flex-none text-[12px] font-semibold text-mut">abrir →</span>
                 </Link>
               );
             })}

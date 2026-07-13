@@ -164,7 +164,7 @@ export function Agenda({
           e.stopPropagation();
           setEditing({ ev, dia: new Date(ev.quando) });
         }}
-        className="flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[10.5px] font-medium"
+        className="flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[11.5px] font-medium"
         style={{ background: meta.tint, color: meta.cor }}
         title={ev.titulo}
       >
@@ -179,7 +179,7 @@ export function Agenda({
       <div
         draggable
         onDragStart={() => (drag.current = { kind: "tarefa", id: t.id })}
-        className="flex w-full items-center gap-1 truncate rounded border border-dashed border-line bg-soft px-1.5 py-0.5 text-[10.5px] text-mut"
+        className="flex w-full items-center gap-1 truncate rounded border border-dashed border-line bg-soft px-1.5 py-0.5 text-[11.5px] text-mut"
         title={`Tarefa do dia: ${t.titulo}`}
       >
         <span>☑</span>
@@ -194,16 +194,16 @@ export function Agenda({
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1">
           <button onClick={() => navegar(-1)} className="flex size-7 items-center justify-center rounded-lg border border-line text-mut hover:border-brand hover:text-ink">‹</button>
-          <button onClick={() => setCursor(hoje)} className="rounded-lg border border-line px-2.5 py-1 text-[11.5px] font-semibold text-ink hover:border-brand">Hoje</button>
+          <button onClick={() => setCursor(hoje)} className="rounded-lg border border-line px-2.5 py-1 text-[12.5px] font-semibold text-ink hover:border-brand">Hoje</button>
           <button onClick={() => navegar(1)} className="flex size-7 items-center justify-center rounded-lg border border-line text-mut hover:border-brand hover:text-ink">›</button>
         </div>
-        <b className="text-[13px] capitalize text-ink">{tituloPeriodo}</b>
+        <b className="text-[14px] capitalize text-ink">{tituloPeriodo}</b>
         <div className="ml-auto flex items-center gap-1 rounded-lg border border-line p-0.5">
           {(["mes", "semana", "dia"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`rounded-md px-2.5 py-1 text-[11.5px] font-semibold capitalize transition-colors ${
+              className={`rounded-md px-2.5 py-1 text-[12.5px] font-semibold capitalize transition-colors ${
                 view === v ? "bg-brand text-white" : "text-mut hover:text-ink"
               }`}
             >
@@ -213,7 +213,7 @@ export function Agenda({
         </div>
         <button
           onClick={() => setEditing({ ev: null, dia: cursor })}
-          className="rounded-lg bg-brand px-3 py-1.5 text-[11.5px] font-semibold text-white hover:bg-brand-dark"
+          className="rounded-lg bg-brand px-3 py-1.5 text-[12.5px] font-semibold text-white hover:bg-brand-dark"
         >
           + Evento
         </button>
@@ -222,7 +222,7 @@ export function Agenda({
       {/* Mês */}
       {view === "mes" && (
         <div className="overflow-hidden rounded-xl border border-line bg-card">
-          <div className="grid grid-cols-7 border-b border-line bg-soft text-[10px] font-semibold tracking-[0.05em] text-mut">
+          <div className="grid grid-cols-7 border-b border-line bg-soft text-[11px] font-semibold tracking-[0.05em] text-mut">
             {WD.map((d) => (
               <div key={d} className="px-2 py-1.5 text-center">{d}</div>
             ))}
@@ -245,7 +245,7 @@ export function Agenda({
                 >
                   <div className="mb-0.5 flex justify-end">
                     <span
-                      className={`flex size-[18px] items-center justify-center rounded-full text-[10.5px] font-semibold ${
+                      className={`flex size-[18px] items-center justify-center rounded-full text-[11.5px] font-semibold ${
                         ehHoje ? "bg-brand text-white" : doMes ? "text-ink" : "text-mut"
                       }`}
                     >
@@ -260,7 +260,7 @@ export function Agenda({
                       <TarefaChip key={t.id} t={t} />
                     ))}
                     {evs.length + tks.length > 5 && (
-                      <span className="px-1 text-[10px] text-mut">+{evs.length + tks.length - 5} mais</span>
+                      <span className="px-1 text-[11px] text-mut">+{evs.length + tks.length - 5} mais</span>
                     )}
                   </div>
                 </div>
@@ -289,8 +289,8 @@ export function Agenda({
                     onClick={() => setEditing({ ev: null, dia })}
                     className="mb-0.5 flex items-center justify-between px-0.5 text-left"
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.05em] text-mut">{WD[dia.getDay()]}</span>
-                    <span className={`text-[12px] font-bold ${ehHoje ? "text-brand" : "text-ink"}`}>{dia.getDate()}</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-mut">{WD[dia.getDay()]}</span>
+                    <span className={`text-[13px] font-bold ${ehHoje ? "text-brand" : "text-ink"}`}>{dia.getDate()}</span>
                   </button>
                   {evs.map((ev) => (
                     <EventoChip key={ev.id} ev={ev} />
@@ -298,7 +298,7 @@ export function Agenda({
                   {tks.map((t) => (
                     <TarefaChip key={t.id} t={t} />
                   ))}
-                  {evs.length + tks.length === 0 && <div className="px-1 text-[10.5px] text-mut">—</div>}
+                  {evs.length + tks.length === 0 && <div className="px-1 text-[11.5px] text-mut">—</div>}
                 </div>
               );
             })}
@@ -316,7 +316,7 @@ export function Agenda({
               return (
                 <button
                   onClick={() => setEditing({ ev: null, dia: cursor })}
-                  className="w-full rounded-lg border border-dashed border-line py-10 text-center text-[12px] text-mut hover:border-brand hover:text-brand"
+                  className="w-full rounded-lg border border-dashed border-line py-10 text-center text-[13px] text-mut hover:border-brand hover:text-brand"
                 >
                   Nada agendado neste dia. Clique para adicionar um evento.
                 </button>
@@ -325,7 +325,7 @@ export function Agenda({
             return (
               <div className="flex flex-col gap-1.5">
                 {tks.map((t) => (
-                  <div key={t.id} className="flex items-center gap-2 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-[12px] text-mut">
+                  <div key={t.id} className="flex items-center gap-2 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-[13px] text-mut">
                     <span>☑ Tarefa do dia</span>
                     <span className="text-ink">{t.titulo}</span>
                   </div>
@@ -338,17 +338,17 @@ export function Agenda({
                       onClick={() => setEditing({ ev, dia: new Date(ev.quando) })}
                       className="flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-left hover:border-brand"
                     >
-                      <span className="w-[92px] flex-none text-[11.5px] font-semibold tabular-nums text-mut">
+                      <span className="w-[92px] flex-none text-[12.5px] font-semibold tabular-nums text-mut">
                         {ev.dia_inteiro ? "dia inteiro" : `${hm(new Date(ev.quando))}${ev.fim ? `–${hm(new Date(ev.fim))}` : ""}`}
                       </span>
                       <span className="size-2 flex-none rounded-full" style={{ background: meta.cor }} />
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-[12.5px] font-semibold text-ink">{ev.titulo}</div>
+                        <div className="truncate text-[13.5px] font-semibold text-ink">{ev.titulo}</div>
                         {(ev.local || ev.notas) && (
-                          <div className="truncate text-[11px] text-mut">{[ev.local, ev.notas].filter(Boolean).join(" · ")}</div>
+                          <div className="truncate text-[12px] text-mut">{[ev.local, ev.notas].filter(Boolean).join(" · ")}</div>
                         )}
                       </div>
-                      <span className="flex-none rounded-full px-2 py-px text-[10px] font-semibold" style={{ background: meta.tint, color: meta.cor }}>
+                      <span className="flex-none rounded-full px-2 py-px text-[11px] font-semibold" style={{ background: meta.tint, color: meta.cor }}>
                         {meta.label}
                       </span>
                     </button>
@@ -361,7 +361,7 @@ export function Agenda({
       )}
 
       {/* Legenda + dica */}
-      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-[11px] text-mut">
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-[12px] text-mut">
         {TIPOS.map((t) => (
           <span key={t} className="flex items-center gap-1.5">
             <span className="size-2 rounded-full" style={{ background: TIPO[t].cor }} />
@@ -472,15 +472,15 @@ function EventoDialog({
     toast("✓ Evento excluído");
   }
 
-  const field = "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-  const label = "text-[10.5px] font-semibold text-mut";
+  const field = "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+  const label = "text-[11.5px] font-semibold text-mut";
 
   return (
     <Dialog open={!!state} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="w-[440px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[440px]">
         {state && (
           <>
-            <DialogTitle className="text-[14.5px] font-bold text-ink">{ev ? "Editar evento" : "Novo evento"}</DialogTitle>
+            <DialogTitle className="text-[15.5px] font-bold text-ink">{ev ? "Editar evento" : "Novo evento"}</DialogTitle>
             <form onSubmit={submit} className="mt-3 flex flex-col gap-2.5">
               <div>
                 <label className={label}>Título *</label>
@@ -510,7 +510,7 @@ function EventoDialog({
                   <input name="hora_fim" type="time" defaultValue={fimDate ? hm(fimDate) : ""} className={field} />
                 </div>
               </div>
-              <label className="flex cursor-pointer items-center gap-2 text-[12px] text-ink">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-ink">
                 <input type="checkbox" name="dia_inteiro" defaultChecked={ev?.dia_inteiro ?? false} className="accent-brand" />
                 Dia inteiro
               </label>
@@ -539,7 +539,7 @@ function EventoDialog({
                   href={gcalLink(ev)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg border border-line px-3 py-2 text-center text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+                  className="rounded-lg border border-line px-3 py-2 text-center text-[12.5px] font-semibold text-ink transition-colors hover:border-brand"
                 >
                   📅 Adicionar ao Google Calendar
                 </a>
@@ -547,17 +547,17 @@ function EventoDialog({
 
               <div className="mt-1 flex items-center justify-between gap-2">
                 {ev ? (
-                  <button type="button" onClick={excluir} disabled={loading} className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60">
+                  <button type="button" onClick={excluir} disabled={loading} className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60">
                     Excluir
                   </button>
                 ) : (
                   <span />
                 )}
                 <div className="flex gap-2">
-                  <button type="button" onClick={onClose} className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand">
+                  <button type="button" onClick={onClose} className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand">
                     Cancelar
                   </button>
-                  <button type="submit" disabled={loading} className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60">
+                  <button type="submit" disabled={loading} className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60">
                     {loading ? "Salvando…" : ev ? "Salvar" : "Criar evento"}
                   </button>
                 </div>

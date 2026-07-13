@@ -9,8 +9,8 @@ import type { Enums } from "@/lib/supabase/database.types";
 import type { LeadCanal } from "@/lib/leads";
 
 const field =
-  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-const label = "text-[10.5px] font-semibold text-mut";
+  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+const label = "text-[11.5px] font-semibold text-mut";
 
 const statusOptions: { value: Enums<"cliente_status">; label: string }[] = [
   { value: "lead", label: "Lead" },
@@ -152,13 +152,13 @@ export function LeadConverter({ userId, canais }: { userId: string; canais: Lead
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="rounded-lg border border-ok/40 px-3 py-[7px] text-xs font-semibold text-ok transition-colors hover:bg-ok/10">
+        <button className="rounded-lg border border-ok/40 px-3 py-[7px] text-[13px] font-semibold text-ok transition-colors hover:bg-ok/10">
           ↗ Registrar lead no CRM
         </button>
       </DialogTrigger>
       <DialogContent className="w-[460px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[460px]">
-        <DialogTitle className="text-[14.5px] font-bold text-ink">Registrar novo lead</DialogTitle>
-        <div className="mt-1 text-[11.5px] text-mut">
+        <DialogTitle className="text-[15.5px] font-bold text-ink">Registrar novo lead</DialogTitle>
+        <div className="mt-1 text-[12.5px] text-mut">
           Entra automaticamente no CRM com a origem registrada — escolha o status (lead, cliente…), e crie projeto e
           tarefa inicial se quiser.
         </div>
@@ -223,7 +223,7 @@ export function LeadConverter({ userId, canais }: { userId: string; canais: Lead
             </select>
           </div>
 
-          <label className="flex cursor-pointer items-center gap-2 text-[12px] text-ink">
+          <label className="flex cursor-pointer items-center gap-2 text-[13px] text-ink">
             <input
               type="checkbox"
               checked={criarProjeto}
@@ -250,21 +250,21 @@ export function LeadConverter({ userId, canais }: { userId: string; canais: Lead
           </div>
 
           {error && (
-            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">{error}</div>
+            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-danger">{error}</div>
           )}
 
           <div className="mt-1 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+              className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
             >
               {loading ? "Salvando…" : "✓ Registrar no CRM"}
             </button>

@@ -199,7 +199,7 @@ export function TimeTracker({
             <button
               key={p}
               onClick={() => trocarPreset(p)}
-              className={`rounded-full border px-2.5 py-[3px] text-[10.5px] font-semibold transition-colors ${
+              className={`rounded-full border px-2.5 py-[3px] text-[11.5px] font-semibold transition-colors ${
                 preset === p ? "border-aqua/45 bg-aqua/10 text-ia" : "border-line bg-soft text-mut hover:border-aqua/45"
               }`}
             >
@@ -212,7 +212,7 @@ export function TimeTracker({
             <button
               key={m}
               onClick={() => trocarModo(m)}
-              className={`rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+              className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                 modo === m ? "border-brand bg-brand/[0.06] text-brand" : "border-line bg-soft text-mut hover:border-brand"
               }`}
             >
@@ -238,22 +238,22 @@ export function TimeTracker({
             />
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-[38px] font-extrabold tracking-[-0.03em] text-ink tabular-nums">{mmss(restante)}</span>
-            <span className="text-[11px] font-semibold text-mut">{CONFIG[modo].label}</span>
+            <span className="text-[39px] font-extrabold tracking-[-0.03em] text-ink tabular-nums">{mmss(restante)}</span>
+            <span className="text-[12px] font-semibold text-mut">{CONFIG[modo].label}</span>
           </div>
         </div>
 
         <div className="mt-4 flex items-center justify-center gap-2">
           <button
             onClick={iniciarPausar}
-            className="rounded-lg bg-brand px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-brand-dark"
+            className="rounded-lg bg-brand px-5 py-2 text-[14px] font-bold text-white transition-colors hover:bg-brand-dark"
           >
             {rodando ? "⏸ Pausar" : restante === duracaoTotal ? "▶ Iniciar" : "▶ Retomar"}
           </button>
           <button
             onClick={parar}
             disabled={restante === duracaoTotal && !rodando}
-            className="rounded-lg border border-line px-4 py-2 text-[13px] font-semibold text-ink transition-colors hover:border-brand disabled:opacity-50"
+            className="rounded-lg border border-line px-4 py-2 text-[14px] font-semibold text-ink transition-colors hover:border-brand disabled:opacity-50"
           >
             ⟲ Zerar
           </button>
@@ -263,7 +263,7 @@ export function TimeTracker({
           <select
             value={projetoId}
             onChange={(e) => setProjetoId(e.target.value)}
-            className="rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+            className="rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand"
           >
             <option value="">Sem projeto</option>
             {projetos.map((p) => (
@@ -275,7 +275,7 @@ export function TimeTracker({
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value as Categoria)}
-            className="rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+            className="rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand"
           >
             {(Object.keys(CATEGORIAS) as Categoria[]).map((c) => (
               <option key={c} value={c}>
@@ -288,10 +288,10 @@ export function TimeTracker({
           value={rotulo}
           onChange={(e) => setRotulo(e.target.value)}
           placeholder="No que está focando?"
-          className="mt-2 w-full rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand"
+          className="mt-2 w-full rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand"
         />
 
-        <div className="mt-3 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-center text-[12px] text-mut">
+        <div className="mt-3 rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-center text-[13px] text-mut">
           Foco de hoje: <b className="text-ok">{humano(focoHoje)}</b>
         </div>
       </div>
@@ -299,12 +299,12 @@ export function TimeTracker({
       {/* Histórico */}
       <div className="rounded-xl border border-line bg-card px-3.5 py-3">
         <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Histórico de sessões</b>
-          <span className="ml-auto text-[11px] text-mut">{historico.length} registradas</span>
+          <b className="text-[13.5px] text-ink">Histórico de sessões</b>
+          <span className="ml-auto text-[12px] text-mut">{historico.length} registradas</span>
         </div>
         <div className="thin-scroll mt-2 flex max-h-[360px] flex-col gap-1.5 overflow-y-auto">
           {historico.length === 0 ? (
-            <div className="py-8 text-center text-[12px] text-mut">
+            <div className="py-8 text-center text-[13px] text-mut">
               Nenhuma sessão ainda. Inicie o timer e ele aparece aqui.
             </div>
           ) : (
@@ -314,13 +314,13 @@ export function TimeTracker({
                 <div key={s.id} className="flex items-center gap-2.5 rounded-lg border border-line bg-soft px-3 py-2">
                   <span className="size-2 flex-none rounded-full" style={{ background: c.cor }} />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[12px] text-ink">
+                    <div className="truncate text-[13px] text-ink">
                       {CATEGORIAS[s.categoria]?.icone ?? "💼"} {s.rotulo || c.label}
                       {s.projetos?.titulo && <span className="text-mut"> · {s.projetos.titulo}</span>}
                     </div>
-                    <div className="text-[10.5px] text-mut">{quando(s.finalizada_em)}</div>
+                    <div className="text-[11.5px] text-mut">{quando(s.finalizada_em)}</div>
                   </div>
-                  <span className="flex-none text-[12px] font-semibold text-ink">{humano(s.duracao_seg)}</span>
+                  <span className="flex-none text-[13px] font-semibold text-ink">{humano(s.duracao_seg)}</span>
                 </div>
               );
             })

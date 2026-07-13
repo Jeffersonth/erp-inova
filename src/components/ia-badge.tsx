@@ -13,7 +13,7 @@ export function IaBadge({
   return (
     <span
       className={cn(
-        "inline-flex flex-none items-center rounded-full border border-aqua/45 bg-aqua/10 px-2 py-[3px] text-[9.5px] font-extrabold tracking-[0.08em] text-ia",
+        "inline-flex flex-none items-center rounded-full border border-aqua/45 bg-aqua/10 px-2 py-[3px] text-[10.5px] font-extrabold tracking-[0.08em] text-ia",
         className,
       )}
     >

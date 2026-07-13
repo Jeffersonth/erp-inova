@@ -29,7 +29,7 @@ export function RecalcularScores() {
       onClick={recalcular}
       disabled={loading}
       title="Recalcula o score e a próxima ação de cada cliente a partir dos dados reais"
-      className="rounded-lg border border-aqua/45 px-3 py-1.5 text-xs font-semibold text-ia transition-colors hover:bg-aqua/10 disabled:opacity-60"
+      className="rounded-lg border border-aqua/45 px-3 py-1.5 text-[13px] font-semibold text-ia transition-colors hover:bg-aqua/10 disabled:opacity-60"
     >
       {loading ? "Recalculando…" : "✦ Recalcular scores (IA)"}
     </button>

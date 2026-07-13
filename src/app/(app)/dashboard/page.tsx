@@ -250,9 +250,9 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Dashboard</h1>
-        <span className="text-[11.5px] text-mut">{dataHoje}</span>
-        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark">
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Dashboard</h1>
+        <span className="text-[12.5px] text-mut">{dataHoje}</span>
+        <button className="ml-auto rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark">
           + Novo
         </button>
       </div>
@@ -260,7 +260,7 @@ export default async function DashboardPage() {
       {/* Resumo do dia (IA) */}
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
-        <div className="min-w-0 text-[12.5px] leading-[1.5] text-ink">
+        <div className="min-w-0 text-[13.5px] leading-[1.5] text-ink">
           <Suspense fallback={<span className="text-mut">Gerando o resumo do dia…</span>}>
             <ResumoDia
               projetosAtivos={projetosAtivos}
@@ -273,7 +273,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/assistente"
-          className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-aqua"
+          className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[12.5px] font-semibold text-ink transition-colors hover:border-aqua"
         >
           Abrir assistente
         </Link>
@@ -283,8 +283,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {kpis.map((k) => (
           <div key={k.label} className={`${card} px-3 py-2.5 transition-colors hover:border-brand`}>
-            <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">{k.label}</div>
-            <div className={`mt-0.5 text-[17px] font-extrabold tracking-[-0.02em] ${toneText[k.tone]}`}>{k.value}</div>
+            <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">{k.label}</div>
+            <div className={`mt-0.5 text-[18px] font-extrabold tracking-[-0.02em] ${toneText[k.tone]}`}>{k.value}</div>
           </div>
         ))}
       </div>
@@ -301,7 +301,7 @@ export default async function DashboardPage() {
       {/* Receita + previsão */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Receita + previsão</b>
+          <b className="text-[13.5px] text-ink">Receita + previsão</b>
           <IaBadge />
         </div>
         <svg
@@ -327,13 +327,13 @@ export default async function DashboardPage() {
             <title>{`${proxLabel} (previsão): ${formatMoney(previsao)}`}</title>
           </circle>
         </svg>
-        <div className="mt-1 flex justify-between text-[10px] text-mut">
+        <div className="mt-1 flex justify-between text-[11px] text-mut">
           {mesesRef.map((m) => (
             <span key={m.ini}>{m.label}</span>
           ))}
           <span className="font-semibold text-ia">{proxLabel}·prev</span>
         </div>
-        <div className="mt-1.5 text-[11px] text-mut">
+        <div className="mt-1.5 text-[12px] text-mut">
           Previsão de {proxLabel}: <b className="text-ink">{formatMoney(previsao)}</b> — média dos últimos 3 meses recebidos
         </div>
       </div>
@@ -341,21 +341,21 @@ export default async function DashboardPage() {
       {/* Prospecção do mês (módulo Leads) */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Prospecção · mês</b>
-          <span className="text-[11px] text-mut">funil do módulo Leads</span>
+          <b className="text-[13.5px] text-ink">Prospecção · mês</b>
+          <span className="text-[12px] text-mut">funil do módulo Leads</span>
           <Link
             href="/leads"
-            className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+            className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[12.5px] font-semibold text-ink transition-colors hover:border-brand"
           >
             Abrir Leads
           </Link>
         </div>
         {leadsMes.contatos === 0 ? (
-          <div className="mt-2 text-[11.5px] text-mut">
+          <div className="mt-2 text-[12.5px] text-mut">
             Nenhum registro de prospecção neste mês — registre em <b className="text-ink">Leads</b> e o funil aparece aqui.
           </div>
         ) : (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[12px]">
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[13px]">
             {[
               { l: "Contatos", v: String(leadsMes.contatos) },
               { l: "Respostas", v: String(leadsMes.respostas) },
@@ -365,11 +365,11 @@ export default async function DashboardPage() {
               <span key={e.l} className="flex items-center gap-2">
                 {i > 0 && <span className="text-mut">→</span>}
                 <span className="rounded-lg border border-line bg-soft px-2.5 py-1.5">
-                  <b className="text-ink">{e.v}</b> <span className="text-[10.5px] text-mut">{e.l.toLowerCase()}</span>
+                  <b className="text-ink">{e.v}</b> <span className="text-[11.5px] text-mut">{e.l.toLowerCase()}</span>
                 </span>
               </span>
             ))}
-            <span className="ml-auto text-[11.5px] text-mut">
+            <span className="ml-auto text-[12.5px] text-mut">
               conversão <b className="text-ink">{leadsMes.taxaConversao}%</b> · receita{" "}
               <b className="text-ok">{formatMoney(leadsMes.receita)}</b>
               {melhorCanalMes && (
@@ -387,14 +387,14 @@ export default async function DashboardPage() {
       {topAlertas.length > 0 && (
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Atenção necessária</b>
-            <span className="text-[11px] text-mut">priorizado por impacto</span>
+            <b className="text-[13.5px] text-ink">Atenção necessária</b>
+            <span className="text-[12px] text-mut">priorizado por impacto</span>
             <IaBadge />
           </div>
           <div className="mt-2 flex flex-col">
             {topAlertas.map((a, i) => (
               <div key={i} className="flex items-center gap-2.5 border-t border-line py-2">
-                <span className={`flex-none rounded-md border px-2 py-[3px] text-[11px] font-bold ${
+                <span className={`flex-none rounded-md border px-2 py-[3px] text-[12px] font-bold ${
                   a.tone === "danger"
                     ? "border-danger/40 bg-danger/[0.08] text-danger"
                     : a.tone === "amber"
@@ -403,12 +403,12 @@ export default async function DashboardPage() {
                 }`}>
                   {a.valor}
                 </span>
-                <span className="min-w-0 flex-1 text-[12.5px] text-ink">
+                <span className="min-w-0 flex-1 text-[13.5px] text-ink">
                   <RichText text={a.texto} />
                 </span>
                 <Link
                   href={a.href}
-                  className="ml-auto flex-none rounded-lg border border-line px-3 py-[5px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand"
+                  className="ml-auto flex-none rounded-lg border border-line px-3 py-[5px] text-[12.5px] font-semibold text-ink transition-colors hover:border-brand"
                 >
                   {a.label}
                 </Link>
@@ -420,14 +420,14 @@ export default async function DashboardPage() {
 
       {/* Insights — previsões e análises a partir dos dados reais */}
       <div className="mt-2 flex items-center gap-2">
-        <span className="text-[11px] font-bold uppercase tracking-[0.07em] text-mut">Insights</span>
-        <span className="text-[10.5px] text-mut">previsões e análises geradas a partir dos seus dados</span>
+        <span className="text-[12px] font-bold uppercase tracking-[0.07em] text-mut">Insights</span>
+        <span className="text-[11.5px] text-mut">previsões e análises geradas a partir dos seus dados</span>
         <div className="h-px flex-1 bg-line" />
       </div>
 
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
-        <div className="min-w-0 text-[12.5px] leading-[1.55] text-ink">
+        <div className="min-w-0 text-[13.5px] leading-[1.55] text-ink">
           <Suspense fallback={<span className="text-mut">Analisando seus números…</span>}>
             <AnaliseIA {...narrativa} />
           </Suspense>
@@ -438,12 +438,12 @@ export default async function DashboardPage() {
         {/* Previsão de receita */}
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Previsão de receita · 90 dias</b>
+            <b className="text-[13.5px] text-ink">Previsão de receita · 90 dias</b>
             <IaBadge>3 CENÁRIOS</IaBadge>
           </div>
           <div className="mt-3 flex flex-col gap-2.5">
             {cenarios.map((c) => (
-              <div key={c.label} className="grid grid-cols-[70px_1fr_92px] items-center gap-2 text-[11.5px]">
+              <div key={c.label} className="grid grid-cols-[70px_1fr_92px] items-center gap-2 text-[12.5px]">
                 <span className="text-mut">{c.label}</span>
                 <div className="h-3 overflow-hidden rounded-full bg-soft">
                   <div className="h-full rounded-full" style={{ width: `${Math.round((c.v / maiorPrev) * 100)}%`, background: c.cor }} />
@@ -452,7 +452,7 @@ export default async function DashboardPage() {
               </div>
             ))}
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-dashed border-line pt-2.5 text-[11px] text-mut">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-dashed border-line pt-2.5 text-[12px] text-mut">
             <span>MRR recorrente: <b className="text-ink">{formatMoney(prev.mrr)}</b></span>
             <span>Saldo em aberto: <b className="text-ink">{formatMoney(prev.saldoAberto)}</b></span>
             <span>Média mensal (3m): <b className="text-ink">{formatMoney(Math.round(prev.mediaMensal))}</b></span>
@@ -461,13 +461,13 @@ export default async function DashboardPage() {
 
         {/* Lucro por cliente */}
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Lucro por cliente</b>
+          <b className="text-[13.5px] text-ink">Lucro por cliente</b>
           {lucros.length === 0 ? (
-            <div className="mt-3 text-[12px] text-mut">Sem dados suficientes ainda — registre vendas e despesas por cliente.</div>
+            <div className="mt-3 text-[13px] text-mut">Sem dados suficientes ainda — registre vendas e despesas por cliente.</div>
           ) : (
             <div className="mt-3 flex flex-col gap-2">
               {lucros.slice(0, 6).map((l) => (
-                <div key={l.clienteId} className="grid grid-cols-[1fr_64px_54px] items-center gap-2 text-[11.5px]">
+                <div key={l.clienteId} className="grid grid-cols-[1fr_64px_54px] items-center gap-2 text-[12.5px]">
                   <span className="truncate text-ink">{l.nome}</span>
                   <b className={`text-right ${l.lucro >= 0 ? "text-ok" : "text-danger"}`}>{formatMoney(l.lucro)}</b>
                   <span className="text-right text-mut">{l.margem}%</span>
@@ -482,11 +482,11 @@ export default async function DashboardPage() {
         {/* Projetos em risco de atraso */}
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Risco de atraso · projetos</b>
+            <b className="text-[13.5px] text-ink">Risco de atraso · projetos</b>
             <IaBadge />
           </div>
           {riscosProj.length === 0 ? (
-            <div className="mt-3 text-[12px] text-mut">Nenhum projeto ativo.</div>
+            <div className="mt-3 text-[13px] text-mut">Nenhum projeto ativo.</div>
           ) : (
             <div className="mt-2.5 flex flex-col gap-2">
               {riscosProj.slice(0, 5).map((p) => {
@@ -494,13 +494,13 @@ export default async function DashboardPage() {
                 return (
                   <div key={p.id} className="flex items-center gap-2.5">
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[12px] font-semibold text-ink">{p.titulo}</div>
-                      <div className="truncate text-[10.5px] text-mut">{p.motivo}</div>
+                      <div className="truncate text-[13px] font-semibold text-ink">{p.titulo}</div>
+                      <div className="truncate text-[11.5px] text-mut">{p.motivo}</div>
                     </div>
                     <div className="h-1.5 w-[70px] flex-none overflow-hidden rounded-full bg-soft">
                       <div className="h-full rounded-full" style={{ width: `${p.risco}%`, background: t.bg }} />
                     </div>
-                    <b className={`w-[38px] flex-none text-right text-[11.5px] ${t.txt}`}>{p.risco}%</b>
+                    <b className={`w-[38px] flex-none text-right text-[12.5px] ${t.txt}`}>{p.risco}%</b>
                   </div>
                 );
               })}
@@ -511,11 +511,11 @@ export default async function DashboardPage() {
         {/* Risco de inadimplência */}
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Risco de inadimplência · contas</b>
+            <b className="text-[13.5px] text-ink">Risco de inadimplência · contas</b>
             <IaBadge />
           </div>
           {contas.length === 0 ? (
-            <div className="mt-3 text-[12px] text-mut">Nenhuma conta em aberto. 🎉</div>
+            <div className="mt-3 text-[13px] text-mut">Nenhuma conta em aberto. 🎉</div>
           ) : (
             <div className="mt-2.5 flex flex-col gap-2">
               {contas.slice(0, 5).map((c, i) => {
@@ -523,13 +523,13 @@ export default async function DashboardPage() {
                 return (
                   <div key={i} className="flex items-center gap-2.5">
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[12px] font-semibold text-ink">{c.clienteNome}</div>
-                      <div className="truncate text-[10.5px] text-mut">
+                      <div className="truncate text-[13px] font-semibold text-ink">{c.clienteNome}</div>
+                      <div className="truncate text-[11.5px] text-mut">
                         {formatMoney(c.saldo, c.moeda as Enums<"moeda">)}
                         {c.diasAtraso > 0 ? ` · ${c.diasAtraso} dia(s) em atraso` : " · em aberto"}
                       </div>
                     </div>
-                    <b className={`w-[38px] flex-none text-right text-[11.5px] ${t.txt}`}>{c.risco}%</b>
+                    <b className={`w-[38px] flex-none text-right text-[12.5px] ${t.txt}`}>{c.risco}%</b>
                   </div>
                 );
               })}

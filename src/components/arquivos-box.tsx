@@ -138,38 +138,38 @@ export function ArquivosBox({
   return (
     <div className="rounded-lg border border-line bg-soft px-3 py-2.5">
       <div className="flex items-center gap-2">
-        <span className="text-[10.5px] font-semibold text-mut">{titulo}</span>
+        <span className="text-[11.5px] font-semibold text-mut">{titulo}</span>
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="ml-auto rounded-lg border border-line bg-card px-2.5 py-[5px] text-[11px] font-semibold text-ink transition-colors hover:border-brand disabled:opacity-60"
+          className="ml-auto rounded-lg border border-line bg-card px-2.5 py-[5px] text-[12px] font-semibold text-ink transition-colors hover:border-brand disabled:opacity-60"
         >
           {uploading ? "Enviando…" : "+ Anexar"}
         </button>
         <input ref={inputRef} type="file" accept={accept} onChange={onPick} className="hidden" />
       </div>
-      {ajuda && <div className="mt-1 text-[10.5px] text-mut">{ajuda}</div>}
+      {ajuda && <div className="mt-1 text-[11.5px] text-mut">{ajuda}</div>}
 
       <div className="mt-2 flex flex-col gap-1">
         {loading ? (
-          <div className="py-2 text-center text-[11.5px] text-mut">carregando…</div>
+          <div className="py-2 text-center text-[12.5px] text-mut">carregando…</div>
         ) : arquivos.length === 0 ? (
-          <div className="py-2 text-center text-[11.5px] text-mut">nenhum arquivo ainda</div>
+          <div className="py-2 text-center text-[12.5px] text-mut">nenhum arquivo ainda</div>
         ) : (
           arquivos.map((a) => (
             <div key={a.id} className="flex items-center gap-2 rounded-md border border-line bg-card px-2 py-1.5">
-              <span className="text-[13px]">{iconFor(a.nome)}</span>
+              <span className="text-[14px]">{iconFor(a.nome)}</span>
               <button
                 type="button"
                 onClick={() => baixar(a)}
-                className="min-w-0 flex-1 truncate text-left text-[12px] text-ink hover:text-brand hover:underline"
+                className="min-w-0 flex-1 truncate text-left text-[13px] text-ink hover:text-brand hover:underline"
                 title="Baixar"
               >
                 {a.nome}
               </button>
               {a.classificacao_ia && (
-                <span className="flex-none rounded-full border border-line bg-soft px-1.5 py-px text-[10px] font-semibold text-mut">
+                <span className="flex-none rounded-full border border-line bg-soft px-1.5 py-px text-[11px] font-semibold text-mut">
                   {a.classificacao_ia}
                 </span>
               )}

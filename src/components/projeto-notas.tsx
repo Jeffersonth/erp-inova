@@ -59,8 +59,8 @@ export function ProjetoNotas({
   return (
     <div className="rounded-xl border border-line bg-card px-3.5 py-3">
       <div className="mb-2 flex items-center gap-2">
-        <b className="text-[12.5px] text-ink">Anotações importantes</b>
-        <span className="text-[11px] text-mut">lembretes do projeto · prioridade sobe pro topo</span>
+        <b className="text-[13.5px] text-ink">Anotações importantes</b>
+        <span className="text-[12px] text-mut">lembretes do projeto · prioridade sobe pro topo</span>
       </div>
 
       <form onSubmit={add} className="flex flex-col gap-2 sm:flex-row sm:items-start">
@@ -69,16 +69,16 @@ export function ProjetoNotas({
           onChange={(e) => setTexto(e.target.value)}
           rows={2}
           placeholder="Ex: cliente pediu tom mais formal na home…"
-          className="min-w-0 flex-1 resize-none rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+          className="min-w-0 flex-1 resize-none rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand"
         />
         <div className="flex items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap text-[11.5px] text-mut">
+          <label className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap text-[12.5px] text-mut">
             <input type="checkbox" checked={prioridade} onChange={(e) => setPrioridade(e.target.checked)} className="accent-amber-500" />
             ★ prioridade
           </label>
           <button
             type="submit"
-            className="rounded-lg bg-brand px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+            className="rounded-lg bg-brand px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
           >
             + Anotar
           </button>
@@ -99,13 +99,13 @@ export function ProjetoNotas({
                 onClick={() => togglePrioridade(n.id)}
                 aria-label={n.prioridade ? "Remover prioridade" : "Marcar como prioridade"}
                 title={n.prioridade ? "Remover prioridade" : "Marcar como prioridade"}
-                className={`flex-none text-[14px] leading-none transition-colors ${
+                className={`flex-none text-[15px] leading-none transition-colors ${
                   n.prioridade ? "text-warn" : "text-mut hover:text-warn"
                 }`}
               >
                 {n.prioridade ? "★" : "☆"}
               </button>
-              <span className="min-w-0 flex-1 whitespace-pre-wrap text-[12.5px] leading-snug text-ink">{n.texto}</span>
+              <span className="min-w-0 flex-1 whitespace-pre-wrap text-[13.5px] leading-snug text-ink">{n.texto}</span>
               <button
                 type="button"
                 onClick={() => excluir(n.id)}

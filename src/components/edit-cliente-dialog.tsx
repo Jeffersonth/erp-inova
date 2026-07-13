@@ -14,8 +14,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/database.types";
 
 const field =
-  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-const label = "text-[10.5px] font-semibold text-mut";
+  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+const label = "text-[11.5px] font-semibold text-mut";
 
 const statusOptions: { value: Enums<"cliente_status">; label: string }[] = [
   { value: "lead", label: "Lead" },
@@ -121,7 +121,7 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
         </button>
       </DialogTrigger>
       <DialogContent className="w-[440px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[440px]">
-        <DialogTitle className="text-[14.5px] font-bold text-ink">Editar contato</DialogTitle>
+        <DialogTitle className="text-[15.5px] font-bold text-ink">Editar contato</DialogTitle>
         <form onSubmit={submit} className="mt-3 flex flex-col gap-2.5">
           <div>
             <label className={label}>Nome / empresa *</label>
@@ -171,7 +171,7 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
           </div>
 
           {error && (
-            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">
+            <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-danger">
               {error}
             </div>
           )}
@@ -181,7 +181,7 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
               type="button"
               onClick={excluir}
               disabled={loading}
-              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
+              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
             >
               Excluir
             </button>
@@ -189,14 +189,14 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+                className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
               >
                 {loading ? "Salvando…" : "Salvar alterações"}
               </button>

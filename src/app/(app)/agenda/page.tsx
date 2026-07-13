@@ -28,8 +28,8 @@ export default async function AgendaPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Agenda</h1>
-        <span className="text-[11.5px] text-mut">reuniões, lembretes e blocos de tempo</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Agenda</h1>
+        <span className="text-[12.5px] text-mut">reuniões, lembretes e blocos de tempo</span>
       </div>
 
       <Agenda

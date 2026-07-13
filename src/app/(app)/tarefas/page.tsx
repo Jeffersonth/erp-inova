@@ -22,8 +22,8 @@ export default async function TarefasPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Tarefas do dia</h1>
-        <span className="text-[11.5px] text-mut">{dataHoje} · arraste para reordenar</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Tarefas do dia</h1>
+        <span className="text-[12.5px] text-mut">{dataHoje} · arraste para reordenar</span>
       </div>
 
       <DayTasks userId={user?.id ?? ""} initialTasks={(tarefas ?? []) as DayTask[]} />

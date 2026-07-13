@@ -25,7 +25,7 @@ export type BoardEtapa = {
 };
 
 const field =
-  "w-full rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[12px] text-ink outline-none focus:border-brand";
+  "w-full rounded-lg border border-line bg-soft px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand";
 
 export function ProjectBoard({
   projetoId,
@@ -199,13 +199,13 @@ export function ProjectBoard({
     <div className="flex flex-col gap-3">
       {/* Progresso */}
       <div className="flex items-center gap-2.5">
-        <span className="whitespace-nowrap text-[11.5px] text-mut">
+        <span className="whitespace-nowrap text-[12.5px] text-mut">
           {done} de {total} concluídas
         </span>
         <div className="h-1.5 flex-1 overflow-hidden rounded-full border border-line bg-soft-2">
           <div className="h-full rounded-full bg-ok transition-all" style={{ width: `${pct}%` }} />
         </div>
-        <span className="text-[11.5px] font-semibold text-ok">{pct}%</span>
+        <span className="text-[12.5px] font-semibold text-ok">{pct}%</span>
       </div>
 
       {/* Quadro */}
@@ -224,10 +224,10 @@ export function ProjectBoard({
                   onBlur={(e) => {
                     if (e.target.value.trim() && e.target.value.trim() !== col.nome) renameEtapa(col.id, e.target.value);
                   }}
-                  className="min-w-0 flex-1 bg-transparent text-[10.5px] font-bold uppercase tracking-[0.06em] text-mut outline-none focus:text-ink"
+                  className="min-w-0 flex-1 bg-transparent text-[11.5px] font-bold uppercase tracking-[0.06em] text-mut outline-none focus:text-ink"
                 />
-                {col.final && <span className="text-[10px] text-ok" title="Etapa de conclusão">✓</span>}
-                <span className="rounded-full border border-line bg-card px-1.5 text-[9.5px] text-mut">
+                {col.final && <span className="text-[11px] text-ok" title="Etapa de conclusão">✓</span>}
+                <span className="rounded-full border border-line bg-card px-1.5 text-[10.5px] text-mut">
                   {col.tarefas.length}
                 </span>
                 <button
@@ -272,7 +272,7 @@ export function ProjectBoard({
                         }}
                         aria-label={t.concluida ? "Reabrir tarefa" : "Concluir tarefa"}
                         title={t.concluida ? "Reabrir" : "Concluir"}
-                        className="flex size-4 flex-none items-center justify-center rounded-full border text-[10px] leading-none transition-colors"
+                        className="flex size-4 flex-none items-center justify-center rounded-full border text-[11px] leading-none transition-colors"
                         style={
                           t.concluida
                             ? { background: "#0E9F6E", borderColor: "#0E9F6E", color: "#fff" }
@@ -282,19 +282,19 @@ export function ProjectBoard({
                         ✓
                       </button>
                       <span
-                        className="rounded-full bg-card px-1.5 py-px text-[10px] font-semibold"
+                        className="rounded-full bg-card px-1.5 py-px text-[11px] font-semibold"
                         style={{ color: t.concluida ? "#8DA2C0" : meta.text }}
                       >
                         {meta.label}
                       </span>
                     </div>
                     <div
-                      className={`mt-1.5 text-[12px] font-semibold leading-snug ${t.concluida ? "text-mut line-through" : "text-ink"}`}
+                      className={`mt-1.5 text-[13px] font-semibold leading-snug ${t.concluida ? "text-mut line-through" : "text-ink"}`}
                     >
                       {t.titulo}
                     </div>
                     {t.descricao && (
-                      <div className={`mt-0.5 line-clamp-3 text-[11px] leading-snug ${t.concluida ? "text-mut" : "text-mut"}`}>
+                      <div className={`mt-0.5 line-clamp-3 text-[12px] leading-snug ${t.concluida ? "text-mut" : "text-mut"}`}>
                         {t.descricao}
                       </div>
                     )}
@@ -317,7 +317,7 @@ export function ProjectBoard({
               <button
                 type="button"
                 onClick={() => setNovaEtapa("")}
-                className="flex w-full items-center justify-center gap-1 rounded-[10px] border border-dashed border-line py-2 text-[11.5px] font-semibold text-mut transition-colors hover:border-brand hover:text-brand"
+                className="flex w-full items-center justify-center gap-1 rounded-[10px] border border-dashed border-line py-2 text-[12.5px] font-semibold text-mut transition-colors hover:border-brand hover:text-brand"
               >
                 + Etapa
               </button>
@@ -338,14 +338,14 @@ export function ProjectBoard({
                   <button
                     type="button"
                     onClick={addEtapa}
-                    className="flex-1 rounded-lg bg-brand px-2 py-1 text-[11px] font-semibold text-white hover:bg-brand-dark"
+                    className="flex-1 rounded-lg bg-brand px-2 py-1 text-[12px] font-semibold text-white hover:bg-brand-dark"
                   >
                     Adicionar
                   </button>
                   <button
                     type="button"
                     onClick={() => setNovaEtapa(null)}
-                    className="rounded-lg border border-line px-2 py-1 text-[11px] font-semibold text-ink hover:border-brand"
+                    className="rounded-lg border border-line px-2 py-1 text-[12px] font-semibold text-ink hover:border-brand"
                   >
                     Cancelar
                   </button>
@@ -359,7 +359,7 @@ export function ProjectBoard({
       {/* Legenda */}
       <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 border-t border-line pt-2.5">
         {TIPO_ORDER.map((tipo) => (
-          <span key={tipo} className="flex items-center gap-1.5 text-[11px] text-mut">
+          <span key={tipo} className="flex items-center gap-1.5 text-[12px] text-mut">
             <span className="size-2 rounded-full" style={{ background: TIPO_META[tipo].color }} />
             {TIPO_META[tipo].label}
           </span>
@@ -393,7 +393,7 @@ function AddCardForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-1 rounded-[8px] border border-dashed border-line py-1.5 text-[11.5px] text-mut transition-colors hover:border-brand hover:text-brand"
+        className="flex w-full items-center justify-center gap-1 rounded-[8px] border border-dashed border-line py-1.5 text-[12.5px] text-mut transition-colors hover:border-brand hover:text-brand"
       >
         + Card
       </button>
@@ -427,7 +427,7 @@ function AddCardForm({
               key={tipo}
               type="button"
               onClick={() => onChange({ ...value, tipo })}
-              className="rounded-full border px-1.5 py-px text-[10px] font-semibold transition-colors"
+              className="rounded-full border px-1.5 py-px text-[11px] font-semibold transition-colors"
               style={
                 active
                   ? { background: meta.tint, borderColor: meta.border, color: meta.text }
@@ -440,13 +440,13 @@ function AddCardForm({
         })}
       </div>
       <div className="flex gap-1.5">
-        <button type="submit" className="flex-1 rounded-lg bg-brand px-2 py-1 text-[11px] font-semibold text-white hover:bg-brand-dark">
+        <button type="submit" className="flex-1 rounded-lg bg-brand px-2 py-1 text-[12px] font-semibold text-white hover:bg-brand-dark">
           Adicionar
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-lg border border-line px-2 py-1 text-[11px] font-semibold text-ink hover:border-brand"
+          className="rounded-lg border border-line px-2 py-1 text-[12px] font-semibold text-ink hover:border-brand"
         >
           Fechar
         </button>
@@ -471,7 +471,7 @@ function EditCardDialog({
       <DialogContent className="w-[380px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[380px]">
         {card && (
           <>
-            <DialogTitle className="text-[14.5px] font-bold text-ink">Editar card</DialogTitle>
+            <DialogTitle className="text-[15.5px] font-bold text-ink">Editar card</DialogTitle>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -485,30 +485,30 @@ function EditCardDialog({
               className="mt-3 flex flex-col gap-2.5"
             >
               <div>
-                <label className="text-[10.5px] font-semibold text-mut">Título *</label>
+                <label className="text-[11.5px] font-semibold text-mut">Título *</label>
                 <input
                   name="titulo"
                   required
                   defaultValue={card.titulo}
-                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand"
                 />
               </div>
               <div>
-                <label className="text-[10.5px] font-semibold text-mut">Texto / descrição</label>
+                <label className="text-[11.5px] font-semibold text-mut">Texto / descrição</label>
                 <textarea
                   name="descricao"
                   rows={3}
                   defaultValue={card.descricao ?? ""}
                   placeholder="Detalhes da tarefa…"
-                  className="mt-1 w-full resize-none rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+                  className="mt-1 w-full resize-none rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand"
                 />
               </div>
               <div>
-                <label className="text-[10.5px] font-semibold text-mut">Tipo</label>
+                <label className="text-[11.5px] font-semibold text-mut">Tipo</label>
                 <select
                   name="tipo"
                   defaultValue={card.tipo}
-                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand"
                 >
                   {TIPO_ORDER.map((tipo) => (
                     <option key={tipo} value={tipo}>
@@ -521,7 +521,7 @@ function EditCardDialog({
                 <button
                   type="button"
                   onClick={onDelete}
-                  className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+                  className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10"
                 >
                   Excluir
                 </button>
@@ -529,13 +529,13 @@ function EditCardDialog({
                   <button
                     type="button"
                     onClick={() => onOpenChange(false)}
-                    className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+                    className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+                    className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
                   >
                     Salvar
                   </button>

@@ -268,13 +268,13 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Leads</h1>
-        <span className="text-[11.5px] text-mut">inteligência comercial da sua prospecção</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Leads</h1>
+        <span className="text-[12.5px] text-mut">inteligência comercial da sua prospecção</span>
         <div className="ml-auto flex items-center gap-1.5">
           <LeadConverter userId={userId} canais={canais} />
           <button
             onClick={() => setDialogReg("novo")}
-            className="rounded-lg bg-brand px-3.5 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+            className="rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
           >
             + Novo registro
           </button>
@@ -287,7 +287,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
           <button
             key={p.id}
             onClick={() => setPeriodo(p.id)}
-            className={`rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition-colors ${
+            className={`rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
               periodo === p.id ? "border-brand bg-brand/[0.06] text-brand" : "border-line bg-card text-mut hover:border-brand"
             }`}
           >
@@ -300,18 +300,18 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               type="date"
               value={customIni}
               onChange={(e) => setCustomIni(e.target.value)}
-              className="rounded-lg border border-line bg-card px-2 py-1 text-[11.5px] text-ink outline-none focus:border-brand"
+              className="rounded-lg border border-line bg-card px-2 py-1 text-[12.5px] text-ink outline-none focus:border-brand"
             />
-            <span className="text-[11px] text-mut">até</span>
+            <span className="text-[12px] text-mut">até</span>
             <input
               type="date"
               value={customFim}
               onChange={(e) => setCustomFim(e.target.value)}
-              className="rounded-lg border border-line bg-card px-2 py-1 text-[11.5px] text-ink outline-none focus:border-brand"
+              className="rounded-lg border border-line bg-card px-2 py-1 text-[12.5px] text-ink outline-none focus:border-brand"
             />
           </span>
         )}
-        <span className="ml-auto text-[10.5px] text-mut">
+        <span className="ml-auto text-[11.5px] text-mut">
           {fmtCurto(ini)} — {fmtCurto(fim)}
         </span>
       </div>
@@ -320,8 +320,8 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {kpis.map((k) => (
           <div key={k.label} className={`${card} px-3 py-2.5 transition-colors hover:border-brand`}>
-            <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">{k.label}</div>
-            <div className={`mt-0.5 truncate text-[17px] font-extrabold tracking-[-0.02em] ${k.tone}`}>{k.valor}</div>
+            <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">{k.label}</div>
+            <div className={`mt-0.5 truncate text-[18px] font-extrabold tracking-[-0.02em] ${k.tone}`}>{k.valor}</div>
           </div>
         ))}
       </div>
@@ -329,18 +329,18 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       {/* Funil + Ranking */}
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Funil de conversão</b>
+          <b className="text-[13.5px] text-ink">Funil de conversão</b>
           <div className="mt-3 flex flex-col gap-2">
             {fun.map((e, i) => (
               <div key={e.label}>
                 {e.pctEtapa !== null && (
-                  <div className="mb-1 pl-1 text-[10px] text-mut">↓ {e.pctEtapa}% avançam</div>
+                  <div className="mb-1 pl-1 text-[11px] text-mut">↓ {e.pctEtapa}% avançam</div>
                 )}
-                <div className="grid grid-cols-[76px_1fr_46px] items-center gap-2 text-[11.5px]">
+                <div className="grid grid-cols-[76px_1fr_46px] items-center gap-2 text-[12.5px]">
                   <span className="text-mut">{e.label}</span>
                   <div className="h-4 overflow-hidden rounded-md bg-soft">
                     <div
-                      className="flex h-full items-center rounded-md pl-1.5 text-[10px] font-bold text-white"
+                      className="flex h-full items-center rounded-md pl-1.5 text-[11px] font-bold text-white"
                       style={{ width: `${Math.max(e.pctDoTopo, e.valor > 0 ? 8 : 0)}%`, background: `rgba(29,91,255,${funilOpacidade[i]})` }}
                     >
                       {e.valor > 0 ? e.valor : ""}
@@ -351,11 +351,11 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               </div>
             ))}
           </div>
-          {tot.contatos === 0 && <div className="mt-2 text-[11.5px] text-mut">Sem registros no período — crie o primeiro em “+ Novo registro”.</div>}
+          {tot.contatos === 0 && <div className="mt-2 text-[12.5px] text-mut">Sem registros no período — crie o primeiro em “+ Novo registro”.</div>}
         </div>
 
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Ranking de canais</b>
+          <b className="text-[13.5px] text-ink">Ranking de canais</b>
           <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {[
               { titulo: "💰 Maior faturamento", c: rank.maiorReceita, valor: rank.maiorReceita ? formatMoney(rank.maiorReceita.receita) : null },
@@ -364,20 +364,20 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               { titulo: "📣 Mais contatos", c: rank.maisContatos, valor: rank.maisContatos ? String(rank.maisContatos.contatos) : null },
             ].map((r) => (
               <div key={r.titulo} className="rounded-lg border border-line bg-soft px-3 py-2.5">
-                <div className="text-[10.5px] font-semibold text-mut">{r.titulo}</div>
+                <div className="text-[11.5px] font-semibold text-mut">{r.titulo}</div>
                 {r.c ? (
                   <>
-                    <div className="mt-0.5 truncate text-[13px] font-bold text-ink">{r.c.nome}</div>
-                    <div className="text-[11px] font-semibold text-brand">{r.valor}</div>
+                    <div className="mt-0.5 truncate text-[14px] font-bold text-ink">{r.c.nome}</div>
+                    <div className="text-[12px] font-semibold text-brand">{r.valor}</div>
                   </>
                 ) : (
-                  <div className="mt-0.5 text-[11.5px] text-mut">sem dados no período</div>
+                  <div className="mt-0.5 text-[12.5px] text-mut">sem dados no período</div>
                 )}
               </div>
             ))}
           </div>
           {rank.maiorReceita && (
-            <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3 py-2 text-[11.5px]">
+            <div className="mt-2.5 flex items-center gap-2 rounded-lg border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3 py-2 text-[12.5px]">
               <span>🏆</span>
               <span className="text-ink">
                 Melhor canal do período: <b>{rank.maiorReceita.nome}</b> — {formatMoney(rank.maiorReceita.receita)} em{" "}
@@ -392,8 +392,8 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Leads por dia</b>
-            <span className="text-[10.5px] text-mut">últimos 30 dias · contatos (azul) e vendas (verde)</span>
+            <b className="text-[13.5px] text-ink">Leads por dia</b>
+            <span className="text-[11.5px] text-mut">últimos 30 dias · contatos (azul) e vendas (verde)</span>
           </div>
           <svg width="100%" height="96" viewBox="0 0 340 96" preserveAspectRatio="none" className="mt-2" role="img" aria-label="Contatos por dia nos últimos 30 dias">
             <line x1="0" y1="86" x2="340" y2="86" stroke="#DCE4F0" />
@@ -410,7 +410,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               );
             })}
           </svg>
-          <div className="mt-1 flex justify-between text-[10px] text-mut">
+          <div className="mt-1 flex justify-between text-[11px] text-mut">
             <span>{fmtCurto(serie30[0].data)}</span>
             <span>{fmtCurto(serie30[serie30.length - 1].data)}</span>
           </div>
@@ -418,8 +418,8 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
 
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Leads por mês</b>
-            <span className="text-[10.5px] text-mut">comparativo · 6 meses</span>
+            <b className="text-[13.5px] text-ink">Leads por mês</b>
+            <span className="text-[11.5px] text-mut">comparativo · 6 meses</span>
           </div>
           <svg width="100%" height="96" viewBox="0 0 340 96" preserveAspectRatio="none" className="mt-2" role="img" aria-label="Contatos por mês nos últimos 6 meses">
             <line x1="0" y1="86" x2="340" y2="86" stroke="#DCE4F0" />
@@ -432,7 +432,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                     <title>{`${m.label}: ${m.contatos} contato(s) · ${m.vendas} venda(s) · ${formatMoney(m.receita)}`}</title>
                   </rect>
                   {m.contatos > 0 && (
-                    <text x={i * bw + bw / 2} y={82 - h} textAnchor="middle" fontSize="9" fontWeight="700" fill="#0B1220">
+                    <text x={i * bw + bw / 2} y={82 - h} textAnchor="middle" fontSize="10" fontWeight="700" fill="#0B1220">
                       {m.contatos}
                     </text>
                   )}
@@ -440,13 +440,13 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               );
             })}
           </svg>
-          <div className="mt-1 grid grid-cols-6 text-center text-[10px] text-mut">
+          <div className="mt-1 grid grid-cols-6 text-center text-[11px] text-mut">
             {meses6.map((m) => (
               <span key={m.iso}>{m.label}</span>
             ))}
           </div>
           {deltaContatos !== null && (
-            <div className="mt-1.5 text-[11px] text-mut">
+            <div className="mt-1.5 text-[12px] text-mut">
               {mesAtual.label} vs {mesAnterior.label}:{" "}
               <b className={deltaContatos >= 0 ? "text-ok" : "text-danger"}>
                 {deltaContatos >= 0 ? "▲" : "▼"} {Math.abs(deltaContatos)}%
@@ -460,13 +460,13 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       {/* Vendas e receita por canal */}
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Vendas por canal</b>
+          <b className="text-[13.5px] text-ink">Vendas por canal</b>
           {stats.length === 0 ? (
-            <div className="mt-3 text-[11.5px] text-mut">Sem dados no período.</div>
+            <div className="mt-3 text-[12.5px] text-mut">Sem dados no período.</div>
           ) : (
             <div className="mt-2.5 flex flex-col gap-2">
               {stats.slice(0, 6).map((c) => (
-                <div key={c.canalId} className="grid grid-cols-[1fr_92px_30px] items-center gap-2 text-[11.5px]">
+                <div key={c.canalId} className="grid grid-cols-[1fr_92px_30px] items-center gap-2 text-[12.5px]">
                   <span className="truncate text-ink">{c.nome}</span>
                   <div className="h-3 overflow-hidden rounded-full bg-soft">
                     <div className="h-full rounded-full bg-ok" style={{ width: `${Math.round((c.vendas / maxVendasCanal) * 100)}%` }} />
@@ -478,13 +478,13 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
           )}
         </div>
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] text-ink">Receita por canal</b>
+          <b className="text-[13.5px] text-ink">Receita por canal</b>
           {stats.length === 0 ? (
-            <div className="mt-3 text-[11.5px] text-mut">Sem dados no período.</div>
+            <div className="mt-3 text-[12.5px] text-mut">Sem dados no período.</div>
           ) : (
             <div className="mt-2.5 flex flex-col gap-2">
               {stats.slice(0, 6).map((c) => (
-                <div key={c.canalId} className="grid grid-cols-[1fr_92px_76px] items-center gap-2 text-[11.5px]">
+                <div key={c.canalId} className="grid grid-cols-[1fr_92px_76px] items-center gap-2 text-[12.5px]">
                   <span className="truncate text-ink">{c.nome}</span>
                   <div className="h-3 overflow-hidden rounded-full bg-soft">
                     <div
@@ -503,17 +503,17 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       {/* Metas do mês */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Metas de {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(mesInicioIso + "T00:00:00"))}</b>
-          <span className="text-[11px] text-mut">progresso automático a partir dos registros</span>
+          <b className="text-[13.5px] text-ink">Metas de {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(mesInicioIso + "T00:00:00"))}</b>
+          <span className="text-[12px] text-mut">progresso automático a partir dos registros</span>
           <button
             onClick={() => setDialogMeta("nova")}
-            className="ml-auto rounded-lg border border-line px-2.5 py-1 text-[11px] font-semibold text-ink transition-colors hover:border-brand"
+            className="ml-auto rounded-lg border border-line px-2.5 py-1 text-[12px] font-semibold text-ink transition-colors hover:border-brand"
           >
             + Nova meta
           </button>
         </div>
         {metas.length === 0 ? (
-          <div className="mt-2.5 text-[11.5px] text-mut">
+          <div className="mt-2.5 text-[12.5px] text-mut">
             Nenhuma meta ainda. Ex: enviar 5.000 e-mails, realizar 120 ligações, fechar 15 clientes, R$ 30.000 no mês, 3 sites…
           </div>
         ) : (
@@ -525,7 +525,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               const fmt = (v: number) => (ehReceita ? formatMoney(v) : String(Math.round(v)));
               return (
                 <div key={m.id}>
-                  <div className="flex items-center gap-2 text-[11.5px]">
+                  <div className="flex items-center gap-2 text-[12.5px]">
                     <button onClick={() => setDialogMeta(m)} className="truncate font-semibold text-ink hover:text-brand" title="Editar meta">
                       {m.titulo}
                     </button>
@@ -534,14 +534,14 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                         <button
                           onClick={() => ajustarMetaManual(m, -1)}
                           aria-label="Diminuir progresso"
-                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[11px] text-mut hover:border-brand hover:text-ink"
+                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[12px] text-mut hover:border-brand hover:text-ink"
                         >
                           −
                         </button>
                         <button
                           onClick={() => ajustarMetaManual(m, 1)}
                           aria-label="Aumentar progresso"
-                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[11px] text-mut hover:border-brand hover:text-ink"
+                          className="flex size-[18px] items-center justify-center rounded-md border border-line text-[12px] text-mut hover:border-brand hover:text-ink"
                         >
                           +
                         </button>
@@ -571,16 +571,16 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       {/* Insights Inteligentes */}
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
-        <div className="min-w-0 whitespace-pre-wrap text-[12.5px] leading-[1.55] text-ink">{analiseIa}</div>
+        <div className="min-w-0 whitespace-pre-wrap text-[13.5px] leading-[1.55] text-ink">{analiseIa}</div>
       </div>
       {achados.length > 0 && (
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Insights Inteligentes</b>
+            <b className="text-[13.5px] text-ink">Insights Inteligentes</b>
             <IaBadge />
-            <span className="text-[11px] text-mut">calculados de todo o seu histórico</span>
+            <span className="text-[12px] text-mut">calculados de todo o seu histórico</span>
           </div>
-          <div className="mt-2 flex flex-col gap-2 text-[12px]">
+          <div className="mt-2 flex flex-col gap-2 text-[13px]">
             {achados.map((a, i) => (
               <div key={i} className="flex items-start gap-2.5">
                 <span
@@ -600,7 +600,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.1fr_1fr]">
         <div className={`${card} px-3.5 py-3`}>
           <div className="flex items-center gap-2">
-            <b className="text-[12.5px] text-ink">Calendário de prospecção</b>
+            <b className="text-[13.5px] text-ink">Calendário de prospecção</b>
             <div className="ml-auto flex items-center gap-1">
               <button
                 onClick={() => setCalRef((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
@@ -609,7 +609,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               >
                 ‹
               </button>
-              <span className="w-[110px] text-center text-[11.5px] font-semibold capitalize text-ink">
+              <span className="w-[110px] text-center text-[12.5px] font-semibold capitalize text-ink">
                 {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(calRef)}
               </span>
               <button
@@ -621,7 +621,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               </button>
             </div>
           </div>
-          <div className="mt-2 grid grid-cols-7 gap-1 text-center text-[9.5px] font-bold uppercase tracking-[0.05em] text-mut">
+          <div className="mt-2 grid grid-cols-7 gap-1 text-center text-[10.5px] font-bold uppercase tracking-[0.05em] text-mut">
             {["dom", "seg", "ter", "qua", "qui", "sex", "sáb"].map((d) => (
               <span key={d}>{d}</span>
             ))}
@@ -636,7 +636,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                 <button
                   key={c.iso}
                   onClick={() => setSelDia(c.iso)}
-                  className={`relative flex h-9 flex-col items-center justify-center rounded-lg border text-[11px] transition-colors ${
+                  className={`relative flex h-9 flex-col items-center justify-center rounded-lg border text-[12px] transition-colors ${
                     sel ? "border-brand bg-brand/[0.08] font-bold text-brand" : "border-line text-ink hover:border-brand"
                   }`}
                   style={c.contatos > 0 && !sel ? { background: `rgba(29,91,255,${0.06 + c.intensidade * 0.22})` } : undefined}
@@ -651,7 +651,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
         </div>
 
         <div className={`${card} px-3.5 py-3`}>
-          <b className="text-[12.5px] capitalize text-ink">{diaSel ? fmtLongo(diaSel.data) : "Selecione um dia"}</b>
+          <b className="text-[13.5px] capitalize text-ink">{diaSel ? fmtLongo(diaSel.data) : "Selecione um dia"}</b>
           {diaSel && (
             <>
               <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -664,18 +664,18 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                   { l: "TAXA RESPOSTA", v: `${diaSel.taxaResposta}%` },
                 ].map((x) => (
                   <div key={x.l} className="rounded-lg border border-line bg-soft px-2.5 py-2">
-                    <div className="text-[9.5px] font-semibold tracking-[0.06em] text-mut">{x.l}</div>
-                    <div className="truncate text-[14px] font-extrabold text-ink">{x.v}</div>
+                    <div className="text-[10.5px] font-semibold tracking-[0.06em] text-mut">{x.l}</div>
+                    <div className="truncate text-[15px] font-extrabold text-ink">{x.v}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-2.5 flex flex-col gap-1.5">
-                {diaSel.registros.length === 0 && <div className="text-[11.5px] text-mut">Nenhum registro neste dia.</div>}
+                {diaSel.registros.length === 0 && <div className="text-[12.5px] text-mut">Nenhum registro neste dia.</div>}
                 {diaSel.registros.map((r) => (
                   <button
                     key={r.id}
                     onClick={() => setDialogReg(r)}
-                    className="flex items-center gap-2 rounded-lg border border-line bg-soft px-2.5 py-1.5 text-left text-[11.5px] transition-colors hover:border-brand"
+                    className="flex items-center gap-2 rounded-lg border border-line bg-soft px-2.5 py-1.5 text-left text-[12.5px] transition-colors hover:border-brand"
                   >
                     <b className="truncate text-ink">{canalNome.get(r.canal_id) ?? "Canal"}</b>
                     <span className="ml-auto flex-none text-mut">
@@ -691,9 +691,9 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
 
       {/* Timeline / histórico */}
       <div className={`${card} px-3.5 py-3`}>
-        <b className="text-[12.5px] text-ink">Histórico</b>
+        <b className="text-[13.5px] text-ink">Histórico</b>
         {timeline.length === 0 ? (
-          <div className="mt-2 text-[11.5px] text-mut">A timeline aparece aqui conforme você registra a prospecção.</div>
+          <div className="mt-2 text-[12.5px] text-mut">A timeline aparece aqui conforme você registra a prospecção.</div>
         ) : (
           <div className="mt-2.5 flex flex-col">
             {timeline.map(([data, items], i) => (
@@ -701,7 +701,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                 {i < timeline.length - 1 && <span className="absolute left-[5px] top-4 h-full w-px bg-line" />}
                 <span className="mt-1 size-[11px] flex-none rounded-full border-2 border-brand bg-card" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-bold text-mut">{fmtLongo(data)}</div>
+                  <div className="text-[12px] font-bold text-mut">{fmtLongo(data)}</div>
                   {items.map((r) => {
                     const partes = [
                       r.contatos > 0 ? `${r.contatos} contato(s)` : null,
@@ -711,7 +711,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                       Number(r.valor_vendido) > 0 ? formatMoney(Number(r.valor_vendido)) : null,
                     ].filter(Boolean);
                     return (
-                      <div key={r.id} className="mt-0.5 text-[12px] text-ink">
+                      <div key={r.id} className="mt-0.5 text-[13px] text-ink">
                         <b>{canalNome.get(r.canal_id) ?? "Canal"}</b>
                         <span className="text-mut"> — {partes.length ? partes.join(" · ") : "sem atividade"}</span>
                         {r.observacoes && <span className="text-mut"> · “{r.observacoes}”</span>}
@@ -728,12 +728,12 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       {/* Registros */}
       <div className={`${card} overflow-hidden`}>
         <div className="flex items-center gap-2 px-3.5 pt-3">
-          <b className="text-[12.5px] text-ink">Registros</b>
-          <span className="text-[11px] text-mut">{regsPeriodo.length} no período selecionado</span>
+          <b className="text-[13.5px] text-ink">Registros</b>
+          <span className="text-[12px] text-mut">{regsPeriodo.length} no período selecionado</span>
         </div>
         <div className="thin-scroll mt-2 overflow-x-auto">
           <div className="min-w-[760px]">
-            <div className="grid grid-cols-[0.8fr_1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.5fr] gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut">
+            <div className="grid grid-cols-[0.8fr_1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.5fr] gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.07em] text-mut">
               <span>DATA</span>
               <span>CANAL</span>
               <span>CONTATOS</span>
@@ -744,14 +744,14 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
               <span />
             </div>
             {regsPeriodo.length === 0 && (
-              <div className="px-3.5 py-7 text-center text-[12.5px] text-mut">
+              <div className="px-3.5 py-7 text-center text-[13.5px] text-mut">
                 Nenhum registro no período. Clique em &ldquo;+ Novo registro&rdquo; para começar.
               </div>
             )}
             {regsPeriodo.slice(0, 40).map((r) => (
               <div
                 key={r.id}
-                className="grid grid-cols-[0.8fr_1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.5fr] items-center gap-2 border-b border-line px-3.5 py-2.5 text-[12px] transition-colors last:border-b-0 hover:bg-soft"
+                className="grid grid-cols-[0.8fr_1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.5fr] items-center gap-2 border-b border-line px-3.5 py-2.5 text-[13px] transition-colors last:border-b-0 hover:bg-soft"
               >
                 <span className="text-mut">{fmtCurto(r.data)}</span>
                 <b className="truncate text-ink">{canalNome.get(r.canal_id) ?? "—"}</b>
@@ -764,7 +764,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
                 </span>
                 <button
                   onClick={() => setDialogReg(r)}
-                  className="justify-self-end rounded-lg border border-line px-2.5 py-1 text-[11px] font-semibold text-ink transition-colors hover:border-brand"
+                  className="justify-self-end rounded-lg border border-line px-2.5 py-1 text-[12px] font-semibold text-ink transition-colors hover:border-brand"
                 >
                   ✎
                 </button>
@@ -811,8 +811,8 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
 
 /* ---------------- form de registro ---------------- */
 const fieldCls =
-  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-const labelCls = "text-[10.5px] font-semibold text-mut";
+  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+const labelCls = "text-[11.5px] font-semibold text-mut";
 
 function MetaForm({
   canais,
@@ -830,7 +830,7 @@ function MetaForm({
   const [metrica, setMetrica] = useState<LeadMetaMetrica>(meta?.metrica ?? "contatos");
   return (
     <>
-      <DialogTitle className="text-[14.5px] font-bold text-ink">{meta ? "Editar meta" : "Nova meta do mês"}</DialogTitle>
+      <DialogTitle className="text-[15.5px] font-bold text-ink">{meta ? "Editar meta" : "Nova meta do mês"}</DialogTitle>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -889,7 +889,7 @@ function MetaForm({
           />
         </div>
         {metrica === "manual" && (
-          <div className="rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-[11px] text-mut">
+          <div className="rounded-lg border border-dashed border-line bg-soft px-3 py-2 text-[12px] text-mut">
             Metas manuais (sites, IA &amp; automações, dashboards…) têm o progresso ajustado pelos botões − / + na lista.
           </div>
         )}
@@ -898,7 +898,7 @@ function MetaForm({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10"
             >
               Excluir
             </button>
@@ -909,13 +909,13 @@ function MetaForm({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+              className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               {meta ? "Salvar" : "Criar meta"}
             </button>
@@ -941,7 +941,7 @@ function RegistroForm({
 }) {
   return (
     <>
-      <DialogTitle className="text-[14.5px] font-bold text-ink">
+      <DialogTitle className="text-[15.5px] font-bold text-ink">
         {registro ? "Editar registro" : "Novo registro de prospecção"}
       </DialogTitle>
       <form
@@ -1015,7 +1015,7 @@ function RegistroForm({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+              className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10"
             >
               Excluir
             </button>
@@ -1026,13 +1026,13 @@ function RegistroForm({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+              className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               {registro ? "Salvar" : "Registrar"}
             </button>

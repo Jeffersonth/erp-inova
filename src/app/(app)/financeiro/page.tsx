@@ -87,8 +87,8 @@ export default async function FinanceiroPage() {
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Financeiro</h1>
-        <span className="rounded-full border border-line bg-card px-2.5 py-[3px] text-[10.5px] font-semibold text-mut">
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Financeiro</h1>
+        <span className="rounded-full border border-line bg-card px-2.5 py-[3px] text-[11.5px] font-semibold text-mut">
           R$ · US$ · €
         </span>
         <NewRecebimentoDialog clientes={clientesList} projetos={projetosList} />
@@ -97,22 +97,22 @@ export default async function FinanceiroPage() {
       {/* Visão do dia (design mobile) */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RECEBER HOJE</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-ok">{formatMoney(receberHoje)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">RECEBER HOJE</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-ok">{formatMoney(receberHoje)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">PAGAR HOJE</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-danger">{formatMoney(pagarHoje)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">PAGAR HOJE</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-danger">{formatMoney(pagarHoje)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">SALDO PREVISTO</div>
-          <div className={`mt-0.5 text-[17px] font-extrabold ${saldoPrevisto >= 0 ? "text-ink" : "text-danger"}`}>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">SALDO PREVISTO</div>
+          <div className={`mt-0.5 text-[18px] font-extrabold ${saldoPrevisto >= 0 ? "text-ink" : "text-danger"}`}>
             {formatMoney(saldoPrevisto)}
           </div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">MRR · STRIPE</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-ink">{formatMoney(mrr)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">MRR · STRIPE</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-ink">{formatMoney(mrr)}</div>
         </div>
       </div>
 
@@ -120,11 +120,11 @@ export default async function FinanceiroPage() {
       <div className={`${card} px-3.5 py-3`}>
         {meta > 0 ? (
           <>
-            <div className="flex items-center text-[11.5px] text-mut">
+            <div className="flex items-center text-[12.5px] text-mut">
               <span>
                 Meta mensal · <b className="text-ink">{formatMoney(meta)}</b>
               </span>
-              <b className="ml-auto text-[12.5px] text-ink">{pctMeta}%</b>
+              <b className="ml-auto text-[13.5px] text-ink">{pctMeta}%</b>
             </div>
             <div className="mt-1.5 h-[9px] overflow-hidden rounded-full bg-soft">
               <div
@@ -133,8 +133,8 @@ export default async function FinanceiroPage() {
               />
             </div>
             {aReceber > 0 && pctSeReceber > pctMeta && (
-              <div className="mt-2 flex items-center gap-1.5 text-[11.5px] text-mut">
-                <IaBadge className="px-1.5 py-px text-[9px]" />
+              <div className="mt-2 flex items-center gap-1.5 text-[12.5px] text-mut">
+                <IaBadge className="px-1.5 py-px text-[10px]" />
                 <span>
                   recebendo as {contasEmAberto} conta(s) em aberto, você atinge{" "}
                   <b className="text-ink">{pctSeReceber}% da meta</b>.
@@ -143,7 +143,7 @@ export default async function FinanceiroPage() {
             )}
           </>
         ) : (
-          <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-mut">
+          <div className="flex flex-wrap items-center gap-1.5 text-[12.5px] text-mut">
             Sem meta definida para {mesLabel} —
             <Link href="/dashboard" className="font-semibold text-brand hover:underline">
               defina no Painel
@@ -155,20 +155,20 @@ export default async function FinanceiroPage() {
       {/* Resumo: receita, despesas e lucro */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RECEBIDO · BRL</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-ok">{formatMoney(recebido)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">RECEBIDO · BRL</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-ok">{formatMoney(recebido)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">A RECEBER · BRL</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-warn">{formatMoney(aReceber)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">A RECEBER · BRL</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-warn">{formatMoney(aReceber)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">DESPESAS · BRL</div>
-          <div className="mt-0.5 text-[17px] font-extrabold text-danger">{formatMoney(despesas)}</div>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">DESPESAS · BRL</div>
+          <div className="mt-0.5 text-[18px] font-extrabold text-danger">{formatMoney(despesas)}</div>
         </div>
         <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
-          <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">LUCRO · BRL</div>
-          <div className={`mt-0.5 text-[17px] font-extrabold ${lucro >= 0 ? "text-ok" : "text-danger"}`}>
+          <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">LUCRO · BRL</div>
+          <div className={`mt-0.5 text-[18px] font-extrabold ${lucro >= 0 ? "text-ok" : "text-danger"}`}>
             {formatMoney(lucro)}
           </div>
         </div>
@@ -178,7 +178,7 @@ export default async function FinanceiroPage() {
       <div className={`${card} overflow-hidden`}>
         <div className="thin-scroll overflow-x-auto">
           <div className="min-w-[860px]">
-            <div className={`grid ${recCols} gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut`}>
+            <div className={`grid ${recCols} gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.07em] text-mut`}>
               <span>VENDA</span>
               <span>VALOR</span>
               <span>PAGO</span>
@@ -188,7 +188,7 @@ export default async function FinanceiroPage() {
               <span />
             </div>
             {!recebimentos?.length && (
-              <div className="px-3.5 py-8 text-center text-[12.5px] text-mut">
+              <div className="px-3.5 py-8 text-center text-[13.5px] text-mut">
                 Nenhuma venda registrada. Clique em &ldquo;+ Nova venda&rdquo; para começar.
               </div>
             )}
@@ -202,23 +202,23 @@ export default async function FinanceiroPage() {
                   className={`grid ${recCols} items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft`}
                 >
                   <div className="min-w-0">
-                    <b className="text-[12.5px] text-ink">{nome}</b>
-                    {sub && <div className="truncate text-[11px] text-mut">{sub}</div>}
+                    <b className="text-[13.5px] text-ink">{nome}</b>
+                    {sub && <div className="truncate text-[12px] text-mut">{sub}</div>}
                   </div>
-                  <b className="text-[12.5px] text-ink">{formatMoney(Number(r.valor), r.moeda)}</b>
-                  <span className="text-[12px] text-ok">{formatMoney(Number(r.valor_pago), r.moeda)}</span>
-                  <span className={`text-[12px] font-semibold ${info.saldo > 0 ? "text-warn" : "text-mut"}`}>
+                  <b className="text-[13.5px] text-ink">{formatMoney(Number(r.valor), r.moeda)}</b>
+                  <span className="text-[13px] text-ok">{formatMoney(Number(r.valor_pago), r.moeda)}</span>
+                  <span className={`text-[13px] font-semibold ${info.saldo > 0 ? "text-warn" : "text-mut"}`}>
                     {formatMoney(info.saldo, r.moeda)}
                   </span>
-                  <span className={`text-[11.5px] font-semibold ${toneText[info.tone]}`}>● {info.label}</span>
-                  <span className="text-[11.5px] text-mut">{relativeDate(r.data_pagamento)}</span>
+                  <span className={`text-[12.5px] font-semibold ${toneText[info.tone]}`}>● {info.label}</span>
+                  <span className="text-[12.5px] text-mut">{relativeDate(r.data_pagamento)}</span>
                   <div className="flex items-center justify-self-end gap-1.5">
                     {r.cliente_id && info.saldo > 0 && (
                       <AiDraftButton
                         spec={{ tipo: "cobranca", clienteId: r.cliente_id, recebimentoId: r.id }}
                         fallbackTitle={`Cobrança — ${nome}`}
                         label="Cobrar"
-                        className="px-2.5 py-1 text-[11px]"
+                        className="px-2.5 py-1 text-[12px]"
                       />
                     )}
                     <EditRecebimentoButton
@@ -246,15 +246,15 @@ export default async function FinanceiroPage() {
       {/* Despesas */}
       <div className={`${card} overflow-hidden`}>
         <div className="flex items-center gap-2 px-3.5 pt-3">
-          <b className="text-[12.5px] text-ink">Despesas</b>
-          <span className="text-[11px] text-mut">custos do negócio (BRL)</span>
+          <b className="text-[13.5px] text-ink">Despesas</b>
+          <span className="text-[12px] text-mut">custos do negócio (BRL)</span>
           <div className="ml-auto">
             <NewCustoDialog clientes={clientesList} />
           </div>
         </div>
         <div className="thin-scroll mt-2 overflow-x-auto">
           <div className="min-w-[680px]">
-            <div className="grid grid-cols-[1.8fr_0.8fr_0.8fr_0.9fr_1fr_0.4fr] gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.07em] text-mut">
+            <div className="grid grid-cols-[1.8fr_0.8fr_0.8fr_0.9fr_1fr_0.4fr] gap-2 border-b border-line bg-soft px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.07em] text-mut">
               <span>DESPESA</span>
               <span>VALOR</span>
               <span>DATA</span>
@@ -263,7 +263,7 @@ export default async function FinanceiroPage() {
               <span />
             </div>
             {!custos?.length && (
-              <div className="px-3.5 py-6 text-center text-[12.5px] text-mut">
+              <div className="px-3.5 py-6 text-center text-[13.5px] text-mut">
                 Nenhuma despesa registrada.
               </div>
             )}
@@ -273,23 +273,23 @@ export default async function FinanceiroPage() {
                 className="grid grid-cols-[1.8fr_0.8fr_0.8fr_0.9fr_1fr_0.4fr] items-center gap-2 border-b border-line px-3.5 py-2.5 transition-colors last:border-b-0 hover:bg-soft"
               >
                 <div className="min-w-0">
-                  <b className="text-[12.5px] text-ink">{c.descricao ?? "Despesa"}</b>
-                  {c.categoria && <div className="truncate text-[11px] text-mut">{c.categoria}</div>}
+                  <b className="text-[13.5px] text-ink">{c.descricao ?? "Despesa"}</b>
+                  {c.categoria && <div className="truncate text-[12px] text-mut">{c.categoria}</div>}
                 </div>
-                <b className="text-[12.5px] text-danger">{formatMoney(Number(c.valor))}</b>
-                <span className="text-[11.5px] text-mut">{relativeDate(c.data)}</span>
+                <b className="text-[13.5px] text-danger">{formatMoney(Number(c.valor))}</b>
+                <span className="text-[12.5px] text-mut">{relativeDate(c.data)}</span>
                 <span>
                   {c.recorrente ? (
-                    <span className="rounded-full border border-warn/35 bg-warn/[0.08] px-2 py-[2px] text-[10.5px] font-semibold text-warn">
+                    <span className="rounded-full border border-warn/35 bg-warn/[0.08] px-2 py-[2px] text-[11.5px] font-semibold text-warn">
                       ⟳ recorrente
                     </span>
                   ) : (
-                    <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[10.5px] font-semibold text-mut">
+                    <span className="rounded-full border border-line bg-soft px-2 py-[2px] text-[11.5px] font-semibold text-mut">
                       única
                     </span>
                   )}
                 </span>
-                <span className="truncate text-[11.5px] text-mut">{c.clientes?.nome ?? "—"}</span>
+                <span className="truncate text-[12.5px] text-mut">{c.clientes?.nome ?? "—"}</span>
                 <div className="justify-self-end">
                   <EditCustoButton
                     custo={{
@@ -313,39 +313,39 @@ export default async function FinanceiroPage() {
       {/* Assinaturas recorrentes (Stripe) */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
-          <b className="text-[12.5px] text-ink">Assinaturas recorrentes</b>
-          <span className="rounded-full border border-line bg-soft px-2.5 py-0.5 text-[10.5px] font-semibold text-mut">
+          <b className="text-[13.5px] text-ink">Assinaturas recorrentes</b>
+          <span className="rounded-full border border-line bg-soft px-2.5 py-0.5 text-[11.5px] font-semibold text-mut">
             {stripe ? "● integrado ao Stripe" : "Stripe não conectado"}
           </span>
           {!stripe && (
-            <span className="text-[10.5px] text-mut">adicione STRIPE_SECRET_KEY nas variáveis da Vercel</span>
+            <span className="text-[11.5px] text-mut">adicione STRIPE_SECRET_KEY nas variáveis da Vercel</span>
           )}
         </div>
         <div className="mt-2.5 grid grid-cols-2 gap-2 lg:grid-cols-4">
           <div className="rounded-[10px] border border-line bg-soft px-3 py-2.5">
-            <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">MRR</div>
-            <div className="mt-0.5 text-[17px] font-extrabold text-ink">{formatMoney(mrr)}</div>
-            <div className="mt-0.5 text-[11px] font-semibold text-ok">receita recorrente ativa</div>
+            <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">MRR</div>
+            <div className="mt-0.5 text-[18px] font-extrabold text-ink">{formatMoney(mrr)}</div>
+            <div className="mt-0.5 text-[12px] font-semibold text-ok">receita recorrente ativa</div>
           </div>
           <div className="rounded-[10px] border border-line bg-soft px-3 py-2.5">
-            <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">ASSINATURAS ATIVAS</div>
-            <div className="mt-0.5 text-[17px] font-extrabold text-ink">{ativas}</div>
-            <div className="mt-0.5 text-[11px] text-mut">manutenção + suporte</div>
+            <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">ASSINATURAS ATIVAS</div>
+            <div className="mt-0.5 text-[18px] font-extrabold text-ink">{ativas}</div>
+            <div className="mt-0.5 text-[12px] text-mut">manutenção + suporte</div>
           </div>
           <div className="rounded-[10px] border border-line bg-soft px-3 py-2.5">
-            <div className="text-[10px] font-semibold tracking-[0.07em] text-mut">RETRY DE CARTÃO</div>
-            <div className="mt-0.5 text-[17px] font-extrabold text-warn">{retry ? 1 : 0}</div>
-            <div className="mt-0.5 text-[11px] text-mut">
+            <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">RETRY DE CARTÃO</div>
+            <div className="mt-0.5 text-[18px] font-extrabold text-warn">{retry ? 1 : 0}</div>
+            <div className="mt-0.5 text-[12px] text-mut">
               {retry ? `${retry.clientes?.nome} · cartão recusado` : "nenhum pendente"}
             </div>
           </div>
           <div className="rounded-[10px] border border-line bg-soft px-3 py-2.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-semibold tracking-[0.07em] text-mut">CHURN PREVISTO</span>
-              <IaBadge className="px-1.5 py-px text-[9px]" />
+              <span className="text-[11px] font-semibold tracking-[0.07em] text-mut">CHURN PREVISTO</span>
+              <IaBadge className="px-1.5 py-px text-[10px]" />
             </div>
-            <div className="mt-0.5 text-[17px] font-extrabold text-danger">{inadimplente ? 1 : 0}</div>
-            <div className="mt-0.5 text-[11px] text-mut">
+            <div className="mt-0.5 text-[18px] font-extrabold text-danger">{inadimplente ? 1 : 0}</div>
+            <div className="mt-0.5 text-[12px] text-mut">
               {inadimplente ? `${inadimplente.clientes?.nome} · ${inadimplente.churn_score}% de chance em 60d` : "nenhum em risco"}
             </div>
           </div>

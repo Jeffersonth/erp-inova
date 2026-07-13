@@ -12,8 +12,8 @@ import { useApp } from "@/components/app-providers";
 import { createClient } from "@/lib/supabase/client";
 
 const field =
-  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand";
-const label = "text-[10.5px] font-semibold text-mut";
+  "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
+const label = "text-[11.5px] font-semibold text-mut";
 
 const CATEGORIAS = [
   "Ferramentas & SaaS",
@@ -189,7 +189,7 @@ function CustoForm({
         </div>
       </div>
 
-      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-[12px] text-ink">
+      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-[13px] text-ink">
         <input
           type="checkbox"
           checked={recorrente}
@@ -200,7 +200,7 @@ function CustoForm({
       </label>
 
       {error && (
-        <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">
+        <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-danger">
           {error}
         </div>
       )}
@@ -211,7 +211,7 @@ function CustoForm({
             type="button"
             onClick={excluir}
             disabled={loading}
-            className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-xs font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
+            className="rounded-lg border border-danger/40 px-3.5 py-[7px] text-[13px] font-semibold text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
           >
             Excluir
           </button>
@@ -222,14 +222,14 @@ function CustoForm({
           <button
             type="button"
             onClick={onDone}
-            className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+            className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+            className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
           >
             {loading ? "Salvando…" : inicial ? "Salvar alterações" : "Registrar despesa"}
           </button>
@@ -244,12 +244,12 @@ export function NewCustoDialog({ clientes }: { clientes: ClienteOpt[] }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="rounded-lg border border-line px-3 py-[6px] text-[11.5px] font-semibold text-ink transition-colors hover:border-brand">
+        <button className="rounded-lg border border-line px-3 py-[6px] text-[12.5px] font-semibold text-ink transition-colors hover:border-brand">
           + Nova despesa
         </button>
       </DialogTrigger>
       <DialogContent className="w-[440px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[440px]">
-        <DialogTitle className="text-[14.5px] font-bold text-ink">Nova despesa</DialogTitle>
+        <DialogTitle className="text-[15.5px] font-bold text-ink">Nova despesa</DialogTitle>
         {open && <CustoForm clientes={clientes} inicial={null} onDone={() => setOpen(false)} />}
       </DialogContent>
     </Dialog>
@@ -276,7 +276,7 @@ export function EditCustoButton({
         </button>
       </DialogTrigger>
       <DialogContent className="w-[440px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[440px]">
-        <DialogTitle className="text-[14.5px] font-bold text-ink">Editar despesa</DialogTitle>
+        <DialogTitle className="text-[15.5px] font-bold text-ink">Editar despesa</DialogTitle>
         {open && <CustoForm clientes={clientes} inicial={custo} onDone={() => setOpen(false)} />}
       </DialogContent>
     </Dialog>

@@ -141,13 +141,13 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink">Anotações</h1>
-        <span className="text-[11.5px] text-mut">rápidas de escrever, impossíveis de esquecer</span>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Anotações</h1>
+        <span className="text-[12.5px] text-mut">rápidas de escrever, impossíveis de esquecer</span>
       </div>
 
       <div className="flex items-start gap-3 rounded-xl border border-aqua/35 bg-gradient-to-r from-aqua/10 to-brand/[0.06] px-3.5 py-[11px]">
         <IaBadge className="mt-px" />
-        <div className="text-[12px] text-mut">
+        <div className="text-[13px] text-mut">
           Escreva em linguagem natural — <b className="text-ink">&ldquo;cobrar Maria amanhã&rdquo;</b>, <b className="text-ink">&ldquo;enviar orçamento sexta&rdquo;</b>, <b className="text-ink">&ldquo;renovar domínio 15/07&rdquo;</b> — e eu detecto a data, crio o prazo e adiciono à sua agenda. Sem data, vira uma ideia.
         </div>
       </div>
@@ -158,17 +158,17 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
           placeholder="O que você precisa lembrar?"
-          className="min-w-[200px] flex-1 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[12.5px] text-ink outline-none focus:border-brand"
+          className="min-w-[200px] flex-1 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[13.5px] text-ink outline-none focus:border-brand"
         />
         <input
           type="date"
           value={dateInput}
           onChange={(e) => setDateInput(e.target.value)}
-          className="flex-none rounded-[10px] border border-line bg-card px-3 py-2.5 text-[12px] text-mut outline-none focus:border-brand"
+          className="flex-none rounded-[10px] border border-line bg-card px-3 py-2.5 text-[13px] text-mut outline-none focus:border-brand"
         />
         <button
           onClick={add}
-          className="flex-none whitespace-nowrap rounded-[10px] bg-brand px-[18px] py-2.5 text-[12.5px] font-bold text-white transition-colors hover:bg-brand-dark"
+          className="flex-none whitespace-nowrap rounded-[10px] bg-brand px-[18px] py-2.5 text-[13.5px] font-bold text-white transition-colors hover:bg-brand-dark"
         >
           + Anotar
         </button>
@@ -178,7 +178,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
         (sec) =>
           sec.items.length > 0 && (
             <div key={sec.title}>
-              <div className="mb-1.5 mt-0.5 text-[11px] font-bold tracking-[0.05em] text-mut">
+              <div className="mb-1.5 mt-0.5 text-[12px] font-bold tracking-[0.05em] text-mut">
                 {sec.title} · {sec.items.length}
               </div>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -200,18 +200,18 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
                           onClick={() => toggle(n.id)}
                           aria-label={n.done ? "Reabrir anotação" : "Concluir anotação"}
                           title={n.done ? "Reabrir" : "Concluir"}
-                          className={`flex size-[17px] flex-none items-center justify-center rounded-full border text-[11px] ${
+                          className={`flex size-[17px] flex-none items-center justify-center rounded-full border text-[12px] ${
                             n.done ? "border-ok bg-ok text-white" : "border-line text-transparent hover:border-brand"
                           }`}
                         >
                           ✓
                         </button>
                         {n.tag && (
-                          <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[10px] font-semibold text-mut">
+                          <span className="rounded-full border border-line bg-soft px-2 py-0.5 text-[11px] font-semibold text-mut">
                             {n.tag}
                           </span>
                         )}
-                        {n.detected && !n.done && <IaBadge className="px-1.5 py-px text-[9px]">IA · prazo</IaBadge>}
+                        {n.detected && !n.done && <IaBadge className="px-1.5 py-px text-[10px]">IA · prazo</IaBadge>}
                         <button
                           onClick={() => remove(n.id)}
                           aria-label="Excluir anotação"
@@ -223,7 +223,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
                       </div>
 
                       <div
-                        className={`min-h-[34px] text-[12.5px] leading-snug ${
+                        className={`min-h-[34px] text-[13.5px] leading-snug ${
                           n.done ? "text-mut line-through" : "text-ink"
                         }`}
                       >
@@ -232,12 +232,12 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
 
                       <div className="mt-auto border-t border-dashed border-line pt-1.5">
                         {n.due ? (
-                          <span className={`text-[11px] font-semibold ${atrasada ? "text-danger" : "text-mut"}`}>
+                          <span className={`text-[12px] font-semibold ${atrasada ? "text-danger" : "text-mut"}`}>
                             {atrasada ? "⚠ " : "📅 "}
                             {fmt(n.due)}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-mut">💡 sem prazo</span>
+                          <span className="text-[12px] text-mut">💡 sem prazo</span>
                         )}
                       </div>
                     </div>

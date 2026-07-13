@@ -52,18 +52,18 @@ export function MetaMesCard({
   return (
     <div className="rounded-xl border border-line bg-card px-3.5 py-3">
       <div className="flex items-center gap-2">
-        <b className="text-[12.5px] text-ink">Meta financeira · {mesLabel}</b>
+        <b className="text-[13.5px] text-ink">Meta financeira · {mesLabel}</b>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="ml-auto rounded-lg border border-line px-2.5 py-[4px] text-[11px] font-semibold text-ink transition-colors hover:border-brand">
+            <button className="ml-auto rounded-lg border border-line px-2.5 py-[4px] text-[12px] font-semibold text-ink transition-colors hover:border-brand">
               {meta > 0 ? "Editar meta" : "Definir meta"}
             </button>
           </DialogTrigger>
           <DialogContent className="w-[360px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[360px]">
-            <DialogTitle className="text-[14.5px] font-bold text-ink">Meta de {mesLabel}</DialogTitle>
+            <DialogTitle className="text-[15.5px] font-bold text-ink">Meta de {mesLabel}</DialogTitle>
             <form onSubmit={salvar} className="mt-3 flex flex-col gap-2.5">
               <div>
-                <label className="text-[10.5px] font-semibold text-mut">Valor da meta (R$)</label>
+                <label className="text-[11.5px] font-semibold text-mut">Valor da meta (R$)</label>
                 <input
                   type="number"
                   min="0"
@@ -72,21 +72,21 @@ export function MetaMesCard({
                   onChange={(e) => setValor(e.target.value)}
                   placeholder="0,00"
                   autoFocus
-                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[12.5px] text-ink outline-none focus:border-brand"
+                  className="mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand"
                 />
               </div>
               <div className="mt-1 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand"
+                  className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                  className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
                 >
                   {loading ? "Salvando…" : "Salvar"}
                 </button>
@@ -99,8 +99,8 @@ export function MetaMesCard({
       {meta > 0 ? (
         <>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-[17px] font-extrabold tracking-[-0.02em] text-ink">{formatMoney(recebidoMes)}</span>
-            <span className="text-[11.5px] text-mut">de {formatMoney(meta)}</span>
+            <span className="text-[18px] font-extrabold tracking-[-0.02em] text-ink">{formatMoney(recebidoMes)}</span>
+            <span className="text-[12.5px] text-mut">de {formatMoney(meta)}</span>
           </div>
           <div className="mt-1.5 h-2 overflow-hidden rounded-full border border-line bg-soft-2">
             <div
@@ -108,7 +108,7 @@ export function MetaMesCard({
               style={{ width: `${pct}%`, background: bateu ? "#0E9F6E" : "#1D5BFF" }}
             />
           </div>
-          <div className="mt-1.5 text-[11.5px] font-semibold">
+          <div className="mt-1.5 text-[12.5px] font-semibold">
             {bateu ? (
               <span className="text-ok">🎉 Meta batida! {pct}% do objetivo</span>
             ) : (
@@ -119,7 +119,7 @@ export function MetaMesCard({
           </div>
         </>
       ) : (
-        <div className="mt-2 text-[12px] text-mut">
+        <div className="mt-2 text-[13px] text-mut">
           Defina uma meta de faturamento para {mesLabel} e acompanhe o progresso do que já recebeu.
         </div>
       )}

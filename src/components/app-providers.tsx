@@ -89,27 +89,27 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <DialogContent className="w-[480px] max-w-[92vw] gap-0 rounded-[14px] border-line p-5 sm:max-w-[480px]">
           {active && (
             <>
-              <DialogTitle className="pr-6 text-[14.5px] font-bold text-ink">
+              <DialogTitle className="pr-6 text-[15.5px] font-bold text-ink">
                 {active.title}
               </DialogTitle>
               <div className="mb-2.5 mt-2.5 flex items-center gap-2">
                 <IaBadge />
-                <span className="text-[11px] text-mut">
+                <span className="text-[12px] text-mut">
                   Gerado por IA · revise antes de enviar
                 </span>
               </div>
               {loading ? (
-                <div className="flex min-h-[150px] items-center justify-center rounded-[10px] border border-line bg-soft p-3 text-[12.5px] italic text-mut">
+                <div className="flex min-h-[150px] items-center justify-center rounded-[10px] border border-line bg-soft p-3 text-[13.5px] italic text-mut">
                   Gerando rascunho…
                 </div>
               ) : editing ? (
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  className="min-h-[150px] w-full resize-y rounded-[10px] border border-brand bg-soft p-3 text-[12.5px] leading-[1.55] text-ink outline-none"
+                  className="min-h-[150px] w-full resize-y rounded-[10px] border border-brand bg-soft p-3 text-[13.5px] leading-[1.55] text-ink outline-none"
                 />
               ) : (
-                <div className="whitespace-pre-wrap rounded-[10px] border border-line bg-soft p-3 text-[12.5px] leading-[1.55] text-ink">
+                <div className="whitespace-pre-wrap rounded-[10px] border border-line bg-soft p-3 text-[13.5px] leading-[1.55] text-ink">
                   {text}
                 </div>
               )}
@@ -117,7 +117,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                 <button
                   onClick={() => setEditing((v) => !v)}
                   disabled={loading}
-                  className="rounded-lg border border-line px-3.5 py-[7px] text-xs font-semibold text-ink transition-colors hover:border-brand disabled:opacity-50"
+                  className="rounded-lg border border-line px-3.5 py-[7px] text-[13px] font-semibold text-ink transition-colors hover:border-brand disabled:opacity-50"
                 >
                   {editing ? "Salvar edição" : "Editar"}
                 </button>
@@ -127,7 +127,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => showToast("Abrindo o WhatsApp com a mensagem…")}
-                    className={`rounded-lg border border-[#25D366] px-3.5 py-[7px] text-xs font-semibold text-[#128C3E] transition-colors hover:bg-[#25D366]/10 ${
+                    className={`rounded-lg border border-[#25D366] px-3.5 py-[7px] text-[13px] font-semibold text-[#128C3E] transition-colors hover:bg-[#25D366]/10 ${
                       loading ? "pointer-events-none opacity-50" : ""
                     }`}
                   >
@@ -137,7 +137,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                 <button
                   onClick={approve}
                   disabled={loading}
-                  className="rounded-lg bg-brand px-4 py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+                  className="rounded-lg bg-brand px-4 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                 >
                   {active.cta ?? "✓ Aprovar e enviar"}
                 </button>
@@ -148,7 +148,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       </Dialog>
 
       {toastMsg && (
-        <div className="animate-toast-in fixed bottom-[22px] left-1/2 z-[60] flex -translate-x-1/2 items-center gap-2 rounded-[10px] bg-navy px-[18px] py-2.5 text-[12.5px] font-semibold text-soft shadow-[0_10px_30px_rgba(10,26,51,.35)]">
+        <div className="animate-toast-in fixed bottom-[22px] left-1/2 z-[60] flex -translate-x-1/2 items-center gap-2 rounded-[10px] bg-navy px-[18px] py-2.5 text-[13.5px] font-semibold text-soft shadow-[0_10px_30px_rgba(10,26,51,.35)]">
           <span className="text-aqua">✓</span> {toastMsg}
         </div>
       )}

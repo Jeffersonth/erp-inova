@@ -19,7 +19,7 @@ export function DraftButton({
     <button
       onClick={() => openDraft(draftKey)}
       className={cn(
-        "flex-none whitespace-nowrap rounded-lg px-3 py-[5px] text-[11.5px] font-semibold transition-colors",
+        "flex-none whitespace-nowrap rounded-lg px-3 py-[5px] text-[12.5px] font-semibold transition-colors",
         solid
           ? "bg-brand text-white hover:bg-brand-dark"
           : "border border-line text-ink hover:border-brand",
