@@ -188,7 +188,7 @@ export function NewProjetoDialog({
           <div className="rounded-lg border border-line bg-soft px-3 py-2.5">
             <div className="flex items-center gap-2">
               <span className={label}>Cards iniciais (opcional)</span>
-              <span className="text-[11.5px] text-mut">entram na etapa &ldquo;A fazer&rdquo;</span>
+              <span className="text-[11.5px] text-mut">entram na etapa &ldquo;Captação de Informações&rdquo;</span>
             </div>
 
             {cards.length > 0 && (
