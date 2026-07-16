@@ -1,12 +1,9 @@
-import { TimeTracker, type SessaoRow } from "@/components/time-tracker";
+import { TimeTracker } from "@/components/time-tracker";
+import type { SessaoRow } from "@/components/focus-timer-provider";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function TrackerPage() {
   const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const inicioHoje = new Date();
   inicioHoje.setHours(0, 0, 0, 0);
@@ -35,7 +32,6 @@ export default async function TrackerPage() {
       </div>
 
       <TimeTracker
-        userId={user?.id ?? ""}
         projetos={projetos ?? []}
         historicoInicial={(sessoes ?? []) as SessaoRow[]}
         totalHojeInicial={totalHoje}

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppProviders } from "@/components/app-providers";
+import { FocusTimerProvider } from "@/components/focus-timer-provider";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({
@@ -30,17 +31,19 @@ export default async function AppLayout({
 
   return (
     <AppProviders>
-      <div className="min-h-screen bg-background text-ink md:flex">
-        <AppSidebar
-          nome={nome}
-          funcao={perfil?.funcao ?? "Dev freelancer"}
-          avatarUrl={perfil?.avatar_url ?? null}
-          iniciais={iniciais || "?"}
-        />
-        <main className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-[88px] pt-4 text-[14px] leading-[1.45] md:px-[22px] md:pb-7 md:pt-[18px]">
-          {children}
-        </main>
-      </div>
+      <FocusTimerProvider userId={user.id}>
+        <div className="min-h-screen bg-background text-ink md:flex">
+          <AppSidebar
+            nome={nome}
+            funcao={perfil?.funcao ?? "Dev freelancer"}
+            avatarUrl={perfil?.avatar_url ?? null}
+            iniciais={iniciais || "?"}
+          />
+          <main className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-[88px] pt-4 text-[14px] leading-[1.45] md:px-[22px] md:pb-7 md:pt-[18px]">
+            {children}
+          </main>
+        </div>
+      </FocusTimerProvider>
     </AppProviders>
   );
 }

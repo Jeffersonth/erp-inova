@@ -1,55 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect } from "react";
+import { useFocusTimer, PRESETS, CATEGORIAS, type SessaoRow, type Modo, type Preset, type Categoria } from "@/components/focus-timer-provider";
 import { formatDuracao } from "@/lib/format";
-import type { Enums } from "@/lib/supabase/database.types";
 
-type Modo = "foco" | "pausa_curta" | "pausa_longa";
-type Preset = "classico" | "estendido";
-type Categoria = Enums<"sessao_categoria">;
-
-const PRESETS: Record<Preset, { label: string; config: Record<Modo, { label: string; min: number; cor: string }> }> = {
-  classico: {
-    label: "25 + 5 min",
-    config: {
-      foco: { label: "Foco", min: 25, cor: "#1D5BFF" },
-      pausa_curta: { label: "Pausa curta", min: 5, cor: "#0E9F6E" },
-      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
-    },
-  },
-  estendido: {
-    label: "50 + 10 min",
-    config: {
-      foco: { label: "Foco", min: 50, cor: "#1D5BFF" },
-      pausa_curta: { label: "Descanso", min: 10, cor: "#0E9F6E" },
-      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
-    },
-  },
-};
-
-const CATEGORIAS: Record<Categoria, { label: string; icone: string }> = {
-  trabalho: { label: "Trabalho", icone: "💼" },
-  estudo: { label: "Estudo", icone: "📚" },
-};
-
-export type SessaoRow = {
-  id: string;
-  tipo: Enums<"sessao_tipo">;
-  categoria: Categoria;
-  duracao_seg: number;
-  rotulo: string | null;
-  finalizada_em: string;
-  projetos: { titulo: string } | null;
-};
+export type { SessaoRow };
 
 function mmss(seg: number) {
   const m = Math.floor(seg / 60);
   const s = seg % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
-
 
 function quando(iso: string) {
   const d = new Date(iso);
@@ -64,121 +25,43 @@ function quando(iso: string) {
 }
 
 export function TimeTracker({
-  userId,
   projetos,
   historicoInicial,
   totalHojeInicial,
 }: {
-  userId: string;
   projetos: { id: string; titulo: string }[];
   historicoInicial: SessaoRow[];
   totalHojeInicial: number;
 }) {
-  const { toast } = useApp();
-  const supabase = createClient();
+  const {
+    preset,
+    modo,
+    restante,
+    duracaoTotal,
+    rodando,
+    projetoId,
+    rotulo,
+    categoria,
+    historico,
+    focoHoje,
+    setProjetoId,
+    setRotulo,
+    setCategoria,
+    trocarModo,
+    trocarPreset,
+    iniciarPausar,
+    parar,
+    hidratar,
+  } = useFocusTimer();
 
-  const [preset, setPreset] = useState<Preset>("classico");
-  const [modo, setModo] = useState<Modo>("foco");
-  const CONFIG = PRESETS[preset].config;
-  const [restante, setRestante] = useState(CONFIG.foco.min * 60);
-  const [rodando, setRodando] = useState(false);
-  const [projetoId, setProjetoId] = useState("");
-  const [rotulo, setRotulo] = useState("");
-  const [categoria, setCategoria] = useState<Categoria>("trabalho");
-  const [historico, setHistorico] = useState<SessaoRow[]>(historicoInicial);
-  const [focoHoje, setFocoHoje] = useState(totalHojeInicial);
-
-  const inicioRef = useRef<number | null>(null); // timestamp de início da sessão atual
-  const duracaoTotal = CONFIG[modo].min * 60;
-
-  const registrar = useCallback(
-    async (tipo: Modo, dur: number) => {
-      const inicio = inicioRef.current ? new Date(inicioRef.current) : new Date(Date.now() - dur * 1000);
-      const { data, error } = await supabase
-        .from("sessoes_foco")
-        .insert({
-          user_id: userId,
-          projeto_id: projetoId || null,
-          tipo,
-          categoria,
-          duracao_seg: dur,
-          rotulo: rotulo.trim() || null,
-          iniciada_em: inicio.toISOString(),
-          finalizada_em: new Date().toISOString(),
-        })
-        .select("id, tipo, categoria, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
-        .single();
-      if (!error && data) {
-        setHistorico((prev) => [data as SessaoRow, ...prev]);
-        if (tipo === "foco") setFocoHoje((h) => h + dur);
-      }
-    },
-    [supabase, userId, projetoId, rotulo, categoria],
-  );
-
-  // tick do timer
+  // O timer em si vive no provider (sobrevive à navegação); só semeamos o
+  // histórico/total do dia vindos do SSR na primeira montagem desta página.
   useEffect(() => {
-    if (!rodando) return;
-    const id = setInterval(() => {
-      setRestante((r) => {
-        if (r <= 1) {
-          clearInterval(id);
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [rodando]);
-
-  // sessão terminou naturalmente
-  useEffect(() => {
-    if (rodando && restante === 0) {
-      setRodando(false);
-      registrar(modo, duracaoTotal);
-      inicioRef.current = null;
-      toast(modo === "foco" ? "✓ Sessão de foco concluída!" : "Pausa concluída — bora focar?");
-      // reseta pro mesmo modo
-      setRestante(duracaoTotal);
-    }
+    hidratar(historicoInicial, totalHojeInicial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restante, rodando]);
+  }, []);
 
-  function trocarModo(m: Modo) {
-    setModo(m);
-    setRodando(false);
-    inicioRef.current = null;
-    setRestante(CONFIG[m].min * 60);
-  }
-
-  function trocarPreset(p: Preset) {
-    setPreset(p);
-    setRodando(false);
-    inicioRef.current = null;
-    setRestante(PRESETS[p].config[modo].min * 60);
-  }
-
-  function iniciarPausar() {
-    if (!rodando) {
-      if (inicioRef.current === null) inicioRef.current = Date.now();
-      setRodando(true);
-    } else {
-      setRodando(false);
-    }
-  }
-
-  async function parar() {
-    // registra o tempo decorrido se houver progresso relevante (>= 60s)
-    const decorrido = duracaoTotal - restante;
-    setRodando(false);
-    if (decorrido >= 60) {
-      await registrar(modo, decorrido);
-      toast(`Sessão salva: ${formatDuracao(decorrido)} de ${CONFIG[modo].label.toLowerCase()}`);
-    }
-    inicioRef.current = null;
-    setRestante(duracaoTotal);
-  }
-
+  const CONFIG = PRESETS[preset].config;
   const pct = duracaoTotal > 0 ? ((duracaoTotal - restante) / duracaoTotal) * 100 : 0;
   const cor = CONFIG[modo].cor;
   const R = 78;
@@ -252,6 +135,13 @@ export function TimeTracker({
             ⟲ Zerar
           </button>
         </div>
+
+        {rodando && (
+          <div className="mt-3 flex items-center justify-center gap-1.5 text-[11.5px] font-semibold text-ok">
+            <span className="size-1.5 animate-pulse rounded-full bg-ok" />
+            Contando em segundo plano — pode navegar por outras telas
+          </div>
+        )}
 
         <div className="mt-3 grid grid-cols-2 gap-2">
           <select
