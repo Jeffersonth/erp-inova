@@ -97,6 +97,11 @@ services:
   # self-hosted (Fase B). Usa a própria imagem do Postgres (já traz psql) —
   # não precisa buildar a aplicação Node só para rodar SQL.
   #
+  # Pula as 4 migrações que só mexem no Storage do Supabase (storage.buckets /
+  # storage.objects) — não existem fora do Supabase e serão substituídas pelo
+  # armazenamento em disco da VPS na Fase D. O histórico continua intacto em
+  # supabase/migrations/ (documentação do banco Supabase ainda em produção).
+  #
   #   docker compose --profile tools run --rm migrate
   migrate:
     image: postgres:16-alpine
@@ -109,11 +114,22 @@ services:
 
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      SKIP_MIGRATIONS: "0004_avatars_storage_bucket.sql 0005_avatars_drop_public_select_policy.sql 0011_arquivos_bucket.sql 0016_avatars_owner_select_policy.sql"
 
     volumes:
       - ./supabase/migrations:/migrations:ro
 
-    entrypoint: sh -c "for f in /migrations/*.sql; do echo \"==> $$f\"; psql \"$$DATABASE_URL\" -v ON_ERROR_STOP=1 -f \"$$f\" || exit 1; done"
+    entrypoint: >
+      sh -c '
+        for f in /migrations/*.sql; do
+          name=$$(basename "$$f");
+          case " $$SKIP_MIGRATIONS " in
+            *" $$name "*) echo "-- pulando (Storage Supabase, ver Fase D): $$name"; continue;;
+          esac;
+          echo "==> $$name";
+          psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$$f" || exit 1;
+        done
+      '
 
 volumes:
   erp_inova_postgres_data:
