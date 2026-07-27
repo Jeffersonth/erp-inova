@@ -55,3 +55,38 @@ $$;
 comment on function auth.uid() is
   'Substitui o auth.uid() do Supabase. A aplicação (src/lib/db) roda '
   '`SET LOCAL app.user_id = $1` no início de cada transação autenticada.';
+
+-- ---------------------------------------------------------------------------
+-- Papel de runtime da aplicação — NÃO é o POSTGRES_USER do container.
+--
+-- A imagem oficial do Postgres sempre cria o POSTGRES_USER como
+-- SUPERUSER (é assim que ela faz o bootstrap do banco). Superusuário
+-- IGNORA row level security por definição, não importa quantas policies
+-- existam — então a aplicação nunca pode conectar como ele, ou toda a
+-- segurança "dono-por-linha" desse sistema vira decoração. erp_inova_app
+-- é o papel restrito que a aplicação de fato usa (DATABASE_URL no
+-- docker-compose.yml); erp_inova (superuser) fica só para migrações/DDL.
+--
+-- A senha vem da variável de ambiente APP_DB_PASSWORD (.env), passada ao
+-- psql como variável de cliente (-v app_pw=...) — nunca fica hardcoded
+-- num arquivo versionado.
+-- \gexec (não um DO com dollar-quote): a substituição de :'app_pw' pelo psql
+-- é só garantida em SQL de nível superior, não dentro de string/dollar-quote.
+select format('create role erp_inova_app login password %L', :'app_pw')
+where not exists (select 1 from pg_roles where rolname = 'erp_inova_app')
+\gexec
+
+select format('alter role erp_inova_app password %L', :'app_pw')
+where exists (select 1 from pg_roles where rolname = 'erp_inova_app')
+\gexec
+
+grant usage on schema public to erp_inova_app;
+grant usage on schema auth to erp_inova_app;
+grant execute on function auth.uid() to erp_inova_app;
+
+-- Tabelas que 0001+ ainda vão criar nesta mesma migração (rodando como o
+-- POSTGRES_USER) herdam automaticamente estes privilégios.
+alter default privileges for role erp_inova in schema public
+  grant select, insert, update, delete on tables to erp_inova_app;
+alter default privileges for role erp_inova in schema public
+  grant usage, select on sequences to erp_inova_app;
