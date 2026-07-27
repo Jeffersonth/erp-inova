@@ -17,6 +17,22 @@
 --     continua valendo exatamente como antes, sem tocar em nenhuma policy.
 --
 -- gen_random_uuid() já é nativo do Postgres (13+), sem precisar de pgcrypto.
+--
+-- anon / authenticated: papéis que o Supabase cria para o PostgREST (uma
+-- conexão por "papel" de requisição). Nunca conectamos como eles — só
+-- precisam existir para os `revoke ... from public, anon, authenticated`
+-- de 0003/0021 (endurecimento de funções SECURITY DEFINER) funcionarem
+-- sem alteração.
+do $$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'anon') then
+    create role anon nologin noinherit;
+  end if;
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then
+    create role authenticated nologin noinherit;
+  end if;
+end
+$$;
 
 create schema if not exists auth;
 
