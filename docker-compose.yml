@@ -62,7 +62,7 @@ services:
     environment:
       NODE_ENV: production
       # Dentro da rede do compose o banco atende pelo nome do serviço.
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
@@ -113,7 +113,7 @@ services:
         condition: service_healthy
 
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       SKIP_MIGRATIONS: "0004_avatars_storage_bucket.sql 0005_avatars_drop_public_select_policy.sql 0011_arquivos_bucket.sql 0016_avatars_owner_select_policy.sql"
 
     volumes:
