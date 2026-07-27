@@ -1,0 +1,119 @@
+# ERP Pessoal (Inova Labs) na VPS.
+#
+#   docker compose up -d --build postgres      sobe só o banco (Fase A/B)
+#   docker compose up -d --build               sobe banco e aplicação
+#   docker compose --profile tools run --rm migrate   aplica as migrações SQL
+#   docker compose logs -f app                 acompanha
+#
+# A VPS já roda um Traefik (projeto traefik-s5fm) que é dono das portas 80 e
+# 443 e atende também o AcertoCLT, Calculadora Nacional e o Meu Altar. Esta
+# stack NÃO publica 80/443: ela se anuncia por labels e o Traefik faz o
+# roteamento e o TLS. Publicar essas portas aqui derrubaria os outros sites.
+#
+# As variáveis vêm do arquivo .env ao lado deste (não versionado). Copie o
+# .env.example.
+
+name: erp-inova
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env}
+
+    ports:
+      # Prefixo 127.0.0.1 de proposito: o Postgres escuta so no loopback da
+      # VPS (para eu poder rodar psql/pg_restore direto), nunca exposto na
+      # internet. Sem esse prefixo o Docker abriria a porta pro mundo.
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+
+    volumes:
+      - erp_inova_postgres_data:/var/lib/postgresql/data
+      - ./infra/backups:/backups
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    shm_size: 256mb
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      NODE_ENV: production
+      # Dentro da rede do compose o banco atende pelo nome do serviço.
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+
+    # Sem `ports`: o Traefik alcança o contêiner pelo IP da rede bridge.
+    expose:
+      - "3000"
+
+    labels:
+      traefik.enable: "true"
+
+      traefik.http.routers.erp-inova.rule: Host(`erp.inovalabs.io`)
+      traefik.http.routers.erp-inova.entrypoints: websecure
+      traefik.http.routers.erp-inova.tls.certresolver: letsencrypt
+
+      traefik.http.services.erp-inova.loadbalancer.server.port: "3000"
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Serviço de uso pontual: aplica as migrações SQL contra o Postgres
+  # self-hosted (Fase B). Usa a própria imagem do Postgres (já traz psql) —
+  # não precisa buildar a aplicação Node só para rodar SQL.
+  #
+  #   docker compose --profile tools run --rm migrate
+  migrate:
+    image: postgres:16-alpine
+    profiles: ["tools"]
+    restart: "no"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+
+    volumes:
+      - ./supabase/migrations:/migrations:ro
+
+    entrypoint: sh -c "for f in /migrations/*.sql; do echo \"==> $$f\"; psql \"$$DATABASE_URL\" -v ON_ERROR_STOP=1 -f \"$$f\" || exit 1; done"
+
+volumes:
+  erp_inova_postgres_data:
