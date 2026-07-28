@@ -53,6 +53,12 @@ services:
   app:
     build:
       context: .
+      args:
+        # Só os componentes "use client" que ainda restam da Fase E usam
+        # isso (mutação direta ao Supabase, migração pra Server Actions
+        # ainda pendente) — leitura/autenticação server-side já não depende.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?defina NEXT_PUBLIC_SUPABASE_URL no .env}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?defina NEXT_PUBLIC_SUPABASE_ANON_KEY no .env}
     restart: unless-stopped
 
     depends_on:
