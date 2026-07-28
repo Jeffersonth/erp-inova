@@ -23,6 +23,9 @@ RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=build --chown=nextjs:nodejs /app/public ./public
+# Volume de storage (avatares/anexos, ver docker-compose.yml) — dono
+# certo aqui pra quando o compose montar o volume nomeado por cima.
+RUN mkdir -p /data/storage && chown -R nextjs:nodejs /data/storage
 USER nextjs
 EXPOSE 3000
 CMD ["node", "server.js"]

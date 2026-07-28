@@ -70,6 +70,13 @@ services:
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      # Substitui os buckets do Supabase Storage (avatars/arquivos) —
+      # Fase D. Dono do diretório já vem certo do Dockerfile (usuário
+      # nextjs), Docker propaga isso pro volume nomeado na 1a inicialização.
+      STORAGE_DIR: /data/storage
+
+    volumes:
+      - erp_inova_storage:/data/storage
 
     # Sem `ports`: o Traefik alcança o contêiner pelo IP da rede bridge.
     expose:
@@ -123,6 +130,9 @@ services:
       # sem bypass de RLS, usando a senha abaixo via variável do psql).
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       APP_DB_PASSWORD: ${APP_DB_PASSWORD:?defina APP_DB_PASSWORD no .env}
+      # Fase D concluída: 0004/0005/0011/0016 mexem só no Storage do
+      # Supabase (storage.buckets/storage.objects), substituído pelo disco
+      # da VPS (STORAGE_DIR, ver serviço app acima) — continuam puladas.
       SKIP_MIGRATIONS: "0004_avatars_storage_bucket.sql 0005_avatars_drop_public_select_policy.sql 0011_arquivos_bucket.sql 0016_avatars_owner_select_policy.sql"
 
     volumes:
@@ -142,3 +152,4 @@ services:
 
 volumes:
   erp_inova_postgres_data:
+  erp_inova_storage:

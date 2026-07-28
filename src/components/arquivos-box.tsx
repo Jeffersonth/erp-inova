@@ -86,15 +86,17 @@ export function ArquivosBox({
       return;
     }
 
-    const safe = file.name.replace(/[^\w.\-]+/g, "_");
-    const path = `${user.id}/${scope}/${ownerId}/${Date.now()}-${safe}`;
-
-    const { error: upErr } = await supabase.storage.from("arquivos").upload(path, file, { upsert: false });
-    if (upErr) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("scope", scope);
+    formData.append("ownerId", ownerId);
+    const upRes = await fetch("/api/storage/arquivos", { method: "POST", body: formData });
+    if (!upRes.ok) {
       toast("Falha no upload do arquivo.");
       setUploading(false);
       return;
     }
+    const { path } = (await upRes.json()) as { path: string };
 
     const { data: row, error: insErr } = await supabase
       .from("arquivos")
@@ -111,7 +113,7 @@ export function ArquivosBox({
 
     setUploading(false);
     if (insErr || !row) {
-      await supabase.storage.from("arquivos").remove([path]);
+      await fetch(`/api/storage/arquivos/${path}`, { method: "DELETE" });
       toast("Não foi possível registrar o arquivo.");
       return;
     }
@@ -119,19 +121,16 @@ export function ArquivosBox({
     toast("✓ Arquivo anexado");
   }
 
-  async function baixar(a: Arquivo) {
-    const { data, error } = await supabase.storage.from("arquivos").createSignedUrl(a.storage_path, 60);
-    if (error || !data) {
-      toast("Não foi possível gerar o link de download.");
-      return;
-    }
-    window.open(data.signedUrl, "_blank", "noopener");
+  function baixar(a: Arquivo) {
+    // cookie de sessão vai junto (mesma origem) — a rota confere o login
+    // no lugar da signed URL de 60s que o Supabase Storage gerava antes.
+    window.open(`/api/storage/arquivos/${a.storage_path}`, "_blank", "noopener");
   }
 
   async function excluir(a: Arquivo) {
     if (!confirm(`Excluir "${a.nome}"?`)) return;
     setArquivos((prev) => prev.filter((x) => x.id !== a.id));
-    await supabase.storage.from("arquivos").remove([a.storage_path]);
+    await fetch(`/api/storage/arquivos/${a.storage_path}`, { method: "DELETE" });
     await supabase.from("arquivos").delete().eq("id", a.id);
   }
 

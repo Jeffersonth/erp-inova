@@ -66,21 +66,16 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
     if (!file) return;
 
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${perfil.id}/avatar.${ext}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/storage/avatars", { method: "POST", body: formData });
+    if (!res.ok) {
       setUploading(false);
       toast("Não foi possível enviar a foto.");
       return;
     }
-
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-    const url = `${data.publicUrl}?t=${Date.now()}`;
+    const { url } = (await res.json()) as { url: string };
 
     const { error: updateError } = await supabase
       .from("usuarios")
