@@ -1,32 +1,32 @@
-import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "./database.types";
+import { fromTable } from "@/lib/db/query-builder";
+import { SESSION_COOKIE, verificarSessao, type SessionUser } from "@/lib/auth/session";
 
-/**
- * Supabase client for Server Components, Route Handlers and Server Actions.
- * (Next.js 14 — `cookies()` is synchronous.)
- */
+// Substitui o client Supabase (Postgres/Auth gerenciados) por um shim próprio
+// sobre `pg` + JWT em cookie — ver Docs/ ou o histórico da migração VPS.
+// Mantém a MESMA assinatura (`createClient().auth.getUser()`,
+// `createClient().from(tabela).select()...`) usada pelos ~16 arquivos
+// server-side deste projeto, então nenhum deles precisou mudar.
 export function createClient() {
-  const cookieStore = cookies();
+  let cache: Promise<SessionUser | null> | null = null;
+  function getUser() {
+    if (!cache) {
+      const token = cookies().get(SESSION_COOKIE)?.value;
+      cache = verificarSessao(token);
+    }
+    return cache;
+  }
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // called from a Server Component — safe to ignore, middleware refreshes the session
-          }
-        },
+  return {
+    auth: {
+      async getUser() {
+        const user = await getUser();
+        return { data: { user }, error: null as { message: string } | null };
       },
     },
-  );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    from<T = any>(table: string) {
+      return fromTable<T>(table, async () => (await getUser())?.id ?? null);
+    },
+  };
 }

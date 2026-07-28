@@ -1,34 +1,31 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  SESSION_COOKIE,
+  SESSION_MAX_AGE_SEG,
+  assinarSessao,
+  verificarSessao,
+} from "@/lib/auth/session";
 
-/**
- * Atualiza a sessão do Supabase a cada requisição (refresh de token via cookies).
- * Necessário para que Server Components sempre leiam uma sessão válida.
- */
+// Substitui o "refresh de token" do Supabase: aqui não há refresh token
+// separado (o JWT já dura 30 dias), então só renovamos o cookie a cada
+// requisição autenticada — sessão desliza enquanto o usuário voltar pelo
+// menos 1x/mês, sem round-trip a banco (verificação é só assinatura HS256).
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const user = await verificarSessao(token);
 
-  // força a checagem/refresh do token — necessário mesmo sem usar o retorno aqui
-  await supabase.auth.getUser();
+  if (user) {
+    const novoToken = await assinarSessao(user);
+    response.cookies.set(SESSION_COOKIE, novoToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE_SEG,
+    });
+  }
 
   return response;
 }

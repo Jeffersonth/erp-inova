@@ -1,9 +1,8 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/database.types";
+import type { createClient } from "@/lib/supabase/server";
 import { formatMoney, relativeDate, relativeInteraction } from "@/lib/format";
 
-type DB = SupabaseClient<Database>;
+type DB = ReturnType<typeof createClient>;
 
 /**
  * Tools do Assistente — cada uma consulta o Postgres via o client autenticado

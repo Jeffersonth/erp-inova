@@ -137,8 +137,8 @@ export default async function CrmPage({ searchParams }: { searchParams: { q?: st
                       </span>
                     )}
                   </span>
-                  <span className={`text-[12.5px] font-semibold ${toneText[statusTone[c.status]]}`}>
-                    ● {statusLabel[c.status]}
+                  <span className={`text-[12.5px] font-semibold ${toneText[statusTone[c.status as Enums<"cliente_status">]]}`}>
+                    ● {statusLabel[c.status as Enums<"cliente_status">]}
                   </span>
                   <b className={`text-[14px] ${toneText[scoreTone(c.score_ia)]}`}>{c.score_ia ?? "—"}</b>
                   <span className="text-[12.5px] text-mut">{relativeInteraction(c.ultima_interacao)}</span>

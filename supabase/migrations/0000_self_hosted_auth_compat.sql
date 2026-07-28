@@ -84,6 +84,12 @@ grant usage on schema public to erp_inova_app;
 grant usage on schema auth to erp_inova_app;
 grant execute on function auth.uid() to erp_inova_app;
 
+-- Só select: o login (src/app/api/auth/login) confere e-mail/senha lendo
+-- esta linha direto (sem RLS aqui, auth.users nunca teve policy). Criar/
+-- alterar usuário continua sendo tarefa de script administrativo, não da
+-- aplicação em runtime.
+grant select on auth.users to erp_inova_app;
+
 -- Tabelas que 0001+ ainda vão criar nesta mesma migração (rodando como o
 -- POSTGRES_USER) herdam automaticamente estes privilégios.
 alter default privileges for role erp_inova in schema public

@@ -23,7 +23,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/hoje", label: "Hoje", icon: Target },
@@ -95,8 +94,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
   }, [pathname]);
 
   async function signOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
   }
