@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
 import { ArquivosBox } from "@/components/arquivos-box";
-import { createClient } from "@/lib/supabase/client";
+import { atualizarCliente, excluirCliente } from "@/lib/actions/clientes";
 import type { Enums } from "@/lib/supabase/database.types";
 
 const field =
@@ -51,7 +51,6 @@ export type EditableCliente = {
 export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,22 +68,19 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("clientes")
-      .update({
-        nome,
-        contato_nome: String(form.get("contato_nome") ?? "") || null,
-        email: String(form.get("email") ?? "") || null,
-        telefone: String(form.get("telefone") ?? "") || null,
-        pais: String(form.get("pais") ?? "BR"),
-        ramo: String(form.get("ramo") ?? "") || null,
-        status: form.get("status") as Enums<"cliente_status">,
-      })
-      .eq("id", cliente.id);
+    const { error: updateError } = await atualizarCliente(cliente.id, {
+      nome,
+      contato_nome: String(form.get("contato_nome") ?? "") || null,
+      email: String(form.get("email") ?? "") || null,
+      telefone: String(form.get("telefone") ?? "") || null,
+      pais: String(form.get("pais") ?? "BR"),
+      ramo: String(form.get("ramo") ?? "") || null,
+      status: form.get("status") as Enums<"cliente_status">,
+    });
 
     setLoading(false);
     if (updateError) {
-      setError("Não foi possível salvar as alterações.");
+      setError(updateError);
       return;
     }
 
@@ -98,10 +94,10 @@ export function EditClienteDialog({ cliente }: { cliente: EditableCliente }) {
       return;
     }
     setLoading(true);
-    const { error: deleteError } = await supabase.from("clientes").delete().eq("id", cliente.id);
+    const { error: deleteError } = await excluirCliente(cliente.id);
     setLoading(false);
     if (deleteError) {
-      setError("Não foi possível excluir o contato.");
+      setError(deleteError);
       return;
     }
     setOpen(false);

@@ -282,7 +282,6 @@ export default async function DashboardPage() {
 
       {/* Meta do mês */}
       <MetaMesCard
-        userId={user?.id ?? ""}
         mesIso={mesInicioIso}
         mesLabel={mesLabel}
         meta={meta}

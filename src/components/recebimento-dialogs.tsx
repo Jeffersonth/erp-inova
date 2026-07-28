@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { salvarRecebimento, excluirRecebimento } from "@/lib/actions/financeiro";
 import type { Enums } from "@/lib/supabase/database.types";
 
 const field =
@@ -49,7 +49,6 @@ function VendaForm({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [clienteId, setClienteId] = useState(inicial?.clienteId ?? "");
   const [projetoId, setProjetoId] = useState(inicial?.projetoId ?? "");
@@ -93,31 +92,13 @@ function VendaForm({
       status: statusFor(valorNum, pago),
     };
 
-    if (inicial) {
-      const { error: updErr } = await supabase.from("recebimentos").update(payload).eq("id", inicial.id);
-      setLoading(false);
-      if (updErr) {
-        setError("Não foi possível salvar a venda.");
-        return;
-      }
-      toast("✓ Venda atualizada");
-    } else {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Sessão expirada — faça login novamente.");
-        setLoading(false);
-        return;
-      }
-      const { error: insErr } = await supabase.from("recebimentos").insert({ ...payload, user_id: user.id });
-      setLoading(false);
-      if (insErr) {
-        setError("Não foi possível registrar a venda.");
-        return;
-      }
-      toast("✓ Venda registrada");
+    const { error: salvarErr } = await salvarRecebimento(inicial?.id ?? null, payload);
+    setLoading(false);
+    if (salvarErr) {
+      setError(salvarErr);
+      return;
     }
+    toast(inicial ? "✓ Venda atualizada" : "✓ Venda registrada");
 
     onDone();
     router.refresh();
@@ -127,10 +108,10 @@ function VendaForm({
     if (!inicial) return;
     if (!confirm("Excluir esta venda? A ação não pode ser desfeita.")) return;
     setLoading(true);
-    const { error: delErr } = await supabase.from("recebimentos").delete().eq("id", inicial.id);
+    const { error: delErr } = await excluirRecebimento(inicial.id);
     setLoading(false);
     if (delErr) {
-      setError("Não foi possível excluir a venda.");
+      setError(delErr);
       return;
     }
     toast("✓ Venda excluída");

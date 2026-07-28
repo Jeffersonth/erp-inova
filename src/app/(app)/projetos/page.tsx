@@ -17,10 +17,6 @@ export default async function ProjetosPage({
 }) {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const [{ data: projetos }, { data: clientes }] = await Promise.all([
     supabase
       .from("projetos")
@@ -144,15 +140,11 @@ export default async function ProjetosPage({
             clientes={clientesList}
             finalizada={finalizada}
           />
-          <ProjectBoard projetoId={selecionado.id} userId={user?.id ?? ""} initialEtapas={boardEtapas} />
+          <ProjectBoard projetoId={selecionado.id} initialEtapas={boardEtapas} />
         </div>
 
         {/* Anotações importantes do projeto */}
-        <ProjetoNotas
-          projetoId={selecionado.id}
-          userId={user?.id ?? ""}
-          initial={(notas ?? []) as ProjetoNota[]}
-        />
+        <ProjetoNotas projetoId={selecionado.id} initial={(notas ?? []) as ProjetoNota[]} />
 
         {/* Arquivos enviados pelo cliente */}
         <div className={`${card} px-3.5 py-3`}>

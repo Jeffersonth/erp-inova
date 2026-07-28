@@ -9,10 +9,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { criarProjeto } from "@/lib/actions/projetos";
 import type { Enums } from "@/lib/supabase/database.types";
 import { TIPO_META, TIPO_ORDER, type TarefaTipo } from "@/lib/tarefa-tipos";
-import { DEFAULT_ETAPAS } from "@/lib/etapas-padrao";
 
 const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
@@ -28,7 +27,6 @@ export function NewProjetoDialog({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,74 +61,29 @@ export function NewProjetoDialog({
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setError("Sessão expirada — faça login novamente.");
-      setLoading(false);
-      return;
-    }
-
     const clienteId = String(form.get("cliente_id") ?? "");
     const valor = String(form.get("valor") ?? "").trim();
     const dataEntrega = String(form.get("data_entrega") ?? "").trim();
 
-    const { data: projeto, error: insertError } = await supabase
-      .from("projetos")
-      .insert({
-        user_id: user.id,
-        titulo,
-        cliente_id: clienteId || null,
-        valor: valor ? Number(valor) : null,
-        moeda: form.get("moeda") as Enums<"moeda">,
-        status: "briefing",
-        progresso: 0,
-      })
-      .select("id")
-      .single();
-
-    if (insertError || !projeto) {
-      setError("Não foi possível salvar o projeto.");
-      setLoading(false);
-      return;
-    }
-
-    const { data: etapas, error: etapaError } = await supabase
-      .from("etapas")
-      .insert(DEFAULT_ETAPAS.map((e) => ({ ...e, projeto_id: projeto.id })))
-      .select("id, ordem, nome");
-
-    if (etapaError || !etapas) {
-      setError("Projeto criado, mas houve erro ao criar as etapas.");
-      setLoading(false);
-      return;
-    }
-
-    const dataEntregaFix = dataEntrega || null;
-    if (dataEntregaFix) {
-      await supabase.from("projetos").update({ data_entrega: dataEntregaFix }).eq("id", projeto.id);
-    }
-
-    if (cards.length > 0) {
-      const primeira = etapas.find((e) => e.ordem === 0) ?? etapas[0];
-      await supabase.from("tarefas").insert(
-        cards.map((c, i) => ({
-          user_id: user.id,
-          projeto_id: projeto.id,
-          etapa_id: primeira.id,
-          titulo: c.titulo,
-          tipo: c.tipo,
-          ordem: i,
-        })),
-      );
-    }
+    const { error: insertError, projetoId } = await criarProjeto({
+      titulo,
+      cliente_id: clienteId || null,
+      valor: valor ? Number(valor) : null,
+      moeda: form.get("moeda") as Enums<"moeda">,
+      data_entrega: dataEntrega || null,
+      cards,
+    });
 
     setLoading(false);
+    if (insertError || !projetoId) {
+      setError(insertError ?? "Não foi possível salvar o projeto.");
+      return;
+    }
+
     setOpen(false);
     resetCards();
     toast(`✓ Projeto "${titulo}" criado`);
-    router.push(`/projetos?p=${projeto.id}`);
+    router.push(`/projetos?p=${projetoId}`);
     router.refresh();
   }
 

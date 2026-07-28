@@ -4,10 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 export default async function TarefasPage() {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { data: tarefas } = await supabase
     .from("tarefas_dia")
     .select("id, titulo, status, data_finalizar, ordem")
@@ -26,7 +22,7 @@ export default async function TarefasPage() {
         <span className="text-[12.5px] text-mut">{dataHoje} · arraste para reordenar</span>
       </div>
 
-      <DayTasks userId={user?.id ?? ""} initialTasks={(tarefas ?? []) as DayTask[]} />
+      <DayTasks initialTasks={(tarefas ?? []) as DayTask[]} />
     </div>
   );
 }

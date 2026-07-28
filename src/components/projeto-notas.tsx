@@ -2,21 +2,18 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { criarProjetoNota, atualizarProjetoNota, excluirProjetoNota } from "@/lib/actions/projetos";
 
 export type ProjetoNota = { id: string; texto: string; prioridade: boolean };
 
 export function ProjetoNotas({
   projetoId,
-  userId,
   initial,
 }: {
   projetoId: string;
-  userId: string;
   initial: ProjetoNota[];
 }) {
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [notas, setNotas] = useState<ProjetoNota[]>(initial);
   const [texto, setTexto] = useState("");
@@ -28,11 +25,7 @@ export function ProjetoNotas({
     e.preventDefault();
     const t = texto.trim();
     if (!t) return;
-    const { data, error } = await supabase
-      .from("projeto_notas")
-      .insert({ user_id: userId, projeto_id: projetoId, texto: t, prioridade })
-      .select("id, texto, prioridade")
-      .single();
+    const { data, error } = await criarProjetoNota(projetoId, t, prioridade);
     if (error || !data) {
       toast("Não foi possível salvar a anotação.");
       return;
@@ -47,13 +40,13 @@ export function ProjetoNotas({
     if (!nota) return;
     const nova = !nota.prioridade;
     setNotas((prev) => prev.map((n) => (n.id === id ? { ...n, prioridade: nova } : n)));
-    await supabase.from("projeto_notas").update({ prioridade: nova }).eq("id", id);
+    await atualizarProjetoNota(id, nova);
   }
 
   async function excluir(id: string) {
     if (!confirm("Excluir esta anotação?")) return;
     setNotas((prev) => prev.filter((n) => n.id !== id));
-    await supabase.from("projeto_notas").delete().eq("id", id);
+    await excluirProjetoNota(id);
   }
 
   return (

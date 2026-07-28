@@ -5,7 +5,8 @@ import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { criarTarefaDia, atualizarTarefaDia } from "@/lib/actions/tarefas-dia";
+import { registrarSessaoFoco } from "@/lib/actions/tracker";
 import { formatDuracao } from "@/lib/format";
 import type { Recomendacao, RadarItem } from "@/lib/central";
 
@@ -15,7 +16,6 @@ const POMO_SEG = 25 * 60;
 export type PrioTarefa = { id: string; titulo: string; status: "pendente" | "em_andamento" | "concluida"; ordem: number };
 
 type Props = {
-  userId: string;
   nome: string;
   dataHoje: string;
   metaHorasDia: number;
@@ -40,7 +40,6 @@ function metaLabel(h: number) {
 }
 
 export function CentralHoje({
-  userId,
   nome,
   dataHoje,
   metaHorasDia,
@@ -53,7 +52,6 @@ export function CentralHoje({
   projetosAtivos,
 }: Props) {
   const { toast, openAiDraft } = useApp();
-  const supabase = createClient();
 
   const [saudacao, setSaudacao] = useState("Olá");
   useEffect(() => {
@@ -72,10 +70,7 @@ export function CentralHoje({
     if (!t) return;
     const novo = t.status === "concluida" ? "pendente" : "concluida";
     setTarefas((prev) => prev.map((x) => (x.id === id ? { ...x, status: novo } : x)));
-    await supabase
-      .from("tarefas_dia")
-      .update({ status: novo, concluida_em: novo === "concluida" ? new Date().toISOString() : null })
-      .eq("id", id);
+    await atualizarTarefaDia(id, { status: novo, concluida_em: novo === "concluida" ? new Date().toISOString() : null });
   }
 
   async function addPrio(e: React.FormEvent<HTMLFormElement>) {
@@ -83,11 +78,7 @@ export function CentralHoje({
     const titulo = novaPrio.trim();
     if (!titulo) return;
     const ordem = tarefas.length ? Math.max(...tarefas.map((t) => t.ordem)) + 1 : 0;
-    const { data, error } = await supabase
-      .from("tarefas_dia")
-      .insert({ user_id: userId, titulo, status: "pendente", ordem })
-      .select("id, titulo, status, ordem")
-      .single();
+    const { data, error } = await criarTarefaDia({ titulo, data_finalizar: null, ordem });
     if (error || !data) {
       toast("Não foi possível criar a prioridade.");
       return;
@@ -107,8 +98,7 @@ export function CentralHoje({
   const registrar = useCallback(
     async (dur: number) => {
       const inicio = inicioRef.current ? new Date(inicioRef.current) : new Date(Date.now() - dur * 1000);
-      const { error } = await supabase.from("sessoes_foco").insert({
-        user_id: userId,
+      const { error } = await registrarSessaoFoco({
         projeto_id: projetoId || null,
         tipo: "foco",
         categoria: "trabalho",
@@ -119,7 +109,7 @@ export function CentralHoje({
       });
       if (!error) setFocoHoje((h) => h + dur);
     },
-    [supabase, userId, projetoId, rotulo],
+    [projetoId, rotulo],
   );
 
   useEffect(() => {

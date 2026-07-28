@@ -109,7 +109,6 @@ export default async function HojePage() {
 
   return (
     <CentralHoje
-      userId={user?.id ?? ""}
       nome={primeiroNome}
       dataHoje={dataHoje}
       metaHorasDia={metaHorasDia}

@@ -3,7 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { salvarEvento, excluirEvento, moverEvento } from "@/lib/actions/agenda";
+import { atualizarTarefaDia } from "@/lib/actions/tarefas-dia";
 import type { Enums } from "@/lib/supabase/database.types";
 
 type EventoTipo = Enums<"evento_tipo">;
@@ -73,18 +74,14 @@ function weekDays(cursor: Date) {
 }
 
 export function Agenda({
-  userId,
   eventosIniciais,
   tarefasIniciais,
   projetos,
 }: {
-  userId: string;
   eventosIniciais: Evento[];
   tarefasIniciais: DiaTask[];
   projetos: { id: string; titulo: string }[];
 }) {
-  const supabase = createClient();
-
   const [view, setView] = useState<"mes" | "semana" | "dia">("mes");
   const [cursor, setCursor] = useState(startOfDay(new Date()));
   const [eventos, setEventos] = useState<Evento[]>(eventosIniciais);
@@ -139,7 +136,7 @@ export function Agenda({
     if (d.kind === "tarefa") {
       const novo = ymd(dia);
       setTarefas((prev) => prev.map((t) => (t.id === d.id ? { ...t, data_finalizar: novo } : t)));
-      await supabase.from("tarefas_dia").update({ data_finalizar: novo }).eq("id", d.id);
+      await atualizarTarefaDia(d.id, { data_finalizar: novo });
     } else {
       const ev = eventos.find((e) => e.id === d.id);
       if (!ev) return;
@@ -150,7 +147,7 @@ export function Agenda({
       const novoFim = ev.fim ? new Date(new Date(ev.fim).getTime() + deltaMs).toISOString() : null;
       const patch = { quando: novoInicio.toISOString(), fim: novoFim };
       setEventos((prev) => prev.map((e) => (e.id === ev.id ? { ...e, ...patch } : e)));
-      await supabase.from("eventos_agenda").update(patch).eq("id", ev.id);
+      await moverEvento(ev.id, patch);
     }
   }
 
@@ -374,7 +371,6 @@ export function Agenda({
       <EventoDialog
         state={editing}
         projetos={projetos}
-        userId={userId}
         onClose={() => setEditing(null)}
         onSaved={(ev, isNew) =>
           setEventos((prev) => (isNew ? [...prev, ev] : prev.map((e) => (e.id === ev.id ? ev : e))))
@@ -388,20 +384,17 @@ export function Agenda({
 function EventoDialog({
   state,
   projetos,
-  userId,
   onClose,
   onSaved,
   onDeleted,
 }: {
   state: { ev: Evento | null; dia: Date } | null;
   projetos: { id: string; titulo: string }[];
-  userId: string;
   onClose: () => void;
   onSaved: (ev: Evento, isNew: boolean) => void;
   onDeleted: (id: string) => void;
 }) {
   const { toast } = useApp();
-  const supabase = createClient();
   const ev = state?.ev ?? null;
   const dia = state?.dia ?? new Date();
 
@@ -441,20 +434,13 @@ function EventoDialog({
     };
 
     setLoading(true);
+    const { data: row, error } = await salvarEvento(ev?.id ?? null, payload);
+    setLoading(false);
+    if (error) return toast(error);
     if (ev) {
-      const { error } = await supabase.from("eventos_agenda").update(payload).eq("id", ev.id);
-      setLoading(false);
-      if (error) return toast("Não foi possível salvar o evento.");
       onSaved({ ...ev, ...payload }, false);
       toast("✓ Evento atualizado");
-    } else {
-      const { data: row, error } = await supabase
-        .from("eventos_agenda")
-        .insert({ ...payload, user_id: userId })
-        .select("id, titulo, tipo_ev, quando, fim, dia_inteiro, local, notas, projeto_id")
-        .single();
-      setLoading(false);
-      if (error || !row) return toast("Não foi possível criar o evento.");
+    } else if (row) {
       onSaved(row as Evento, true);
       toast("✓ Evento criado");
     }
@@ -465,7 +451,7 @@ function EventoDialog({
     if (!ev) return;
     if (!confirm(`Excluir o evento "${ev.titulo}"?`)) return;
     setLoading(true);
-    await supabase.from("eventos_agenda").delete().eq("id", ev.id);
+    await excluirEvento(ev.id);
     setLoading(false);
     onDeleted(ev.id);
     onClose();

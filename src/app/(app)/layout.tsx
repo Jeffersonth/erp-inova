@@ -31,7 +31,7 @@ export default async function AppLayout({
 
   return (
     <AppProviders>
-      <FocusTimerProvider userId={user.id}>
+      <FocusTimerProvider>
         <div className="min-h-screen bg-background text-ink md:flex">
           <AppSidebar
             nome={nome}

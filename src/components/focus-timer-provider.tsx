@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { registrarSessaoFoco } from "@/lib/actions/tracker";
 import { formatDuracao } from "@/lib/format";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -80,9 +80,8 @@ export function useFocusTimer() {
  * navegação entre páginas. Antes vivia como estado local da página /tracker,
  * então sair da tela desmontava o componente e derrubava o setInterval.
  */
-export function FocusTimerProvider({ userId, children }: { userId: string; children: ReactNode }) {
+export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [preset, setPreset] = useState<Preset>("classico");
   const [modo, setModo] = useState<Modo>("foco");
@@ -109,26 +108,21 @@ export function FocusTimerProvider({ userId, children }: { userId: string; child
   const registrar = useCallback(
     async (tipo: Modo, dur: number) => {
       const inicio = inicioRef.current ? new Date(inicioRef.current) : new Date(Date.now() - dur * 1000);
-      const { data, error } = await supabase
-        .from("sessoes_foco")
-        .insert({
-          user_id: userId,
-          projeto_id: projetoId || null,
-          tipo,
-          categoria,
-          duracao_seg: dur,
-          rotulo: rotulo.trim() || null,
-          iniciada_em: inicio.toISOString(),
-          finalizada_em: new Date().toISOString(),
-        })
-        .select("id, tipo, categoria, duracao_seg, rotulo, finalizada_em, projetos(titulo)")
-        .single();
+      const { data, error } = await registrarSessaoFoco({
+        projeto_id: projetoId || null,
+        tipo,
+        categoria,
+        duracao_seg: dur,
+        rotulo: rotulo.trim() || null,
+        iniciada_em: inicio.toISOString(),
+        finalizada_em: new Date().toISOString(),
+      });
       if (!error && data) {
         setHistorico((prev) => [data as SessaoRow, ...prev]);
         if (tipo === "foco") setFocoHoje((h) => h + dur);
       }
     },
-    [supabase, userId, projetoId, rotulo, categoria],
+    [projetoId, rotulo, categoria],
   );
 
   // tick do timer

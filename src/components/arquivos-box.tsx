@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { listarArquivos, criarArquivo, excluirArquivo, type ArquivoRow } from "@/lib/actions/arquivos";
 
-type Arquivo = { id: string; nome: string; storage_path: string; classificacao_ia: string | null };
+type Arquivo = ArquivoRow;
 
 const MAX_MB = 15;
 
@@ -40,24 +40,17 @@ export function ArquivosBox({
   classificacaoPadrao?: string;
 }) {
   const { toast } = useApp();
-  const supabase = createClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [arquivos, setArquivos] = useState<Arquivo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  const coluna = scope === "cliente" ? "cliente_id" : "projeto_id";
-
   useEffect(() => {
     let ativo = true;
     (async () => {
-      const { data } = await supabase
-        .from("arquivos")
-        .select("id, nome, storage_path, classificacao_ia")
-        .eq(coluna, ownerId)
-        .order("created_at", { ascending: false });
+      const data = await listarArquivos(scope, ownerId);
       if (ativo) {
-        setArquivos((data as Arquivo[]) ?? []);
+        setArquivos(data);
         setLoading(false);
       }
     })();
@@ -77,14 +70,6 @@ export function ArquivosBox({
     }
 
     setUploading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("Sessão expirada — faça login novamente.");
-      setUploading(false);
-      return;
-    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -98,26 +83,21 @@ export function ArquivosBox({
     }
     const { path } = (await upRes.json()) as { path: string };
 
-    const { data: row, error: insErr } = await supabase
-      .from("arquivos")
-      .insert({
-        user_id: user.id,
-        cliente_id: scope === "cliente" ? ownerId : null,
-        projeto_id: scope === "projeto" ? ownerId : null,
-        nome: file.name,
-        storage_path: path,
-        classificacao_ia: classificacaoPadrao ?? tipoFor(file.name),
-      })
-      .select("id, nome, storage_path, classificacao_ia")
-      .single();
+    const { data: row, error: insErr } = await criarArquivo({
+      scope,
+      ownerId,
+      nome: file.name,
+      storage_path: path,
+      classificacao_ia: classificacaoPadrao ?? tipoFor(file.name),
+    });
 
     setUploading(false);
     if (insErr || !row) {
       await fetch(`/api/storage/arquivos/${path}`, { method: "DELETE" });
-      toast("Não foi possível registrar o arquivo.");
+      toast(insErr ?? "Não foi possível registrar o arquivo.");
       return;
     }
-    setArquivos((prev) => [row as Arquivo, ...prev]);
+    setArquivos((prev) => [row, ...prev]);
     toast("✓ Arquivo anexado");
   }
 
@@ -131,7 +111,7 @@ export function ArquivosBox({
     if (!confirm(`Excluir "${a.nome}"?`)) return;
     setArquivos((prev) => prev.filter((x) => x.id !== a.id));
     await fetch(`/api/storage/arquivos/${a.storage_path}`, { method: "DELETE" });
-    await supabase.from("arquivos").delete().eq("id", a.id);
+    await excluirArquivo(a.id);
   }
 
   return (

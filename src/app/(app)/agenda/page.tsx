@@ -4,10 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AgendaPage() {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const desde = new Date();
   desde.setDate(desde.getDate() - 62);
 
@@ -33,7 +29,6 @@ export default async function AgendaPage() {
       </div>
 
       <Agenda
-        userId={user?.id ?? ""}
         eventosIniciais={(eventos ?? []) as Evento[]}
         tarefasIniciais={(tarefas ?? []) as DiaTask[]}
         projetos={projetos ?? []}

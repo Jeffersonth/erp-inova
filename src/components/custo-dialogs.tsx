@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { salvarCusto, excluirCusto } from "@/lib/actions/financeiro";
 
 const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
@@ -52,7 +52,6 @@ function CustoForm({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [descricao, setDescricao] = useState(inicial?.descricao ?? "");
   const [categoria, setCategoria] = useState(inicial?.categoria ?? "");
@@ -88,31 +87,13 @@ function CustoForm({
       cliente_id: clienteId || null,
     };
 
-    if (inicial) {
-      const { error: updErr } = await supabase.from("custos").update(payload).eq("id", inicial.id);
-      setLoading(false);
-      if (updErr) {
-        setError("Não foi possível salvar a despesa.");
-        return;
-      }
-      toast("✓ Despesa atualizada");
-    } else {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Sessão expirada — faça login novamente.");
-        setLoading(false);
-        return;
-      }
-      const { error: insErr } = await supabase.from("custos").insert({ ...payload, user_id: user.id });
-      setLoading(false);
-      if (insErr) {
-        setError("Não foi possível registrar a despesa.");
-        return;
-      }
-      toast("✓ Despesa registrada");
+    const { error: salvarErr } = await salvarCusto(inicial?.id ?? null, payload);
+    setLoading(false);
+    if (salvarErr) {
+      setError(salvarErr);
+      return;
     }
+    toast(inicial ? "✓ Despesa atualizada" : "✓ Despesa registrada");
 
     onDone();
     router.refresh();
@@ -122,10 +103,10 @@ function CustoForm({
     if (!inicial) return;
     if (!confirm("Excluir esta despesa? A ação não pode ser desfeita.")) return;
     setLoading(true);
-    const { error: delErr } = await supabase.from("custos").delete().eq("id", inicial.id);
+    const { error: delErr } = await excluirCusto(inicial.id);
     setLoading(false);
     if (delErr) {
-      setError("Não foi possível excluir a despesa.");
+      setError(delErr);
       return;
     }
     toast("✓ Despesa excluída");

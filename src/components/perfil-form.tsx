@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { atualizarPerfil } from "@/lib/actions/perfil";
 
 const field =
   "w-full mt-1 rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
@@ -33,7 +33,6 @@ function iniciaisDe(nome: string) {
 export function PerfilForm({ perfil }: { perfil: Perfil }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [nome, setNome] = useState(perfil.nome);
@@ -47,10 +46,12 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
   async function salvar() {
     setSaving(true);
     const meta = Math.min(24, Math.max(0.5, Number(metaHoras.replace(",", ".")) || 6));
-    const { error } = await supabase
-      .from("usuarios")
-      .update({ nome, telefone: telefone || null, funcao: funcao || null, meta_horas_dia: meta })
-      .eq("id", perfil.id);
+    const { error } = await atualizarPerfil(perfil.id, {
+      nome,
+      telefone: telefone || null,
+      funcao: funcao || null,
+      meta_horas_dia: meta,
+    });
     setSaving(false);
 
     if (error) {
@@ -77,10 +78,7 @@ export function PerfilForm({ perfil }: { perfil: Perfil }) {
     }
     const { url } = (await res.json()) as { url: string };
 
-    const { error: updateError } = await supabase
-      .from("usuarios")
-      .update({ avatar_url: url })
-      .eq("id", perfil.id);
+    const { error: updateError } = await atualizarPerfil(perfil.id, { avatar_url: url });
 
     setUploading(false);
     if (updateError) {

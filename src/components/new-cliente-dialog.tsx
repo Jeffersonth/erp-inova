@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { criarCliente } from "@/lib/actions/clientes";
 import type { Enums } from "@/lib/supabase/database.types";
 
 const field =
@@ -39,7 +39,6 @@ const paisOptions = [
 export function NewClienteDialog() {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,17 +56,7 @@ export function NewClienteDialog() {
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setError("Sessão expirada — faça login novamente.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: insertError } = await supabase.from("clientes").insert({
-      user_id: user.id,
+    const { error: insertError } = await criarCliente({
       nome,
       contato_nome: String(form.get("contato_nome") ?? "") || null,
       email: String(form.get("email") ?? "") || null,
@@ -79,7 +68,7 @@ export function NewClienteDialog() {
 
     setLoading(false);
     if (insertError) {
-      setError("Não foi possível salvar o contato.");
+      setError(insertError);
       return;
     }
 

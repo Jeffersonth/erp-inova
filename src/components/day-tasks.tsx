@@ -3,7 +3,12 @@
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import {
+  criarTarefaDia,
+  atualizarTarefaDia,
+  reordenarTarefasDia,
+  excluirTarefaDia,
+} from "@/lib/actions/tarefas-dia";
 import { diffDays, relativeDate } from "@/lib/format";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -27,9 +32,8 @@ function prazoInfo(data: string | null, concluida: boolean) {
   return { label: `até ${relativeDate(data)}`, cls: "text-mut" };
 }
 
-export function DayTasks({ userId, initialTasks }: { userId: string; initialTasks: DayTask[] }) {
+export function DayTasks({ initialTasks }: { initialTasks: DayTask[] }) {
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [tasks, setTasks] = useState<DayTask[]>(initialTasks);
   const [novoTitulo, setNovoTitulo] = useState("");
@@ -41,9 +45,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
   const concluidas = tasks.filter((t) => t.status === "concluida");
 
   async function persistOrdem(lista: DayTask[]) {
-    await Promise.all(
-      lista.map((t, i) => supabase.from("tarefas_dia").update({ ordem: i }).eq("id", t.id)),
-    );
+    await reordenarTarefasDia(lista.map((t, i) => ({ id: t.id, ordem: i })));
   }
 
   async function addTask(e: React.FormEvent<HTMLFormElement>) {
@@ -51,11 +53,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
     const titulo = novoTitulo.trim();
     if (!titulo) return;
     const ordem = ativas.length;
-    const { data, error } = await supabase
-      .from("tarefas_dia")
-      .insert({ user_id: userId, titulo, data_finalizar: novaData || null, ordem })
-      .select("id, titulo, status, data_finalizar, ordem")
-      .single();
+    const { data, error } = await criarTarefaDia({ titulo, data_finalizar: novaData || null, ordem });
     if (error || !data) {
       toast("Não foi possível adicionar a tarefa");
       return;
@@ -68,10 +66,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
   async function setStatus(id: string, status: Enums<"tarefa_dia_status">) {
     const concluindo = status === "concluida";
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-    await supabase
-      .from("tarefas_dia")
-      .update({ status, concluida_em: concluindo ? new Date().toISOString() : null })
-      .eq("id", id);
+    await atualizarTarefaDia(id, { status, concluida_em: concluindo ? new Date().toISOString() : null });
   }
 
   function onDropOn(targetId: string) {
@@ -97,7 +92,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
       prev.map((x) => (x.id === editing.id ? { ...x, titulo: t, data_finalizar: data || null } : x)),
     );
     setEditing(null);
-    await supabase.from("tarefas_dia").update({ titulo: t, data_finalizar: data || null }).eq("id", editing.id);
+    await atualizarTarefaDia(editing.id, { titulo: t, data_finalizar: data || null });
   }
 
   async function deleteTask() {
@@ -106,7 +101,7 @@ export function DayTasks({ userId, initialTasks }: { userId: string; initialTask
     const id = editing.id;
     setEditing(null);
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    await supabase.from("tarefas_dia").delete().eq("id", id);
+    await excluirTarefaDia(id);
   }
 
   function TaskRow({ t, draggable }: { t: DayTask; draggable: boolean }) {

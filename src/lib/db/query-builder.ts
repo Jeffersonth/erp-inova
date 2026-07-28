@@ -1,11 +1,12 @@
 import { pool } from "./pool";
 
-// Shim mínimo sobre `pg` que replica só o subconjunto do estilo PostgREST
-// (supabase-js) realmente usado no código server-side deste projeto:
-// from().select().eq/neq/gt/gte/lt/lte/ilike/not().order().limit()
-// .single()/.maybeSingle(), e um .update().eq(). Objetivo: os ~16 arquivos
-// que hoje chamam `createClient().from(...)` não precisam mudar uma linha —
-// só o import de @/lib/supabase/server continua valendo.
+// Shim mínimo sobre `pg` que replica o subconjunto do estilo PostgREST
+// (supabase-js) usado neste projeto: from().select().eq/neq/gt/gte/lt/
+// lte/ilike/not().order().limit().single()/.maybeSingle(), e
+// .insert()/.update()/.delete()/.upsert() com .select() de volta (RETURNING,
+// inclusive embeds tipo "projetos(titulo)"). Objetivo: os arquivos que
+// chamam `createClient().from(...)` não precisam mudar a lógica de query —
+// só o import (@/lib/supabase/server ou uma Server Action nova).
 //
 // RLS: cada execução abre conexão própria, faz `SET LOCAL app.user_id` (lido
 // por auth.uid() no banco, ver supabase/migrations/0000) e roda dentro de
@@ -20,9 +21,10 @@ type Resultado<T> = { data: T; error: null } | { data: null; error: { message: s
 type Filtro = { col: string; op: string; val: unknown };
 type OrderSpec = { col: string; ascending: boolean; nullsFirst?: boolean };
 type Embed = { table: string; fkColumn: string; cols: string[] };
+type Mode = "select" | "update" | "insert" | "delete" | "upsert";
 
-// Singularização ingênua (strip de "s" final) — cobre os dois únicos casos
-// de embed hoje no código (clientes→cliente_id, projetos→projeto_id) e bate
+// Singularização ingênua (strip de "s" final) — cobre os únicos casos de
+// embed hoje no código (clientes→cliente_id, projetos→projeto_id) e bate
 // com o nome real das FKs no schema (supabase/migrations/0001_init.sql).
 function fkColumnFor(tabelaEmbed: string) {
   return tabelaEmbed.replace(/s$/, "") + "_id";
@@ -50,7 +52,7 @@ function parseSelect(selectStr: string) {
 }
 
 // `any` de propósito (igual ao que supabase-js retorna sem generics de
-// Database explícito): as ~50 telas existentes atribuem `data` direto a
+// Database explícito): as telas existentes atribuem `data` direto a
 // variáveis já tipadas (ClienteLike[], Perfil, etc.) sem cast — trocar pra
 // Record<string, unknown> quebrava todas elas pedindo cast em cada call site.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,11 +60,13 @@ class QueryBuilder<T = any>
   implements PromiseLike<Resultado<T[]>>
 {
   private selectStr = "*";
+  private returningStr: string | null = null;
   private filtros: Filtro[] = [];
   private orders: OrderSpec[] = [];
   private limitN: number | null = null;
-  private mode: "select" | "update" = "select";
-  private updateValues: Record<string, unknown> | null = null;
+  private mode: Mode = "select";
+  private mutationValues: Record<string, unknown> | Record<string, unknown>[] | null = null;
+  private upsertOnConflict: string | null = null;
   private wantSingle: "single" | "maybeSingle" | null = null;
 
   constructor(
@@ -70,8 +74,16 @@ class QueryBuilder<T = any>
     private getUserId: () => Promise<string | null>,
   ) {}
 
-  select(str: string) {
-    this.selectStr = str;
+  // Antes de qualquer insert/update/delete/upsert, .select() define as
+  // colunas de leitura (comportamento original). Depois de um deles, vira
+  // o RETURNING — mesma dualidade do supabase-js. Todo call site deste
+  // projeto encadeia nessa ordem (insert(...).select(...), nunca o inverso).
+  select(str?: string) {
+    if (this.mode === "select") {
+      this.selectStr = str ?? "*";
+    } else {
+      this.returningStr = str ?? "*";
+    }
     return this;
   }
 
@@ -137,51 +149,62 @@ class QueryBuilder<T = any>
     return this as unknown as PromiseLike<Resultado<T>>;
   }
 
-  update(values: Record<string, unknown>) {
-    this.mode = "update";
-    this.updateValues = values;
+  insert(values: Record<string, unknown> | Record<string, unknown>[]) {
+    this.mode = "insert";
+    this.mutationValues = values;
     return this;
   }
 
-  private whereSql(params: unknown[]) {
+  update(values: Record<string, unknown>) {
+    this.mode = "update";
+    this.mutationValues = values;
+    return this;
+  }
+
+  delete() {
+    this.mode = "delete";
+    return this;
+  }
+
+  upsert(values: Record<string, unknown>, opts?: { onConflict?: string }) {
+    this.mode = "upsert";
+    this.mutationValues = values;
+    this.upsertOnConflict = opts?.onConflict ?? null;
+    return this;
+  }
+
+  private buildColumnsSql(selectStr: string, alias: string) {
+    const { plain, embeds } = parseSelect(selectStr);
+    const cols: string[] = [];
+    if (plain.length === 0 || plain.includes("*")) {
+      cols.push(`${alias}.*`);
+    } else {
+      cols.push(...plain.map((c) => `${alias}."${c}"`));
+    }
+    for (const e of embeds) {
+      const eAlias = `e_${e.table}`;
+      const jsonPairs = e.cols.map((c) => `'${c}', ${eAlias}."${c}"`).join(", ");
+      cols.push(
+        `(select json_build_object(${jsonPairs}) from "${e.table}" ${eAlias} where ${eAlias}.id = ${alias}."${e.fkColumn}") as "${e.table}"`,
+      );
+    }
+    return cols.join(", ");
+  }
+
+  private buildWhereSql(params: unknown[], alias: string) {
     const partes = this.filtros.map((f) => {
-      if (f.op === "not-is-null") return `"${f.col}" is not null`;
+      if (f.op === "not-is-null") return `${alias}."${f.col}" is not null`;
       params.push(f.val);
       const operador = f.op === "ilike" ? "ilike" : f.op;
-      return `"${f.col}" ${operador} $${params.length}`;
+      return `${alias}."${f.col}" ${operador} $${params.length}`;
     });
     return partes.length ? ` where ${partes.join(" and ")}` : "";
   }
 
   private buildSelectSql() {
-    const { plain, embeds } = parseSelect(this.selectStr);
-    const cols: string[] = [];
-    if (plain.length === 0 || plain.includes("*")) {
-      cols.push("t.*");
-    } else {
-      cols.push(...plain.map((c) => `t."${c}"`));
-    }
-    for (const e of embeds) {
-      const alias = `e_${e.table}`;
-      const jsonPairs = e.cols
-        .map((c) => `'${c}', ${alias}."${c}"`)
-        .join(", ");
-      cols.push(
-        `(select json_build_object(${jsonPairs}) from "${e.table}" ${alias} where ${alias}.id = t."${e.fkColumn}") as "${e.table}"`,
-      );
-    }
-
     const params: unknown[] = [];
-    let sql = `select ${cols.join(", ")} from "${this.table}" t`;
-    // whereSql usa t."col" implicitamente via alias fixo — reaproveita o mesmo
-    // helper trocando o prefixo (t. já está nas colunas, aqui só a condição).
-    const whereParts = this.filtros.map((f) => {
-      if (f.op === "not-is-null") return `t."${f.col}" is not null`;
-      params.push(f.val);
-      const operador = f.op === "ilike" ? "ilike" : f.op;
-      return `t."${f.col}" ${operador} $${params.length}`;
-    });
-    if (whereParts.length) sql += ` where ${whereParts.join(" and ")}`;
+    let sql = `select ${this.buildColumnsSql(this.selectStr, "t")} from "${this.table}" t`;
+    sql += this.buildWhereSql(params, "t");
 
     if (this.orders.length) {
       const orderSql = this.orders
@@ -206,13 +229,83 @@ class QueryBuilder<T = any>
 
   private buildUpdateSql() {
     const params: unknown[] = [];
-    const sets = Object.entries(this.updateValues!).map(([col, val]) => {
-      params.push(val);
-      return `"${col}" = $${params.length}`;
-    });
-    let sql = `update "${this.table}" set ${sets.join(", ")}`;
-    sql += this.whereSql(params);
+    // undefined = "não mexe nesse campo" (igual ao JSON.stringify que o
+    // supabase-js faz por trás — chave com valor undefined some do payload),
+    // não confundir com null (que sim, seta a coluna pra NULL).
+    const sets = Object.entries(this.mutationValues as Record<string, unknown>)
+      .filter(([, val]) => val !== undefined)
+      .map(([col, val]) => {
+        params.push(val);
+        return `"${col}" = $${params.length}`;
+      });
+    let sql = `update "${this.table}" as t set ${sets.join(", ")}`;
+    sql += this.buildWhereSql(params, "t");
+    if (this.returningStr !== null) sql += ` returning ${this.buildColumnsSql(this.returningStr, "t")}`;
     return { sql, params };
+  }
+
+  private buildDeleteSql() {
+    const params: unknown[] = [];
+    let sql = `delete from "${this.table}" as t`;
+    sql += this.buildWhereSql(params, "t");
+    if (this.returningStr !== null) sql += ` returning ${this.buildColumnsSql(this.returningStr, "t")}`;
+    return { sql, params };
+  }
+
+  private buildInsertSql() {
+    const rows = Array.isArray(this.mutationValues)
+      ? this.mutationValues
+      : [this.mutationValues as Record<string, unknown>];
+    const cols = Object.keys(rows[0]);
+    const params: unknown[] = [];
+    const valueGroups = rows.map((row) => {
+      const placeholders = cols.map((c) => {
+        params.push(row[c]);
+        return `$${params.length}`;
+      });
+      return `(${placeholders.join(", ")})`;
+    });
+    let sql = `insert into "${this.table}" as t (${cols.map((c) => `"${c}"`).join(", ")}) values ${valueGroups.join(", ")}`;
+    if (this.returningStr !== null) sql += ` returning ${this.buildColumnsSql(this.returningStr, "t")}`;
+    return { sql, params };
+  }
+
+  private buildUpsertSql() {
+    const row = this.mutationValues as Record<string, unknown>;
+    const cols = Object.keys(row);
+    const params: unknown[] = [];
+    const placeholders = cols.map((c) => {
+      params.push(row[c]);
+      return `$${params.length}`;
+    });
+    const conflictCols = (this.upsertOnConflict ?? "")
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
+    let sql = `insert into "${this.table}" as t (${cols.map((c) => `"${c}"`).join(", ")}) values (${placeholders.join(", ")})`;
+    if (conflictCols.length) {
+      const updateSet = cols
+        .filter((c) => !conflictCols.includes(c))
+        .map((c) => `"${c}" = excluded."${c}"`);
+      sql += ` on conflict (${conflictCols.map((c) => `"${c}"`).join(", ")}) do update set ${updateSet.join(", ")}`;
+    }
+    if (this.returningStr !== null) sql += ` returning ${this.buildColumnsSql(this.returningStr, "t")}`;
+    return { sql, params };
+  }
+
+  private buildSql() {
+    switch (this.mode) {
+      case "update":
+        return this.buildUpdateSql();
+      case "delete":
+        return this.buildDeleteSql();
+      case "insert":
+        return this.buildInsertSql();
+      case "upsert":
+        return this.buildUpsertSql();
+      default:
+        return this.buildSelectSql();
+    }
   }
 
   // Retorno solto de propósito: o shape real (T[] vs T vs null) já foi
@@ -228,13 +321,13 @@ class QueryBuilder<T = any>
         userId,
       ]);
 
-      const { sql, params } =
-        this.mode === "update" ? this.buildUpdateSql() : this.buildSelectSql();
+      const { sql, params } = this.buildSql();
       const result = await client.query(sql, params);
 
       await client.query("commit");
 
-      if (this.mode === "update") {
+      const mutouSemReturning = this.mode !== "select" && this.returningStr === null;
+      if (mutouSemReturning) {
         return { data: null, error: null };
       }
 

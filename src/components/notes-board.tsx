@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { IaBadge } from "@/components/ia-badge";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { criarAnotacao, atualizarAnotacao, excluirAnotacao } from "@/lib/actions/anotacoes";
 
 export type NoteRow = {
   id: string;
@@ -63,7 +63,6 @@ function fromRow(n: NoteRow): Note {
 
 export function NotesBoard({ initial }: { initial: NoteRow[] }) {
   const { toast } = useApp();
-  const supabase = createClient();
   const today = startOfDay(new Date());
 
   const [notes, setNotes] = useState<Note[]>(initial.map(fromRow));
@@ -83,22 +82,15 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
     const tag = input.toLowerCase().startsWith("ideia") ? "Ideia" : null;
     const texto = input.trim();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast("Sessão expirada — faça login novamente.");
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("anotacoes")
-      .insert({ texto, tag, due: due ? toIso(due) : null, detected_by_ia: detected, user_id: user.id })
-      .select()
-      .single();
+    const { data, error } = await criarAnotacao({
+      texto,
+      tag,
+      due: due ? toIso(due) : null,
+      detected_by_ia: detected,
+    });
 
     if (error || !data) {
-      toast("Não foi possível salvar a anotação.");
+      toast(error ?? "Não foi possível salvar a anotação.");
       return;
     }
 
@@ -119,7 +111,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
     if (!note) return;
     const done = !note.done;
     setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, done } : n)));
-    await supabase.from("anotacoes").update({ concluida: done }).eq("id", id);
+    await atualizarAnotacao(id, done);
   }
 
   async function remove(id: string) {
@@ -127,7 +119,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
     if (!note) return;
     if (!confirm("Excluir esta anotação?")) return;
     setNotes((prev) => prev.filter((n) => n.id !== id));
-    await supabase.from("anotacoes").delete().eq("id", id);
+    await excluirAnotacao(id);
   }
 
   const sections = [

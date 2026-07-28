@@ -14,10 +14,6 @@ async function AnaliseLeadsIA(props: LeadsNarrativaInput) {
 export default async function LeadsPage() {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const hoje = new Date();
   const mesInicioIso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-01`;
 
@@ -55,7 +51,6 @@ export default async function LeadsPage() {
 
   return (
     <LeadsBoard
-      userId={user?.id ?? ""}
       canais={canaisList}
       registrosInicial={regs}
       metasInicial={(metas ?? []) as LeadMeta[]}

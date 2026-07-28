@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { atualizarProjeto, excluirProjeto } from "@/lib/actions/projetos";
 import type { Enums } from "@/lib/supabase/database.types";
 
 const field =
@@ -33,7 +33,6 @@ export function EditProjetoDialog({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,20 +54,17 @@ export function EditProjetoDialog({
     const valor = String(form.get("valor") ?? "").trim();
     const dataEntrega = String(form.get("data_entrega") ?? "").trim();
 
-    const { error: updateError } = await supabase
-      .from("projetos")
-      .update({
-        titulo,
-        cliente_id: clienteId || null,
-        valor: valor ? Number(valor) : null,
-        moeda: form.get("moeda") as Enums<"moeda">,
-        data_entrega: dataEntrega || null,
-      })
-      .eq("id", projeto.id);
+    const { error: updateError } = await atualizarProjeto(projeto.id, {
+      titulo,
+      cliente_id: clienteId || null,
+      valor: valor ? Number(valor) : null,
+      moeda: form.get("moeda") as Enums<"moeda">,
+      data_entrega: dataEntrega || null,
+    });
 
     setLoading(false);
     if (updateError) {
-      setError("Não foi possível salvar as alterações.");
+      setError(updateError);
       return;
     }
 
@@ -83,10 +79,10 @@ export function EditProjetoDialog({
       return;
     }
     setLoading(true);
-    const { error: deleteError } = await supabase.from("projetos").delete().eq("id", projeto.id);
+    const { error: deleteError } = await excluirProjeto(projeto.id);
     setLoading(false);
     if (deleteError) {
-      setError("Não foi possível excluir o projeto.");
+      setError(deleteError);
       return;
     }
     onOpenChange(false);

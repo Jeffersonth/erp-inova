@@ -2,7 +2,15 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import {
+  atualizarProgressoProjeto,
+  criarTarefaBoard,
+  atualizarTarefaBoard,
+  excluirTarefaBoard,
+  criarEtapa,
+  renomearEtapa,
+  excluirEtapa,
+} from "@/lib/actions/projetos";
 import { useApp } from "@/components/app-providers";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { TIPO_META, TIPO_ORDER, type TarefaTipo } from "@/lib/tarefa-tipos";
@@ -29,16 +37,13 @@ const field =
 
 export function ProjectBoard({
   projetoId,
-  userId,
   initialEtapas,
 }: {
   projetoId: string;
-  userId: string;
   initialEtapas: BoardEtapa[];
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [cols, setCols] = useState<BoardEtapa[]>(initialEtapas);
   const [adding, setAdding] = useState<Record<string, { titulo: string; tipo: TarefaTipo }>>({});
@@ -57,7 +62,7 @@ export function ProjectBoard({
     const all = next.flatMap((c) => c.tarefas);
     const d = all.filter((t) => t.concluida).length;
     const p = all.length ? Math.round((d / all.length) * 100) : 0;
-    await supabase.from("projetos").update({ progresso: p }).eq("id", projetoId);
+    await atualizarProgressoProjeto(projetoId, p);
   }
 
   async function addCard(etapaId: string) {
@@ -68,11 +73,14 @@ export function ProjectBoard({
     const ordem = etapa ? etapa.tarefas.length : 0;
     const tipo = draft.tipo;
 
-    const { data, error } = await supabase
-      .from("tarefas")
-      .insert({ user_id: userId, projeto_id: projetoId, etapa_id: etapaId, titulo, tipo, ordem, concluida: etapa?.final ?? false })
-      .select("id, titulo, descricao, tipo, concluida, ordem")
-      .single();
+    const { data, error } = await criarTarefaBoard({
+      projeto_id: projetoId,
+      etapa_id: etapaId,
+      titulo,
+      tipo,
+      ordem,
+      concluida: etapa?.final ?? false,
+    });
 
     if (error || !data) {
       toast("Não foi possível adicionar o card");
@@ -98,7 +106,7 @@ export function ProjectBoard({
     );
     setCols(next);
     persistProgresso(next);
-    await supabase.from("tarefas").update({ concluida: novoValor }).eq("id", cardId);
+    await atualizarTarefaBoard(cardId, { concluida: novoValor });
   }
 
   async function onDrop(toId: string) {
@@ -119,10 +127,7 @@ export function ProjectBoard({
     setCols(next);
     persistProgresso(next);
 
-    await supabase
-      .from("tarefas")
-      .update({ etapa_id: toId, concluida: concluir ? true : undefined })
-      .eq("id", d.cardId);
+    await atualizarTarefaBoard(d.cardId, { etapa_id: toId, concluida: concluir ? true : undefined });
   }
 
   async function saveCard(titulo: string, tipo: TarefaTipo, descricao: string) {
@@ -143,7 +148,7 @@ export function ProjectBoard({
       ),
     );
     setEditing(null);
-    await supabase.from("tarefas").update({ titulo: t, tipo, descricao: desc }).eq("id", editing.card.id);
+    await atualizarTarefaBoard(editing.card.id, { titulo: t, tipo, descricao: desc });
   }
 
   async function deleteCard() {
@@ -155,7 +160,7 @@ export function ProjectBoard({
     );
     setCols(next);
     persistProgresso(next);
-    await supabase.from("tarefas").delete().eq("id", card.id);
+    await excluirTarefaBoard(card.id);
   }
 
   async function addEtapa() {
@@ -165,9 +170,7 @@ export function ProjectBoard({
       return;
     }
     const ordem = cols.length;
-    const { error } = await supabase
-      .from("etapas")
-      .insert({ projeto_id: projetoId, nome, ordem, final: false });
+    const { error } = await criarEtapa(projetoId, nome, ordem);
     setNovaEtapa(null);
     if (error) {
       toast("Não foi possível criar a etapa");
@@ -180,7 +183,7 @@ export function ProjectBoard({
     const n = nome.trim();
     if (!n) return;
     setCols((prev) => prev.map((c) => (c.id === etapaId ? { ...c, nome: n } : c)));
-    await supabase.from("etapas").update({ nome: n }).eq("id", etapaId);
+    await renomearEtapa(etapaId, n);
   }
 
   async function deleteEtapa(etapa: BoardEtapa) {
@@ -192,7 +195,7 @@ export function ProjectBoard({
     const next = cols.filter((c) => c.id !== etapa.id);
     setCols(next);
     persistProgresso(next);
-    await supabase.from("etapas").delete().eq("id", etapa.id);
+    await excluirEtapa(etapa.id);
   }
 
   return (

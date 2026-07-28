@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { converterLead } from "@/lib/actions/leads";
 import type { Enums } from "@/lib/supabase/database.types";
 import type { LeadCanal } from "@/lib/leads";
-import { DEFAULT_ETAPAS } from "@/lib/etapas-padrao";
 
 const field =
   "mt-1 w-full rounded-lg border border-line bg-soft px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand";
@@ -36,10 +35,9 @@ const paisOptions = [
 
 /** Registra um lead/cliente da prospecção direto no CRM (com os mesmos campos do
  *  "Novo contato"), + projeto opcional com etapas padrão e tarefa inicial. */
-export function LeadConverter({ userId, canais }: { userId: string; canais: LeadCanal[] }) {
+export function LeadConverter({ canais }: { canais: LeadCanal[] }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,75 +64,26 @@ export function LeadConverter({ userId, canais }: { userId: string; canais: Lead
       return;
     }
 
-    // 1) contato no CRM com a origem registrada (mesmos campos do "Novo contato")
-    const { data: cliente, error: cliErr } = await supabase
-      .from("clientes")
-      .insert({
-        user_id: userId,
-        nome,
-        contato_nome: String(form.get("contato_nome") ?? "").trim() || null,
-        ramo: String(form.get("ramo") ?? "").trim() || null,
-        email: String(form.get("email") ?? "").trim() || null,
-        telefone: String(form.get("telefone") ?? "").trim() || null,
-        pais: String(form.get("pais") ?? "BR"),
-        status,
-        origem: `Leads · ${canalNome}`,
-        ultima_interacao: new Date().toISOString(),
-      })
-      .select("id")
-      .single();
-    if (cliErr || !cliente) {
-      setError("Não foi possível salvar no CRM.");
-      setLoading(false);
-      return;
-    }
-
-    // 2) rastro no histórico do contato (append-only)
-    await supabase.from("historico").insert({
-      user_id: userId,
-      cliente_id: cliente.id,
-      tipo: status === "cliente" || status === "recorrente" ? "lead_convertido" : "lead_registrado",
-      descricao: `${status === "cliente" || status === "recorrente" ? "Convertido em cliente" : "Lead registrado"} a partir do canal ${canalNome} (módulo Leads).`,
-      origem_ia: false,
+    const { error: convError } = await converterLead({
+      nome,
+      contato_nome: String(form.get("contato_nome") ?? "").trim() || null,
+      ramo: String(form.get("ramo") ?? "").trim() || null,
+      email: String(form.get("email") ?? "").trim() || null,
+      telefone: String(form.get("telefone") ?? "").trim() || null,
+      pais: String(form.get("pais") ?? "BR"),
+      status,
+      origem: `Leads · ${canalNome}`,
+      criarProjeto,
+      tituloProjeto,
+      valorProjeto: valorProjeto ? Number(valorProjeto.replace(",", ".")) : null,
+      tarefaInicial,
     });
 
-    // 3) projeto opcional com etapas padrão + tarefa inicial no quadro
-    if (criarProjeto) {
-      const { data: projeto } = await supabase
-        .from("projetos")
-        .insert({
-          user_id: userId,
-          titulo: tituloProjeto,
-          cliente_id: cliente.id,
-          valor: valorProjeto ? Number(valorProjeto.replace(",", ".")) : null,
-          status: "briefing",
-          progresso: 0,
-        })
-        .select("id")
-        .single();
-      if (projeto) {
-        const { data: etapas } = await supabase
-          .from("etapas")
-          .insert(DEFAULT_ETAPAS.map((e) => ({ ...e, projeto_id: projeto.id })))
-          .select("id, ordem");
-        const primeira = (etapas ?? []).find((e) => e.ordem === 0) ?? (etapas ?? [])[0];
-        if (primeira) {
-          await supabase.from("tarefas").insert({
-            user_id: userId,
-            projeto_id: projeto.id,
-            etapa_id: primeira.id,
-            titulo: tarefaInicial || `Kickoff com ${nome}`,
-            tipo: "reuniao",
-            ordem: 0,
-          });
-        }
-      }
-    } else if (tarefaInicial) {
-      // sem projeto: a tarefa inicial (se informada) vai para as Tarefas do dia
-      await supabase.from("tarefas_dia").insert({ user_id: userId, titulo: tarefaInicial, status: "pendente", ordem: 0 });
-    }
-
     setLoading(false);
+    if (convError) {
+      setError(convError);
+      return;
+    }
     setOpen(false);
     toast(
       status === "cliente" || status === "recorrente"

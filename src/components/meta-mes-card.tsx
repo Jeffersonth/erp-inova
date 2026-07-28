@@ -4,17 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { salvarMetaFinanceira } from "@/lib/actions/financeiro";
 import { formatMoney } from "@/lib/format";
 
 export function MetaMesCard({
-  userId,
   mesIso,
   mesLabel,
   meta,
   recebidoMes,
 }: {
-  userId: string;
   mesIso: string; // primeiro dia do mês (yyyy-mm-01)
   mesLabel: string;
   meta: number;
@@ -22,7 +20,6 @@ export function MetaMesCard({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [valor, setValor] = useState(meta ? String(meta) : "");
   const [loading, setLoading] = useState(false);
@@ -36,9 +33,7 @@ export function MetaMesCard({
     const valorNum = Number(valor);
     if (!Number.isFinite(valorNum) || valorNum < 0) return;
     setLoading(true);
-    const { error } = await supabase
-      .from("metas_financeiras")
-      .upsert({ user_id: userId, mes: mesIso, valor_meta: valorNum }, { onConflict: "user_id,mes" });
+    const { error } = await salvarMetaFinanceira(mesIso, valorNum);
     setLoading(false);
     if (error) {
       toast("Não foi possível salvar a meta.");

@@ -3,7 +3,13 @@
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import {
+  salvarLeadRegistro,
+  excluirLeadRegistro,
+  salvarLeadMeta,
+  excluirLeadMeta,
+  ajustarLeadMetaManual,
+} from "@/lib/actions/leads";
 import { formatMoney } from "@/lib/format";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
@@ -47,7 +53,6 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 ];
 
 type Props = {
-  userId: string;
   canais: LeadCanal[];
   registrosInicial: LeadRegistro[];
   metasInicial: LeadMeta[];
@@ -55,9 +60,8 @@ type Props = {
   analiseIa: React.ReactNode;
 };
 
-export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mesInicioIso, analiseIa }: Props) {
+export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIso, analiseIa }: Props) {
   const { toast } = useApp();
-  const supabase = createClient();
 
   const [regs, setRegs] = useState<LeadRegistro[]>(registrosInicial);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
@@ -113,24 +117,15 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
       return;
     }
 
+    const { data, error } = await salvarLeadRegistro(existente?.id ?? null, payload);
+    if (error) {
+      toast(error);
+      return;
+    }
     if (existente) {
-      const { error } = await supabase.from("leads_registros").update(payload).eq("id", existente.id);
-      if (error) {
-        toast("Não foi possível salvar o registro.");
-        return;
-      }
       setRegs((prev) => prev.map((r) => (r.id === existente.id ? { ...r, ...payload } : r)));
       toast("✓ Registro atualizado");
-    } else {
-      const { data, error } = await supabase
-        .from("leads_registros")
-        .insert({ ...payload, user_id: userId })
-        .select("id, canal_id, data, contatos, respostas, propostas, vendas, valor_vendido, observacoes")
-        .single();
-      if (error || !data) {
-        toast("Não foi possível criar o registro.");
-        return;
-      }
+    } else if (data) {
       setRegs((prev) => [data as LeadRegistro, ...prev].sort((a, b) => b.data.localeCompare(a.data)));
       toast("✓ Registro de prospecção criado");
     }
@@ -141,7 +136,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
     if (!confirm(`Excluir o registro de ${fmtCurto(r.data)} (${canalNome.get(r.canal_id) ?? "canal"})?`)) return;
     setRegs((prev) => prev.filter((x) => x.id !== r.id));
     setDialogReg(null);
-    await supabase.from("leads_registros").delete().eq("id", r.id);
+    await excluirLeadRegistro(r.id);
   }
 
   /* ---------------- metas ---------------- */
@@ -160,24 +155,15 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
     }
     const payload = { titulo, metrica, canal_id: metrica === "manual" ? null : canalId, alvo, mes: mesInicioIso };
 
+    const { data, error } = await salvarLeadMeta(existente?.id ?? null, payload);
+    if (error) {
+      toast(error);
+      return;
+    }
     if (existente) {
-      const { error } = await supabase.from("leads_metas").update(payload).eq("id", existente.id);
-      if (error) {
-        toast("Não foi possível salvar a meta.");
-        return;
-      }
       setMetas((prev) => prev.map((m) => (m.id === existente.id ? { ...m, ...payload } : m)));
       toast("✓ Meta atualizada");
-    } else {
-      const { data, error } = await supabase
-        .from("leads_metas")
-        .insert({ ...payload, user_id: userId })
-        .select("id, canal_id, titulo, metrica, alvo, atual_manual, mes")
-        .single();
-      if (error || !data) {
-        toast("Não foi possível criar a meta.");
-        return;
-      }
+    } else if (data) {
       setMetas((prev) => [...prev, data as LeadMeta]);
       toast("✓ Meta criada");
     }
@@ -188,13 +174,13 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
     if (!confirm(`Excluir a meta "${m.titulo}"?`)) return;
     setMetas((prev) => prev.filter((x) => x.id !== m.id));
     setDialogMeta(null);
-    await supabase.from("leads_metas").delete().eq("id", m.id);
+    await excluirLeadMeta(m.id);
   }
 
   async function ajustarMetaManual(m: LeadMeta, delta: number) {
     const novo = Math.max(0, Number(m.atual_manual) + delta);
     setMetas((prev) => prev.map((x) => (x.id === m.id ? { ...x, atual_manual: novo } : x)));
-    await supabase.from("leads_metas").update({ atual_manual: novo }).eq("id", m.id);
+    await ajustarLeadMetaManual(m.id, novo);
   }
 
   /* ---------------- calendário ---------------- */
@@ -271,7 +257,7 @@ export function LeadsBoard({ userId, canais, registrosInicial, metasInicial, mes
         <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Leads</h1>
         <span className="text-[12.5px] text-mut">inteligência comercial da sua prospecção</span>
         <div className="ml-auto flex items-center gap-1.5">
-          <LeadConverter userId={userId} canais={canais} />
+          <LeadConverter canais={canais} />
           <button
             onClick={() => setDialogReg("novo")}
             className="rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"

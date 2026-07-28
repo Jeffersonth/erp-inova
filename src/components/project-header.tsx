@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/app-providers";
-import { createClient } from "@/lib/supabase/client";
+import { atualizarStatusProjeto } from "@/lib/actions/projetos";
 import { EditProjetoDialog, type EditableProjeto } from "@/components/edit-projeto-dialog";
 
 export function ProjectHeader({
@@ -21,14 +21,13 @@ export function ProjectHeader({
 }) {
   const router = useRouter();
   const { toast } = useApp();
-  const supabase = createClient();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function finalizar() {
     if (!confirm(`Finalizar o projeto "${projeto.titulo}"? Ele vai para a seção de projetos finalizados.`)) return;
     setLoading(true);
-    await supabase.from("projetos").update({ status: "concluido" }).eq("id", projeto.id);
+    await atualizarStatusProjeto(projeto.id, "concluido");
     setLoading(false);
     toast(`✓ Projeto "${projeto.titulo}" finalizado`);
     router.push("/projetos");
@@ -37,7 +36,7 @@ export function ProjectHeader({
 
   async function reabrir() {
     setLoading(true);
-    await supabase.from("projetos").update({ status: "dev" }).eq("id", projeto.id);
+    await atualizarStatusProjeto(projeto.id, "dev");
     setLoading(false);
     toast(`✓ Projeto "${projeto.titulo}" reaberto`);
     router.refresh();
