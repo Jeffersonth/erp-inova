@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Plus, Pencil, Trash2, FolderKanban, Search, CalendarDays } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { salvarProjetoPessoal, excluirProjetoPessoal } from "@/lib/actions/projetos-pessoais";
+import { salvarProjetoPessoal, excluirProjetoPessoal, marcarItemPessoal } from "@/lib/actions/projetos-pessoais";
 import type { PersonalProject } from "@/lib/personal-projects";
 
 const field = "w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand";
@@ -28,13 +28,14 @@ export function PersonalProjects({ initial }: { initial: PersonalProject[] }) {
     (filter === "Todos" || (filter === "Concluídos" ? progress(p) === 100 : progress(p) < 100)));
 
   function open(project?: PersonalProject) {
+    if (busy) return;
     setError("");
-    setDraft(project ? structuredClone(project) : { id: crypto.randomUUID(), titulo: "", categoria: "Aplicativo", prazo: null, anotacoes: "", etapas: [] });
+    setDraft(project ? structuredClone(project) : { id: crypto.randomUUID(), titulo: "", categoria: "Aplicativo", prazo: null, notas: [], etapas: [] });
   }
   function close() {
     if (busy) return;
     const original = projects.find(p => p.id === draft?.id);
-    const changed = draft && (original ? JSON.stringify(original) !== JSON.stringify(draft) : draft.titulo || draft.anotacoes || draft.prazo || draft.etapas.length);
+    const changed = draft && (original ? JSON.stringify(original) !== JSON.stringify(draft) : draft.titulo || draft.notas.length || draft.prazo || draft.etapas.length);
     if (changed && !confirm("Descartar as alterações que ainda não foram salvas?")) return;
     setDraft(null);
   }
@@ -45,10 +46,24 @@ export function PersonalProjects({ initial }: { initial: PersonalProject[] }) {
     try {
       const result = await salvarProjetoPessoal(draft);
       if (result.error) { setError(result.error); return; }
-      const saved = { ...draft, titulo: draft.titulo.trim(), etapas: draft.etapas.map(e => ({ ...e, titulo: e.titulo.trim() })) };
+      const saved = { ...draft, titulo: draft.titulo.trim(), notas: draft.notas.map(n => ({ ...n, texto: n.texto.trim() })), etapas: draft.etapas.map(e => ({ ...e, titulo: e.titulo.trim() })) };
       setProjects(old => old.some(p => p.id === saved.id) ? old.map(p => p.id === saved.id ? saved : p) : [saved, ...old]);
       setDraft(null); setMessage("Projeto salvo.");
     } catch { setError("Falha de conexão. Tente salvar novamente."); }
+    finally { setBusy(false); }
+  }
+
+  async function toggle(projectId: string, tipo: "etapas" | "notas", itemId: string, checked: boolean) {
+    if (busy) return;
+    setBusy(true); setMessage("");
+    try {
+      const result = await marcarItemPessoal(projectId, tipo, itemId, checked);
+      if (result.error) { setMessage(result.error); return; }
+      setProjects(old => old.map(p => p.id !== projectId ? p : tipo === "etapas"
+        ? { ...p, etapas: p.etapas.map(e => e.id === itemId ? { ...e, concluida: checked } : e) }
+        : { ...p, notas: p.notas.map(n => n.id === itemId ? { ...n, concluida: checked } : n) }));
+      setMessage(checked ? "Marcado como concluído." : "Marcado como pendente.");
+    } catch { setMessage("Falha de conexão. Não foi possível salvar a conclusão."); }
     finally { setBusy(false); }
   }
   async function remove(p: PersonalProject) {
@@ -81,8 +96,25 @@ export function PersonalProjects({ initial }: { initial: PersonalProject[] }) {
           <div className="flex justify-between text-xs text-mut"><span>{percent === 100 ? "Concluído" : "Em andamento"} · {p.etapas.filter(e => e.concluida).length}/{p.etapas.length} etapas</span><span>{percent}%</span></div>
           <div role="progressbar" aria-label={`Progresso de ${p.titulo}`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} className="h-1.5 overflow-hidden rounded-full bg-soft"><div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} /></div>
           <p className={`flex items-center gap-2 text-xs ${late ? "text-red-600" : "text-mut"}`}><CalendarDays size={14} />{p.prazo ? `${late ? "Atrasado · " : "Prazo: "}${dateLabel(p.prazo)}` : "Sem prazo definido"}</p>
-          {p.anotacoes && <p className="line-clamp-3 whitespace-pre-wrap break-words text-sm text-mut">{p.anotacoes}</p>}
-          <button className={`${button} mt-auto self-start text-brand`} onClick={() => open(p)}>Abrir projeto e etapas</button>
+          <section className="border-t border-line pt-3" aria-label={`Etapas de ${p.titulo}`}>
+            <h3 className="mb-2 text-sm font-semibold text-ink">Etapas</h3>
+            {!p.etapas.length && <p className="text-xs text-mut">Adicione as etapas em Editar projeto.</p>}
+            <div className="space-y-2">{p.etapas.map(step => <label key={step.id} className="flex cursor-pointer items-start gap-2 rounded-lg bg-soft p-2.5">
+              <input type="checkbox" disabled={busy} className="mt-0.5 size-4 shrink-0 accent-brand" checked={step.concluida} onChange={e => toggle(p.id, "etapas", step.id, e.target.checked)} />
+              <span className="min-w-0"><span className={`block break-words text-sm ${step.concluida ? "text-mut line-through" : "text-ink"}`}>{step.titulo}</span>{step.prazo && <span className={`mt-1 block text-xs ${!step.concluida && step.prazo < today ? "text-red-600" : "text-mut"}`}>Prazo: {dateLabel(step.prazo)}</span>}</span>
+              {step.concluida && <span className="ml-auto shrink-0 text-[10px] font-semibold text-ok">Feita</span>}
+            </label>)}</div>
+          </section>
+          <section className="border-t border-line pt-3" aria-label={`Anotações de ${p.titulo}`}>
+            <h3 className="mb-2 text-sm font-semibold text-ink">Anotações <span className="font-normal text-mut">· {p.notas.filter(n => n.concluida).length}/{p.notas.length} concluídas</span></h3>
+            {!p.notas.length && <p className="text-xs text-mut">Nenhuma anotação ainda.</p>}
+            <div className="space-y-2">{p.notas.map(note => <label key={note.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line p-3">
+              <input type="checkbox" disabled={busy} className="mt-0.5 size-4 shrink-0 accent-brand" checked={note.concluida} onChange={e => toggle(p.id, "notas", note.id, e.target.checked)} />
+              <span className="min-w-0 flex-1"><span className={`block whitespace-pre-wrap break-words text-sm ${note.concluida ? "text-mut line-through" : "text-ink"}`}>{note.texto}</span>{note.concluida && <span className="mt-1 block text-[10px] font-semibold text-ok">Concluída</span>}</span>
+            </label>)}</div>
+            <button disabled={busy || p.notas.length >= 100} className={`${button} mt-2 text-brand`} onClick={() => { setError(""); setDraft({ ...structuredClone(p), notas: [...structuredClone(p.notas), { id: crypto.randomUUID(), texto: "", concluida: false }] }); }}><Plus size={15} />Adicionar anotação</button>
+          </section>
+          <button disabled={busy} className={`${button} mt-auto self-start text-brand`} onClick={() => open(p)}>Editar projeto</button>
         </article>;
       })}
     </div>
@@ -103,7 +135,13 @@ export function PersonalProjects({ initial }: { initial: PersonalProject[] }) {
               </div>)}</div>
               <button type="button" disabled={draft.etapas.length >= 100} className={`${button} mt-2 text-brand`} onClick={() => setDraft({ ...draft, etapas: [...draft.etapas, { id: crypto.randomUUID(), titulo: "", prazo: "", concluida: false }] })}><Plus size={15} />Adicionar etapa</button>
             </div>
-            <label className="block text-sm font-semibold text-ink">Anotações<textarea rows={5} maxLength={50000} className={`${field} mt-1 resize-y font-normal`} placeholder="Ideias, links, decisões e próximos passos…" value={draft.anotacoes} onChange={e => setDraft({ ...draft, anotacoes: e.target.value })} /></label>
+            <div><h3 className="mb-2 text-sm font-semibold text-ink">Anotações <span className="font-normal text-mut">· cada ideia em um item separado</span></h3>
+              <div className="space-y-3">{draft.notas.map((note, i) => <div key={note.id} className="rounded-lg border border-line p-3">
+                <div className="mb-2 flex items-center justify-between gap-2"><label className="flex items-center gap-2 text-xs text-mut"><input type="checkbox" className="size-4 accent-brand" checked={note.concluida} onChange={e => setDraft({ ...draft, notas: draft.notas.map(n => n.id === note.id ? { ...n, concluida: e.target.checked } : n) })} />{note.concluida ? "Concluída" : "Marcar como concluída"}</label><button type="button" aria-label={`Remover anotação ${i + 1}`} className="p-1 text-mut hover:text-red-600" onClick={() => setDraft({ ...draft, notas: draft.notas.filter(n => n.id !== note.id) })}><Trash2 size={16} /></button></div>
+                <textarea aria-label={`Anotação ${i + 1}`} required rows={3} maxLength={50000} className={`${field} resize-y font-normal ${note.concluida ? "text-mut line-through" : ""}`} placeholder="Ideias, links, decisões e próximos passos…" value={note.texto} onChange={e => setDraft({ ...draft, notas: draft.notas.map(n => n.id === note.id ? { ...n, texto: e.target.value } : n) })} />
+              </div>)}</div>
+              <button type="button" disabled={draft.notas.length >= 100} className={`${button} mt-2 text-brand`} onClick={() => setDraft({ ...draft, notas: [...draft.notas, { id: crypto.randomUUID(), texto: "", concluida: false }] })}><Plus size={15} />Adicionar anotação</button>
+            </div>
           </fieldset>
           {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
           <div className="flex justify-end gap-2"><button type="button" disabled={busy} className={button} onClick={close}>Cancelar</button><button disabled={busy} className={`${button} bg-brand text-white`} type="submit">{busy ? "Salvando…" : "Salvar projeto"}</button></div>

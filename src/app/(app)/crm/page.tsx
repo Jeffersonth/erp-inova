@@ -70,7 +70,7 @@ export default async function CrmPage({ searchParams }: { searchParams: { q?: st
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">CRM · Contatos</h1>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Clientes</h1>
         <form method="GET" className="order-last flex w-full min-w-0 basis-full items-center gap-1.5 sm:order-none sm:w-auto sm:basis-auto">
           <input
             name="q"

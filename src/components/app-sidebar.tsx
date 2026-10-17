@@ -13,13 +13,11 @@ import {
   FolderKanban,
   Wallet,
   Timer,
-  Sparkles,
   StickyNote,
   Settings,
   Menu,
   X,
   LogOut,
-  ExternalLink,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,11 +28,10 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/projetos-pessoais", label: "Projetos - Pessoal", icon: FolderKanban },
   { href: "/projetos", label: "Projetos - Trabalho", icon: FolderKanban },
   { href: "/leads", label: "Leads", icon: Megaphone },
-  { href: "/crm", label: "CRM", icon: Users },
+  { href: "/crm", label: "Clientes", icon: Users },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
-  { href: "/assistente", label: "Assistente IA", icon: Sparkles },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tracker", label: "Time Tracker", icon: Timer },
 ];
@@ -43,7 +40,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
 const mobileTitles: Record<string, [string, string]> = {
   "/hoje": ["Hoje", "sua central de execução"],
   "/tarefas": ["Tarefas do dia", "arraste para reordenar"],
-  "/crm": ["CRM", "clientes e leads"],
+  "/crm": ["Clientes", "clientes e leads"],
   "/leads": ["Leads", "inteligência comercial"],
   "/projetos-pessoais": ["Projetos - Pessoal", "suas ideias em andamento"],
   "/projetos": ["Projetos - Trabalho", "quadro de tarefas"],
@@ -191,17 +188,6 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
             </Link>
           );
         })}
-
-        {/* Prospector (app externo) */}
-        <a
-          href="https://prospector.inovalabs.io/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-white transition-colors hover:bg-white/[0.08]"
-        >
-          <ExternalLink className="size-[15px]" strokeWidth={2} />
-          Prospector
-        </a>
 
         <div className="mt-auto flex items-center gap-1.5 border-t border-white/10 px-2.5 pb-1 pt-3">
           <Link href="/configuracoes" className="flex min-w-0 flex-1 items-center gap-2">
