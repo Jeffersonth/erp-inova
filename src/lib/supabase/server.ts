@@ -1,6 +1,7 @@
+import { verificarSessaoAtiva } from "@/lib/auth/active-session";
 import { cookies } from "next/headers";
 import { fromTable } from "@/lib/db/query-builder";
-import { SESSION_COOKIE, verificarSessao, type SessionUser } from "@/lib/auth/session";
+import { SESSION_COOKIE, type SessionUser } from "@/lib/auth/session";
 
 // Substitui o client Supabase (Postgres/Auth gerenciados) por um shim próprio
 // sobre `pg` + JWT em cookie — ver Docs/ ou o histórico da migração VPS.
@@ -12,7 +13,7 @@ export function createClient() {
   function getUser() {
     if (!cache) {
       const token = cookies().get(SESSION_COOKIE)?.value;
-      cache = verificarSessao(token);
+      cache = verificarSessaoAtiva(token);
     }
     return cache;
   }

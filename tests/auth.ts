@@ -13,7 +13,7 @@ async function main() {
   // Chave efêmera: os testes não acessam o banco ou o Google.
   process.env.JWT_SECRET = randomBytes(32).toString("hex");
   process.env.APP_URL = "https://erp.jeffersonthales.com";
-  const owner = { id: "00000000-0000-4000-8000-000000000001", email: OWNER_EMAIL };
+  const owner = { id: "00000000-0000-4000-8000-000000000001", email: OWNER_EMAIL, sessionVersion: 0 };
   assert.deepEqual(await verificarSessao(await assinarSessao(owner)), owner);
   assert.throws(() => assinarSessao({ ...owner, email: "outro@example.com" }));
   const foreign = await new SignJWT({ email: "outro@example.com" }).setProtectedHeader({ alg: "HS256" }).setSubject(owner.id).setIssuedAt().setExpirationTime("5m").sign(new TextEncoder().encode(process.env.JWT_SECRET));

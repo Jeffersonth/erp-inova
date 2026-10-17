@@ -21,8 +21,8 @@ export async function POST(request: Request) {
 
   if (!isOwnerEmail(email)) return credenciaisInvalidas();
 
-  const result = await pool.query<{ id: string; email: string; encrypted_password: string | null }>(
-    "select id, email, encrypted_password from auth.users where lower(email) = $1",
+  const result = await pool.query<{ id: string; email: string; encrypted_password: string | null; session_version: number }>(
+    "select id, email, encrypted_password, session_version from auth.users where lower(email) = $1",
     [email.trim().toLowerCase()],
   );
   const row = result.rows[0];
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   const ok = await verificarSenha(senha, row.encrypted_password);
   if (!ok) return credenciaisInvalidas();
 
-  const token = await assinarSessao({ id: row.id, email: row.email });
+  const token = await assinarSessao({ id: row.id, email: row.email, sessionVersion: row.session_version });
   const response = NextResponse.json({ ok: true });
   response.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,

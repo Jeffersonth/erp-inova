@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:auth": "tsx tests/auth.ts"
+    "test:auth": "tsx tests/auth.ts",
+    "test:password": "tsx tests/password-change.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

@@ -6,10 +6,9 @@ import {
   verificarSessao,
 } from "@/lib/auth/session";
 
-// Substitui o "refresh de token" do Supabase: aqui não há refresh token
-// separado (o JWT já dura 30 dias), então só renovamos o cookie a cada
-// requisição autenticada — sessão desliza enquanto o usuário voltar pelo
-// menos 1x/mês, sem round-trip a banco (verificação é só assinatura HS256).
+// O Edge renova a validade do cookie preservando a versão da sessão.
+// Cada acesso aos dados passa também por verificarSessaoAtiva no servidor:
+// a versão precisa corresponder ao banco, inclusive depois de renovar o JWT.
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 

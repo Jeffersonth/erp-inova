@@ -27,10 +27,10 @@ export async function GET(request: NextRequest) {
     if (typeof tokens.id_token !== "string") throw new Error("Identidade não confirmada.");
     const email = await verifyGoogleIdentity(tokens.id_token, config.clientId!, flow.nonce);
     // Vincula à conta existente: nenhum cadastro ou troca de dono dos dados.
-    const user = (await pool.query<{ id: string; email: string }>("select id,email from auth.users where lower(email)=$1", [email])).rows[0];
+    const user = (await pool.query<{ id: string; email: string; session_version: number }>("select id,email,session_version from auth.users where lower(email)=$1", [email])).rows[0];
     if (!user) throw new Error("Conta não autorizada.");
     const response = NextResponse.redirect(new URL("/hoje", config.origin));
-    response.cookies.set(SESSION_COOKIE, await assinarSessao(user), {
+    response.cookies.set(SESSION_COOKIE, await assinarSessao({ id: user.id, email: user.email, sessionVersion: user.session_version }), {
       httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: SESSION_MAX_AGE_SEG,
     });
     return clearFlow(response);

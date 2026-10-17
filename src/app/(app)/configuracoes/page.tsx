@@ -1,3 +1,4 @@
+import { ChangePasswordForm } from "@/components/change-password-form";
 import { redirect } from "next/navigation";
 import { IaBadge } from "@/components/ia-badge";
 import { PerfilForm } from "@/components/perfil-form";
@@ -33,6 +34,8 @@ export default async function ConfiguracoesPage() {
         {perfil && <PerfilForm perfil={perfil} />}
       </div>
 
+      <ChangePasswordForm />
+
       {/* Integrações */}
       <div className={`${card} flex flex-col px-4 py-3`}>
         <b className="text-[13.5px] text-ink">Integrações</b>
@@ -66,7 +69,7 @@ export default async function ConfiguracoesPage() {
 
       <div className="flex items-center gap-2 pt-1 text-[12px] text-mut">
         <IaBadge className="px-1.5 py-px text-[10px]" />
-        Perfil e foto salvos no Supabase. WhatsApp funciona pelo botão &ldquo;Enviar no WhatsApp&rdquo; dos rascunhos
+        Perfil e foto salvos com segurança na VPS. WhatsApp funciona pelo botão &ldquo;Enviar no WhatsApp&rdquo; dos rascunhos
         (link wa.me, sem integração).
       </div>
     </div>
