@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppLogo, AppIcon } from "@/components/app-brand";
 
 const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/hoje", label: "Hoje", icon: Target },
@@ -63,16 +64,7 @@ const bottomTabs: { href: string; icon: string; label: string }[] = [
 ];
 
 function Logo() {
-  return (
-    <span className="flex items-baseline gap-px text-[17px] font-extrabold tracking-[-0.02em] text-soft">
-      <span className="relative">
-        in
-        <span className="absolute -bottom-[3px] left-0 h-[3px] w-full rounded-sm bg-aqua" />
-      </span>
-      <span>ova&nbsp;labs</span>
-      <span className="ml-[3px] h-[5px] w-[5px] rounded-full bg-aqua" />
-    </span>
-  );
+  return <AppLogo compact className="w-[132px] md:w-[168px]" />;
 }
 
 type AppSidebarProps = {
@@ -101,12 +93,12 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
   const [titulo, subtitulo] =
     mobileTitles[
       Object.keys(mobileTitles).find((k) => pathname === k || pathname.startsWith(k + "/")) ?? "/hoje"
-    ] ?? ["inova labs", "ERP pessoal"];
+    ] ?? ["ERP Pessoal", "seu dia organizado"];
 
   return (
     <>
       {/* Barra superior — só mobile/tablet (header do design) */}
-      <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-white/10 bg-navy px-3 py-2.5 text-soft md:hidden">
+      <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-white/10 bg-[#140D24] px-3 py-2.5 text-soft md:hidden">
         <button
           onClick={() => setOpen(true)}
           aria-label="Abrir menu"
@@ -116,10 +108,10 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
         </button>
         <Link
           href="/hoje"
-          className="flex size-[30px] flex-none items-center justify-center rounded-[9px] text-[12px] font-extrabold text-white"
-          style={{ background: "linear-gradient(135deg,#1D5BFF,#00D1FF)" }}
+          aria-label="ERP Pessoal — Hoje"
+          className="flex size-[30px] flex-none items-center justify-center"
         >
-          in
+          <AppIcon />
         </Link>
         <div className="min-w-0">
           <div className="truncate text-[14px] font-extrabold tracking-[-0.01em]">{titulo}</div>
@@ -141,14 +133,14 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-navy/60 backdrop-blur-[1px] md:hidden"
+          className="fixed inset-0 z-40 bg-[#140D24]/60 backdrop-blur-[1px] md:hidden"
         />
       )}
 
       {/* Sidebar: drawer off-canvas no mobile, coluna fixa a partir de md */}
       <nav
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[212px] flex-col gap-0.5 bg-navy px-3 py-4 text-soft transition-transform duration-200 ease-out",
+          "fixed inset-y-0 left-0 z-50 flex w-[212px] flex-col gap-0.5 bg-[#140D24] px-3 py-4 text-soft transition-transform duration-200 ease-out",
           "md:sticky md:top-0 md:z-auto md:h-screen md:flex-none md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}

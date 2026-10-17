@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -10,9 +10,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ERP Pessoal · inova labs",
-  description: "Seu negócio inteiro em um só lugar — com IA em cada detalhe.",
+  title: "ERP Pessoal · Jefferson Thales",
+  applicationName: "ERP Pessoal",
+  description: "Seus projetos, clientes, finanças e compromissos em um só lugar.",
+  icons: {
+    icon: [{ url: "/brand/favicon.png", sizes: "32x32", type: "image/png" }],
+    apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: { capable: true, title: "ERP Pessoal", statusBarStyle: "black-translucent" },
 };
+
+export const viewport: Viewport = { themeColor: "#140D24" };
 
 export default function RootLayout({
   children,
