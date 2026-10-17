@@ -35,7 +35,7 @@ export default async function ProjetosPage({
     return (
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
+          <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos - Trabalho</h1>
           <NewProjetoDialog clientes={clientesList} />
         </div>
         <div className={`${card} px-3.5 py-12 text-center`}>
@@ -96,7 +96,7 @@ export default async function ProjetosPage({
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos</h1>
+        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Projetos - Trabalho</h1>
         <span className="text-[12.5px] text-mut">arraste os cards entre as etapas</span>
         <NewProjetoDialog clientes={clientesList} />
       </div>
