@@ -151,3 +151,8 @@
     scroll-behavior: auto !important;
   }
 }
+
+@media (max-height: 680px) {
+  .erp-sidebar[aria-label="Menu principal"] .erp-nav-link { padding-top: 4px; padding-bottom: 4px; }
+  .erp-sidebar[aria-label="Menu principal"] .erp-nav-link + .erp-nav-link { margin-top: 2px; }
+}
