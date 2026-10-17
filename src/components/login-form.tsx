@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { OWNER_EMAIL } from "@/lib/auth/owner";
 import { AppLogo } from "@/components/app-brand";
 
 const features = [
@@ -11,35 +12,26 @@ const features = [
   { icon: "✍", title: "Contratos gerados por IA", sub: "preenchidos com os dados do projeto" },
 ];
 
-export function LoginForm() {
+export function LoginForm({ googleEnabled = false, initialError }: { googleEnabled?: boolean; initialError?: string }) {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const email = OWNER_EMAIL;
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
 
-  // Sistema de uso pessoal: sem cadastro público nem OAuth — só e-mail + senha
-  // do dono (novos signups também são rejeitados no banco, migração 0020).
   async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(body?.error ?? "E-mail ou senha inválidos.");
-      return;
-    }
-    router.push("/hoje");
-    router.refresh();
+    e.preventDefault(); if (loading) return;
+    setError(null); setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) { const body = await res.json().catch(() => null); setError(body?.error ?? "E-mail ou senha inválidos."); return; }
+      router.push("/hoje"); router.refresh();
+    } catch { setError("Não foi possível conectar. Tente novamente."); }
+    finally { setLoading(false); }
   }
 
   return (
@@ -77,9 +69,10 @@ export function LoginForm() {
           <div className="mb-2 md:hidden"><AppLogo className="w-[250px]" /></div>
           <div>
             <div className="text-[20px] font-extrabold tracking-[-0.01em]">Bem-vindo de volta</div>
-            <div className="mt-[3px] text-[13px] text-[#B8AEC9]">Entre para continuar de onde parou.</div>
+            <div className="mt-[3px] text-[13px] text-[#B8AEC9]">Acesso exclusivo do administrador.</div>
           </div>
 
+          {googleEnabled && <><a href="/api/auth/google" className="mt-1 flex items-center justify-center gap-2 rounded-[10px] border border-white/20 bg-white p-3 text-sm font-semibold text-[#20182D] transition hover:bg-white/90"><svg aria-hidden="true" viewBox="0 0 48 48" className="size-5"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.6c3.8-3.5 6.1-8.7 6.1-15.1Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.2c-1.8 1.2-4.1 1.9-6.9 1.9-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.4a12.2 12.2 0 0 1 0-7.8v-5.3H5.8a20.3 20.3 0 0 0 0 18.4l6.8-5.3Z"/><path fill="#EA4335" d="M24 11.2c3 0 5.6 1 7.7 3l5.8-5.8A19.5 19.5 0 0 0 24 3a20.4 20.4 0 0 0-18.2 11.3l6.8 5.3A12 12 0 0 1 24 11.2Z"/></svg>Entrar com Google</a><div className="text-center text-xs text-[#B8AEC9]">ou use sua senha</div></>}
           <label className="mt-1.5 flex flex-col gap-1.5">
             <span className="text-[12px] font-semibold text-[#B8AEC9]">E-mail</span>
             <div className="flex items-center gap-2.5 rounded-[10px] border border-white/[0.16] bg-white/[0.06] px-3.5 py-2.5 focus-within:border-[#EF2B91]">
@@ -88,8 +81,9 @@ export function LoginForm() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="voce@exemplo.com.br"
+                readOnly
+                autoComplete="username"
+                aria-label="E-mail do administrador"
                 className="min-w-0 flex-1 bg-transparent text-[13.5px] text-soft outline-none placeholder:text-[#64748B]"
               />
             </div>
@@ -103,6 +97,7 @@ export function LoginForm() {
                 type={showPwd ? "text" : "password"}
                 required
                 minLength={6}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -139,7 +134,7 @@ export function LoginForm() {
             {loading ? "Aguarde…" : "Entrar"}
           </button>
 
-          <div className="text-center text-[12px] text-[#64748B]">Acesso restrito — sistema de uso pessoal.</div>
+          <div className="text-center text-[12px] text-[#64748B]">Acesso exclusivo de Jefferson Thales.</div>
         </form>
       </div>
     </div>

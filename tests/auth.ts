@@ -1,0 +1,53 @@
+import assert from "node:assert/strict";
+import { randomBytes, createHash } from "node:crypto";
+import { SignJWT } from "jose";
+import { NextRequest } from "next/server";
+import { OWNER_EMAIL } from "../src/lib/auth/owner";
+import { assinarSessao, verificarSessao } from "../src/lib/auth/session";
+import { createGoogleFlow, readGoogleFlow, googleOwnerClaims, GOOGLE_FLOW_COOKIE } from "../src/lib/auth/google";
+import { GET as start } from "../src/app/api/auth/google/route";
+import { GET as callback } from "../src/app/api/auth/google/callback/route";
+import { POST as login } from "../src/app/api/auth/login/route";
+
+async function main() {
+  // Chave efêmera: os testes não acessam o banco ou o Google.
+  process.env.JWT_SECRET = randomBytes(32).toString("hex");
+  process.env.APP_URL = "https://erp.jeffersonthales.com";
+  const owner = { id: "00000000-0000-4000-8000-000000000001", email: OWNER_EMAIL };
+  assert.deepEqual(await verificarSessao(await assinarSessao(owner)), owner);
+  assert.throws(() => assinarSessao({ ...owner, email: "outro@example.com" }));
+  const foreign = await new SignJWT({ email: "outro@example.com" }).setProtectedHeader({ alg: "HS256" }).setSubject(owner.id).setIssuedAt().setExpirationTime("5m").sign(new TextEncoder().encode(process.env.JWT_SECRET));
+  assert.equal(await verificarSessao(foreign), null);
+  assert.equal(await verificarSessao((await assinarSessao(owner)) + "x"), null);
+  assert.equal((await login(new Request("https://erp.jeffersonthales.com/api/auth/login", { method: "POST", body: JSON.stringify({ email: "outro@example.com", password: "nao-utilizada" }) }))).status, 401);
+  const flow = await createGoogleFlow();
+  const read = await readGoogleFlow(flow.cookie, flow.state);
+  assert.equal(createHash("sha256").update(read.verifier).digest("base64url"), flow.challenge);
+  assert.equal(read.nonce, flow.nonce);
+  await assert.rejects(() => readGoogleFlow(flow.cookie, "outro"));
+  await assert.rejects(() => readGoogleFlow(flow.cookie + "x", flow.state));
+  await assert.rejects(() => readGoogleFlow(undefined, flow.state));
+  assert.equal(await verificarSessao(flow.cookie), null);
+  const claims = { sub: "google-owner", email: OWNER_EMAIL, email_verified: true, nonce: flow.nonce };
+  assert.equal(googleOwnerClaims(claims, flow.nonce), OWNER_EMAIL);
+  for (const patch of [{ email: "outro@example.com" }, { email_verified: false }, { email_verified: "true" }, { nonce: "outro" }, { sub: "" }]) assert.throws(() => googleOwnerClaims({ ...claims, ...patch }, flow.nonce));
+  delete process.env.GOOGLE_CLIENT_ID; delete process.env.GOOGLE_CLIENT_SECRET;
+  assert.equal((await start()).headers.get("location"), "https://erp.jeffersonthales.com/login?erro=google_indisponivel");
+  process.env.GOOGLE_CLIENT_ID = "test.apps.googleusercontent.com";
+  process.env.GOOGLE_CLIENT_SECRET = randomBytes(32).toString("hex");
+  const response = await start();
+  const target = new URL(response.headers.get("location")!);
+  assert.equal(target.origin, "https://accounts.google.com");
+  assert.equal(target.searchParams.get("scope"), "openid email");
+  assert.equal(target.searchParams.get("redirect_uri"), "https://erp.jeffersonthales.com/api/auth/google/callback");
+  assert.equal(target.searchParams.get("code_challenge_method"), "S256");
+  assert.equal(target.searchParams.get("login_hint"), OWNER_EMAIL);
+  assert(!target.toString().includes(process.env.GOOGLE_CLIENT_SECRET));
+  assert(response.cookies.get(GOOGLE_FLOW_COOKIE));
+  const rejected = await callback(new NextRequest("https://erp.jeffersonthales.com/api/auth/google/callback?code=falso&state=falso"));
+  assert.equal(rejected.headers.get("location"), "https://erp.jeffersonthales.com/login?erro=google_falhou");
+  assert(!rejected.cookies.get("erp_session"));
+  assert.equal(rejected.cookies.get(GOOGLE_FLOW_COOKIE)?.maxAge, 0);
+  console.log("Autenticação: dono exclusivo, sessão, PKCE, estado, nonce, e-mail verificado e callback inválido conferidos.");
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

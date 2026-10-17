@@ -1,3 +1,4 @@
+import { isOwnerEmail } from "./owner";
 import { SignJWT, jwtVerify } from "jose";
 
 // jose (Web Crypto) em vez de jsonwebtoken: precisa rodar tanto no middleware
@@ -17,7 +18,8 @@ function segredo() {
 }
 
 export function assinarSessao(user: SessionUser) {
-  return new SignJWT({ email: user.email })
+  if (!isOwnerEmail(user.email)) throw new Error("Acesso não autorizado.");
+  return new SignJWT({ email: user.email.trim().toLowerCase(), role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
     .setIssuedAt()
@@ -30,8 +32,8 @@ export async function verificarSessao(
 ): Promise<SessionUser | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, segredo());
-    if (typeof payload.sub !== "string" || typeof payload.email !== "string") {
+    const { payload } = await jwtVerify(token, segredo(), { algorithms: ["HS256"] });
+    if (typeof payload.sub !== "string" || typeof payload.email !== "string" || !isOwnerEmail(payload.email)) {
       return null;
     }
     return { id: payload.sub, email: payload.email };

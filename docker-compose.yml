@@ -74,6 +74,9 @@ services:
       # nome do serviço.
       DATABASE_URL: postgresql://erp_inova_app:${APP_DB_PASSWORD:?defina APP_DB_PASSWORD no .env}@postgres:5432/${POSTGRES_DB}
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
+      APP_URL: https://erp.jeffersonthales.com
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       # Substitui os buckets do Supabase Storage (avatars/arquivos) —
@@ -91,11 +94,21 @@ services:
     labels:
       traefik.enable: "true"
 
-      traefik.http.routers.erp-inova.rule: Host(`erp.inovalabs.io`)
+      traefik.http.routers.erp-inova.rule: Host(`erp.jeffersonthales.com`)
       traefik.http.routers.erp-inova.entrypoints: websecure
       traefik.http.routers.erp-inova.tls.certresolver: letsencrypt
 
       traefik.http.services.erp-inova.loadbalancer.server.port: "3000"
+
+      # Endereço anterior mantém os links existentes e leva ao domínio oficial.
+      traefik.http.routers.erp-inova-old.rule: Host(`erp.inovalabs.io`)
+      traefik.http.routers.erp-inova-old.entrypoints: websecure
+      traefik.http.routers.erp-inova-old.tls.certresolver: letsencrypt
+      traefik.http.routers.erp-inova-old.service: erp-inova
+      traefik.http.routers.erp-inova-old.middlewares: erp-inova-domain
+      traefik.http.middlewares.erp-inova-domain.redirectregex.regex: ^https://erp\.inovalabs\.io/(.*)
+      traefik.http.middlewares.erp-inova-domain.redirectregex.replacement: https://erp.jeffersonthales.com/$${1}
+      traefik.http.middlewares.erp-inova-domain.redirectregex.permanent: "true"
 
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/login"]

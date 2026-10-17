@@ -1,3 +1,4 @@
+import { isOwnerEmail } from "@/lib/auth/owner";
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db/pool";
 import { verificarSenha } from "@/lib/auth/password";
@@ -18,8 +19,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "E-mail e senha são obrigatórios." }, { status: 400 });
   }
 
+  if (!isOwnerEmail(email)) return credenciaisInvalidas();
+
   const result = await pool.query<{ id: string; email: string; encrypted_password: string | null }>(
-    "select id, email, encrypted_password from auth.users where email = $1",
+    "select id, email, encrypted_password from auth.users where lower(email) = $1",
     [email.trim().toLowerCase()],
   );
   const row = result.rows[0];
