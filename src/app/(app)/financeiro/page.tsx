@@ -96,21 +96,21 @@ export default async function FinanceiroPage() {
 
       {/* Visão do dia (design mobile) */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+        <div className="erp-card erp-card--mint px-3 py-2.5">
           <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">RECEBER HOJE</div>
           <div className="mt-0.5 text-[18px] font-extrabold text-ok">{formatMoney(receberHoje)}</div>
         </div>
-        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+        <div className="erp-card erp-card--rose px-3 py-2.5">
           <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">PAGAR HOJE</div>
           <div className="mt-0.5 text-[18px] font-extrabold text-danger">{formatMoney(pagarHoje)}</div>
         </div>
-        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+        <div className="erp-card erp-card--lavender px-3 py-2.5">
           <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">SALDO PREVISTO</div>
           <div className={`mt-0.5 text-[18px] font-extrabold ${saldoPrevisto >= 0 ? "text-ink" : "text-danger"}`}>
             {formatMoney(saldoPrevisto)}
           </div>
         </div>
-        <div className="rounded-[10px] border border-line bg-card px-3 py-2.5">
+        <div className="erp-card erp-card--peach px-3 py-2.5">
           <div className="text-[11px] font-semibold tracking-[0.07em] text-mut">MRR · STRIPE</div>
           <div className="mt-0.5 text-[18px] font-extrabold text-ink">{formatMoney(mrr)}</div>
         </div>

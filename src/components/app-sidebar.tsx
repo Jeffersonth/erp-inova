@@ -161,8 +161,8 @@ export function AppSidebar({ avatarUrl, iniciais }: AppSidebarProps) {
             <Logo />
           </Link>
           <div className="ml-auto flex shrink-0 items-center gap-0.5">
-            <Link href="/configuracoes" aria-label="Configurações" title="Configurações" className="flex size-6 items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white"><Settings size={14} /></Link>
-            <button onClick={signOut} aria-label="Sair" title="Sair" className="flex size-6 items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white"><LogOut size={14} /></button>
+            <Link href="/configuracoes" aria-label="Configurações" title="Configurações" className="flex size-6 items-center justify-center rounded-md text-white/90 hover:bg-white/10 hover:text-white"><Settings size={14} /></Link>
+            <button onClick={signOut} aria-label="Sair" title="Sair" className="flex size-6 items-center justify-center rounded-md text-white/90 hover:bg-white/10 hover:text-white"><LogOut size={14} /></button>
           </div>
           <button
             onClick={() => setOpen(false)}
@@ -176,7 +176,7 @@ export function AppSidebar({ avatarUrl, iniciais }: AppSidebarProps) {
         <div className="px-2 pb-1.5 text-[9px] font-semibold tracking-[0.18em] text-[#B8AEC9]/70">
           SEU ESPAÇO
         </div>
-        <div className="thin-scroll min-h-0 flex-1 space-y-0.5 overflow-y-auto pb-1">
+        <div className="thin-scroll min-h-0 flex-1 space-y-1 overflow-y-auto pb-1">
         {nav.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -187,11 +187,11 @@ export function AppSidebar({ avatarUrl, iniciais }: AppSidebarProps) {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "erp-nav-link flex items-center gap-2 rounded-lg px-2 py-1 text-[12px]",
+                "erp-nav-link flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px]",
                 active ? "font-semibold" : "font-medium",
               )}
             >
-              <span className="erp-nav-icon flex size-[22px] shrink-0 items-center justify-center rounded-lg"><Icon className="size-[15px]" strokeWidth={1.8} /></span>
+              <span className="erp-nav-icon flex size-[24px] shrink-0 items-center justify-center rounded-lg"><Icon className="size-[17px]" strokeWidth={1.8} /></span>
               {item.label}
             </Link>
           );

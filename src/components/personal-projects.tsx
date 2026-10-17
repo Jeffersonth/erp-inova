@@ -96,19 +96,19 @@ export function PersonalProjects({ initial }: { initial: PersonalProject[] }) {
           <div className="flex justify-between text-xs text-mut"><span>{percent === 100 ? "Concluído" : "Em andamento"} · {p.etapas.filter(e => e.concluida).length}/{p.etapas.length} etapas</span><span>{percent}%</span></div>
           <div role="progressbar" aria-label={`Progresso de ${p.titulo}`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} className="h-1.5 overflow-hidden rounded-full bg-soft"><div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} /></div>
           <p className={`flex items-center gap-2 text-xs ${late ? "text-red-600" : "text-mut"}`}><CalendarDays size={14} />{p.prazo ? `${late ? "Atrasado · " : "Prazo: "}${dateLabel(p.prazo)}` : "Sem prazo definido"}</p>
-          <section className="border-t border-line pt-3" aria-label={`Etapas de ${p.titulo}`}>
+          <section className="rounded-xl border border-[#D4CDE8] bg-[#F2F0FC] p-3" aria-label={`Etapas de ${p.titulo}`}>
             <h3 className="mb-2 text-sm font-semibold text-ink">Etapas</h3>
             {!p.etapas.length && <p className="text-xs text-mut">Adicione as etapas em Editar projeto.</p>}
-            <div className="space-y-2">{p.etapas.map(step => <label key={step.id} className="flex cursor-pointer items-start gap-2 rounded-lg bg-soft p-2.5">
+            <div className="space-y-2">{p.etapas.map(step => <label key={step.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line bg-white p-2.5">
               <input type="checkbox" disabled={busy} className="mt-0.5 size-4 shrink-0 accent-brand" checked={step.concluida} onChange={e => toggle(p.id, "etapas", step.id, e.target.checked)} />
               <span className="min-w-0"><span className={`block break-words text-sm ${step.concluida ? "text-mut line-through" : "text-ink"}`}>{step.titulo}</span>{step.prazo && <span className={`mt-1 block text-xs ${!step.concluida && step.prazo < today ? "text-red-600" : "text-mut"}`}>Prazo: {dateLabel(step.prazo)}</span>}</span>
               {step.concluida && <span className="ml-auto shrink-0 text-[10px] font-semibold text-ok">Feita</span>}
             </label>)}</div>
           </section>
-          <section className="border-t border-line pt-3" aria-label={`Anotações de ${p.titulo}`}>
+          <section className="rounded-xl border border-[#E8CDB8] bg-[#FFF4EB] p-3" aria-label={`Anotações de ${p.titulo}`}>
             <h3 className="mb-2 text-sm font-semibold text-ink">Anotações <span className="font-normal text-mut">· {p.notas.filter(n => n.concluida).length}/{p.notas.length} concluídas</span></h3>
             {!p.notas.length && <p className="text-xs text-mut">Nenhuma anotação ainda.</p>}
-            <div className="space-y-2">{p.notas.map(note => <label key={note.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line p-3">
+            <div className="space-y-2">{p.notas.map(note => <label key={note.id} className="flex cursor-pointer items-start gap-2 rounded-lg border border-line bg-white p-3">
               <input type="checkbox" disabled={busy} className="mt-0.5 size-4 shrink-0 accent-brand" checked={note.concluida} onChange={e => toggle(p.id, "notas", note.id, e.target.checked)} />
               <span className="min-w-0 flex-1"><span className={`block whitespace-pre-wrap break-words text-sm ${note.concluida ? "text-mut line-through" : "text-ink"}`}>{note.texto}</span>{note.concluida && <span className="mt-1 block text-[10px] font-semibold text-ok">Concluída</span>}</span>
             </label>)}</div>

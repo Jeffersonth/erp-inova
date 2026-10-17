@@ -300,7 +300,7 @@ export function CentralHoje({
 
         <div className="flex min-w-0 flex-col gap-2.5">
           {/* Prioridade máxima */}
-          <div className={`${card} px-3.5 py-3`}>
+          <div className={`${card} erp-card--rose px-3.5 py-3`}>
             <div className="flex items-center gap-2">
               <b className="text-[13.5px] text-ink">Prioridade máxima</b>
               <Link href="/tarefas" className="ml-auto text-[12px] font-semibold text-mut transition-colors hover:text-brand">
@@ -348,7 +348,7 @@ export function CentralHoje({
           </div>
 
           {/* Radar */}
-          <div className={`${card} px-3.5 py-3`}>
+          <div className={`${card} erp-card--peach px-3.5 py-3`}>
             <b className="text-[13.5px] text-ink">Radar</b>
             <div className="mt-2 flex flex-col gap-2 text-[13px]">
               {radar.length === 0 && <div className="py-1 text-mut">Nada no radar — tudo sob controle. 🎉</div>}

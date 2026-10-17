@@ -19,7 +19,7 @@ export function ProspeccaoDaily({ canais }: { canais: LeadCanal[] }) {
     catch { setMessage("Não foi possível confirmar o envio. Confira o histórico antes de tentar novamente."); }
     finally {setBusy(false);}
   }
-  return <section className="erp-card p-4">
+  return <section className="erp-card erp-card--rose p-4">
     <h2 className="text-base font-bold text-ink">Registrar atividades do dia</h2><p className="mt-1 text-xs text-mut">Informe o volume por canal. Na Workana, as propostas contam como abordagens, sem somar duas vezes.</p>
     <form onSubmit={save} className="mt-4 space-y-3"><fieldset disabled={busy} className="min-w-0 space-y-3">
       <label className="flex items-center gap-2 text-sm font-semibold text-ink">Data<input type="date" required name="data" defaultValue={agendaDate()} className="rounded-lg border border-line bg-white px-3 py-2 text-sm" /></label>

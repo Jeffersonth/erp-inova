@@ -100,7 +100,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
         })}</div>
       </div></div>
     </section>
-    <section aria-label="Lista da agenda" className="erp-card flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-340px)]">
+    <section aria-label="Lista da agenda" className="erp-card erp-card--lavender flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-340px)]">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-bold text-ink">Lista do período</h2><span className="text-xs text-mut">{periodItems.length} item(ns)</span></div>
       {!groups.length && <p className="py-5 text-center text-sm text-mut">Nenhuma data ou pagamento neste período.</p>}
       <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>

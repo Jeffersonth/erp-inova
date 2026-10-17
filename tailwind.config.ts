@@ -37,9 +37,9 @@ const config: Config = {
         ia: "#B42369",
         navy: "#140D24",
         ink: "#20182D",
-        mut: { DEFAULT: "#796A85", soft: "#8C7B98" },
-        line: "#EBE5EF",
-        soft: { DEFAULT: "#FAF8FC", 2: "#F3EEF7" },
+        mut: { DEFAULT: "#706779", soft: "#8C7B98" },
+        line: "#DADDE7",
+        soft: { DEFAULT: "#F2F1F7", 2: "#E9E7F1" },
       },
       borderRadius: {
         lg: "var(--radius)",

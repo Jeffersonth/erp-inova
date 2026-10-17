@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    /* Identidade solar em superfícies brancas. */
-    --background: 0 0% 100%;
+    /* Identidade solar com superfícies distintas e fundo cinza claro. */
+    --background: 225 22% 95%;
     --foreground: 263 30% 14%;
     --card: 0 0% 100%;
     --card-foreground: 263 30% 14%;
@@ -16,13 +16,13 @@
     --secondary: 270 40% 98%;
     --secondary-foreground: 263 30% 14%;
     --muted: 273 36% 95%;
-    --muted-foreground: 272 11% 47%;
+    --muted-foreground: 272 10% 42%;
     --accent: 329 70% 97%;
     --accent-foreground: 330 74% 40%;
     --destructive: 359 74% 59%;
     --destructive-foreground: 0 0% 100%;
-    --border: 276 24% 92%;
-    --input: 276 24% 88%;
+    --border: 230 18% 86%;
+    --input: 230 18% 82%;
     --ring: 330 74% 45%;
     --radius: 0.875rem;
     --solar-gradient: linear-gradient(110deg, #C51E72 0%, #C44922 100%);
@@ -70,15 +70,19 @@
 }
 
 @layer components {
-  .erp-shell { isolation: isolate; background: #fff; }
+  .erp-shell { isolation: isolate; background: hsl(var(--background)); }
   .erp-page { width: 100%; min-width: 0; }
   .erp-card {
-    border: 1px solid #EBE5EF;
+    border: 1px solid var(--panel-border, #DADDE7);
     border-radius: 18px;
-    background: #fff;
-    box-shadow: 0 3px 18px -10px rgb(43 21 63 / .12);
+    background: var(--panel-bg, #fff);
+    box-shadow: 0 2px 4px rgb(35 25 55 / .035), 0 8px 22px -15px rgb(35 25 55 / .18);
     transition: border-color .22s ease, box-shadow .22s ease;
   }
+  .erp-card--rose { --panel-bg: #FFF2F7; --panel-border: #E8C6D6; }
+  .erp-card--peach { --panel-bg: #FFF4EB; --panel-border: #E8CDB8; }
+  .erp-card--lavender { --panel-bg: #F2F0FC; --panel-border: #D4CDE8; }
+  .erp-card--mint { --panel-bg: #EEF8F3; --panel-border: #C2DCCF; }
   .erp-page h1 { letter-spacing: -.035em; font-size: 24px; line-height: 1.25; }
   .erp-page > div > :first-child { margin-bottom: 5px; }
   .erp-shell :where(button, a) {
@@ -94,8 +98,8 @@
     background: radial-gradient(ellipse at 0 0, rgb(239 43 145 / .055), transparent 42%),
       radial-gradient(ellipse at 100% 100%, rgb(255 121 57 / .025), transparent 40%), #090610;
   }
-  .erp-nav-link { position: relative; border: 1px solid transparent; color: #C8BED6; }
-  .erp-nav-link:hover { color: #fff; background: rgb(255 255 255 / .045); }
+  .erp-nav-link { position: relative; border: 1px solid transparent; color: #F5F2FA; }
+  .erp-nav-link:hover { color: #fff; background: rgb(255 255 255 / .09); }
   .erp-nav-link[aria-current="page"] {
     color: #fff;
     border-color: rgb(239 43 145 / .28);
