@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
+import { revalidatePath } from "next/cache";
 
 export type CustoInput = {
   descricao: string;
@@ -51,6 +52,7 @@ export async function salvarRecebimento(id: string | null, input: RecebimentoInp
 
   if (id) {
     const { error } = await supabase.from("recebimentos").update(input).eq("id", id);
+    if (!error) { revalidatePath("/agenda"); revalidatePath("/hoje"); }
     return { error: error ? "Não foi possível salvar a venda." : null };
   }
 
@@ -60,12 +62,14 @@ export async function salvarRecebimento(id: string | null, input: RecebimentoInp
   if (!user) return { error: "Sessão expirada — faça login novamente." };
 
   const { error } = await supabase.from("recebimentos").insert({ ...input, user_id: user.id });
+  if (!error) { revalidatePath("/agenda"); revalidatePath("/hoje"); }
   return { error: error ? "Não foi possível registrar a venda." : null };
 }
 
 export async function excluirRecebimento(id: string) {
   const supabase = createClient();
   const { error } = await supabase.from("recebimentos").delete().eq("id", id);
+  if (!error) { revalidatePath("/agenda"); revalidatePath("/hoje"); }
   return { error: error ? "Não foi possível excluir a venda." : null };
 }
 

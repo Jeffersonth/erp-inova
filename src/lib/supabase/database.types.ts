@@ -366,6 +366,9 @@ export type Database = {
       }
       eventos_agenda: {
         Row: {
+          valor: number | null
+          moeda: Database["public"]["Enums"]["moeda"]
+          pago: boolean
           cliente_id: string | null
           created_at: string
           dia_inteiro: boolean
@@ -381,6 +384,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          valor?: number | null
+          moeda?: Database["public"]["Enums"]["moeda"]
+          pago?: boolean
           cliente_id?: string | null
           created_at?: string
           dia_inteiro?: boolean
@@ -396,6 +402,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          valor?: number | null
+          moeda?: Database["public"]["Enums"]["moeda"]
+          pago?: boolean
           cliente_id?: string | null
           created_at?: string
           dia_inteiro?: boolean
@@ -982,7 +991,7 @@ export type Database = {
         | "frio"
         | "perdido"
       etapa_status: "prevista" | "em_andamento" | "concluida" | "atrasada"
-      evento_tipo: "reuniao" | "lembrete" | "bloco" | "entrega"
+      evento_tipo: "reuniao" | "lembrete" | "bloco" | "entrega" | "data_importante" | "pagamento"
       leads_meta_metrica:
         | "contatos"
         | "respostas"
@@ -1151,7 +1160,7 @@ export const Constants = {
         "perdido",
       ],
       etapa_status: ["prevista", "em_andamento", "concluida", "atrasada"],
-      evento_tipo: ["reuniao", "lembrete", "bloco", "entrega"],
+      evento_tipo: ["reuniao", "lembrete", "bloco", "entrega", "data_importante", "pagamento"],
       leads_meta_metrica: [
         "contatos",
         "respostas",

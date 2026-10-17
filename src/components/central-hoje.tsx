@@ -9,6 +9,8 @@ import { criarTarefaDia, atualizarTarefaDia } from "@/lib/actions/tarefas-dia";
 import { registrarSessaoFoco } from "@/lib/actions/tracker";
 import { formatDuracao } from "@/lib/format";
 import type { Recomendacao, RadarItem } from "@/lib/central";
+import { AgendaHoje } from "@/components/agenda-hoje";
+import type { AgendaItem } from "@/lib/agenda-items";
 
 const card = "rounded-xl border border-line bg-card";
 const POMO_SEG = 25 * 60;
@@ -26,6 +28,8 @@ type Props = {
   recomendacao: Recomendacao;
   radar: RadarItem[];
   projetosAtivos: { id: string; titulo: string }[];
+  agendaHoje: AgendaItem[];
+  agendaErro: boolean;
 };
 
 function mmss(seg: number) {
@@ -50,6 +54,8 @@ export function CentralHoje({
   recomendacao,
   radar,
   projetosAtivos,
+  agendaHoje,
+  agendaErro,
 }: Props) {
   const { toast, openAiDraft } = useApp();
 
@@ -206,6 +212,8 @@ export function CentralHoje({
           <div className="text-[11.5px] text-mut">de {metaLabel(metaHorasDia)}</div>
         </div>
       </div>
+
+      <AgendaHoje items={agendaHoje} error={agendaErro} />
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-2.5">

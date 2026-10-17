@@ -3,6 +3,7 @@ import { formatMoney, relativeDate } from "@/lib/format";
 import { montarRecomendacao, montarRadar, type RecebimentoCentral, type ClienteCentral } from "@/lib/central";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
+import { agendaDate, agendaNoPeriodo, montarAgenda, type AgendaEvent, type AgendaRecebimento } from "@/lib/agenda-items";
 
 export default async function HojePage() {
   const supabase = createClient();
@@ -12,16 +13,16 @@ export default async function HojePage() {
   } = await supabase.auth.getUser();
 
   const hoje = new Date();
-  const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-  const fimHoje = new Date(inicioHoje);
-  fimHoje.setDate(fimHoje.getDate() + 1);
-  const mesInicioIso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-01`;
+  const hojeIso = agendaDate(hoje);
+  const inicioHoje = new Date(`${hojeIso}T00:00:00-03:00`);
+  const fimHoje = new Date(inicioHoje.getTime() + 86_400_000);
+  const mesInicioIso = `${hojeIso.slice(0, 7)}-01`;
 
   const [
     { data: perfil },
     { data: tarefas },
-    { data: recebimentos },
-    { data: eventos },
+    { data: recebimentos, error: erroRecebimentos },
+    { data: eventos, error: erroEventos },
     { data: focoHoje },
     { data: clientes },
     { data: projetos },
@@ -30,14 +31,13 @@ export default async function HojePage() {
     user
       ? supabase.from("usuarios").select("nome, meta_horas_dia").eq("id", user.id).maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase.from("tarefas_dia").select("id, titulo, status, ordem").order("ordem"),
+    supabase.from("tarefas_dia").select("id, titulo, status, ordem, data_finalizar").order("ordem"),
     supabase
       .from("recebimentos")
-      .select("id, cliente_id, valor, valor_pago, moeda, status, vencimento, data_pagamento, clientes(nome)"),
+      .select("id, cliente_id, descricao, valor, valor_pago, moeda, status, vencimento, data_pagamento, clientes(nome)"),
     supabase
       .from("eventos_agenda")
-      .select("quando, tipo_ev")
-      .gte("quando", inicioHoje.toISOString())
+      .select("id, titulo, tipo_ev, quando, fim, dia_inteiro, local, notas, projeto_id, valor, moeda, pago")
       .lt("quando", fimHoje.toISOString())
       .order("quando"),
     supabase.from("sessoes_foco").select("duracao_seg").eq("tipo", "foco").gte("finalizada_em", inicioHoje.toISOString()),
@@ -72,13 +72,12 @@ export default async function HojePage() {
     : { valor: formatMoney(0), sub: "nada pendente 🎉" };
 
   // REUNIÕES de hoje
-  const reunioesHoje = (eventos ?? []).filter((e) => e.tipo_ev === "reuniao");
-  const horario = (iso: string) => {
-    const d = new Date(iso);
-    const h = d.getHours();
-    const m = d.getMinutes();
-    return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
-  };
+  const itensHoje = agendaNoPeriodo(montarAgenda(
+    (eventos ?? []) as AgendaEvent[],
+    (tarefas ?? []).filter(t => t.status !== "concluida" && t.data_finalizar).map(t => ({ id: t.id, titulo: t.titulo, data_finalizar: t.data_finalizar! })),
+    (recebimentos ?? []) as AgendaRecebimento[],
+  ), hojeIso, hojeIso);
+  const reunioesHoje = itensHoje.filter(e => e.tipo === "reuniao");
   const reunioes = {
     total: reunioesHoje.length,
     sub:
@@ -86,7 +85,7 @@ export default async function HojePage() {
         ? "sem reuniões hoje"
         : reunioesHoje
             .slice(0, 2)
-            .map((e) => horario(e.quando))
+            .map((e) => e.horario)
             .join(" e ") + (reunioesHoje.length > 2 ? ` +${reunioesHoje.length - 2}` : ""),
   };
 
@@ -95,8 +94,8 @@ export default async function HojePage() {
   const metaHorasDia = Number(perfil?.meta_horas_dia ?? 6);
 
   // Meta do mês (pro radar) — recebido no mês vs meta
-  const proxMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
-  const proxMesIso = `${proxMes.getFullYear()}-${String(proxMes.getMonth() + 1).padStart(2, "0")}-01`;
+  const proxMes = new Date(Date.UTC(Number(hojeIso.slice(0, 4)), Number(hojeIso.slice(5, 7)), 1));
+  const proxMesIso = proxMes.toISOString().slice(0, 10);
   const recebidoMes = recs
     .filter((r) => r.moeda === "BRL" && r.data_pagamento && r.data_pagamento >= mesInicioIso && r.data_pagamento < proxMesIso)
     .reduce((s, r) => s + Number(r.valor_pago), 0);
@@ -105,7 +104,7 @@ export default async function HojePage() {
   const recomendacao = montarRecomendacao(recs, clis, projs);
   const radar = montarRadar(recs, clis, projs, meta);
 
-  const dataHoje = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long" }).format(hoje);
+  const dataHoje = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Fortaleza", weekday: "long", day: "numeric", month: "long" }).format(hoje);
 
   return (
     <CentralHoje
@@ -118,6 +117,8 @@ export default async function HojePage() {
       reunioes={reunioes}
       recomendacao={recomendacao}
       radar={radar}
+      agendaHoje={itensHoje}
+      agendaErro={Boolean(erroRecebimentos || erroEventos)}
       projetosAtivos={projs.filter((p) => p.status !== "concluido").map((p) => ({ id: p.id, titulo: p.titulo }))}
     />
   );
