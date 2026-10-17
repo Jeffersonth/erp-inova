@@ -29,7 +29,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/tarefas", label: "Tarefas do dia", icon: ListTodo },
   { href: "/projetos-pessoais", label: "Projetos - Pessoal", icon: FolderKanban },
   { href: "/projetos", label: "Projetos - Trabalho", icon: FolderKanban },
-  { href: "/leads", label: "Leads", icon: Megaphone },
+  { href: "/prospeccao", label: "Prospecção", icon: Megaphone },
   { href: "/crm", label: "Clientes", icon: Users },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
@@ -43,7 +43,7 @@ const mobileTitles: Record<string, [string, string]> = {
   "/hoje": ["Hoje", "sua central de execução"],
   "/tarefas": ["Tarefas do dia", "arraste para reordenar"],
   "/crm": ["Clientes", "clientes e leads"],
-  "/leads": ["Leads", "inteligência comercial"],
+  "/prospeccao": ["Prospecção", "contatos e oportunidades"],
   "/projetos-pessoais": ["Projetos - Pessoal", "suas ideias em andamento"],
   "/projetos": ["Projetos - Trabalho", "quadro de tarefas"],
   "/financeiro": ["Finanças", "R$ · US$ · €"],
@@ -65,7 +65,7 @@ const bottomTabs: { href: string; icon: LucideIcon; label: string }[] = [
 ];
 
 function Logo() {
-  return <AppLogo compact className="w-[132px] md:w-[168px]" />;
+  return <AppLogo compact className="w-[112px] md:w-[132px]" />;
 }
 
 type AppSidebarProps = {
@@ -75,7 +75,7 @@ type AppSidebarProps = {
   iniciais: string;
 };
 
-export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProps) {
+export function AppSidebar({ avatarUrl, iniciais }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -151,28 +151,32 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
       <nav
         aria-label="Menu principal"
         className={cn(
-          "erp-sidebar fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[248px] flex-col gap-0.5 px-4 py-5 text-soft shadow-2xl shadow-navy/10 transition-transform duration-300 ease-out",
+          "erp-sidebar fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[224px] flex-col gap-0.5 px-3 py-3 text-soft shadow-2xl shadow-navy/10 transition-transform duration-300 ease-out",
           "md:sticky md:top-0 md:z-auto md:flex-none md:translate-x-0",
           open ? "visible translate-x-0" : "invisible -translate-x-full md:visible",
         )}
       >
-        <div className="mb-5 flex items-center justify-between border-b border-white/[0.08] px-1 pb-6 pt-1">
+        <div className="mb-2 flex shrink-0 items-center justify-between gap-1 border-b border-white/[0.08] pb-3 pt-1">
           <Link href="/hoje">
             <Logo />
           </Link>
+          <div className="ml-auto flex shrink-0 items-center gap-0.5">
+            <Link href="/configuracoes" aria-label="Configurações" title="Configurações" className="flex size-6 items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white"><Settings size={14} /></Link>
+            <button onClick={signOut} aria-label="Sair" title="Sair" className="flex size-6 items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white"><LogOut size={14} /></button>
+          </div>
           <button
             onClick={() => setOpen(false)}
             aria-label="Fechar menu"
-            className="flex size-7 items-center justify-center rounded-lg hover:bg-white/10 md:hidden"
+            className="flex size-6 shrink-0 items-center justify-center rounded-md hover:bg-white/10 md:hidden"
           >
             <X className="size-4" />
           </button>
         </div>
 
-        <div className="px-3 pb-3 text-[9px] font-semibold tracking-[0.18em] text-[#B8AEC9]/70">
+        <div className="px-2 pb-1.5 text-[9px] font-semibold tracking-[0.18em] text-[#B8AEC9]/70">
           SEU ESPAÇO
         </div>
-        <div className="thin-scroll min-h-0 flex-1 space-y-1 overflow-y-auto pb-4">
+        <div className="thin-scroll min-h-0 flex-1 space-y-0.5 overflow-y-auto pb-1">
         {nav.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -183,51 +187,15 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "erp-nav-link flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[12.5px]",
+                "erp-nav-link flex items-center gap-2 rounded-lg px-2 py-1 text-[12px]",
                 active ? "font-semibold" : "font-medium",
               )}
             >
-              <span className="erp-nav-icon flex size-7 shrink-0 items-center justify-center rounded-lg"><Icon className="size-[16px]" strokeWidth={1.8} /></span>
+              <span className="erp-nav-icon flex size-[22px] shrink-0 items-center justify-center rounded-lg"><Icon className="size-[15px]" strokeWidth={1.8} /></span>
               {item.label}
             </Link>
           );
         })}
-        </div>
-        <div className="mt-auto flex shrink-0 items-center gap-1.5 border-t border-white/10 px-1 pb-1 pt-4">
-          <Link href="/configuracoes" className="flex min-w-0 flex-1 items-center gap-2">
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt=""
-                className="size-[26px] flex-none rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex size-[26px] flex-none items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white">
-                {iniciais}
-              </div>
-            )}
-            <div className="min-w-0">
-              <div className="truncate text-[12px] font-semibold text-white">{nome}</div>
-              <div className="truncate text-[10.5px] text-white/70">{funcao}</div>
-            </div>
-          </Link>
-          <Link
-            href="/configuracoes"
-            aria-label="Configurações"
-            title="Configurações"
-            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <Settings className="size-4" strokeWidth={2} />
-          </Link>
-          <button
-            onClick={signOut}
-            aria-label="Sair"
-            title="Sair"
-            className="flex flex-none items-center justify-center rounded-lg p-1.5 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <LogOut className="size-4" strokeWidth={2} />
-          </button>
         </div>
       </nav>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/components/app-providers";
 import {
@@ -13,7 +13,7 @@ import {
 import { formatMoney } from "@/lib/format";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
-import { LeadConverter } from "@/components/lead-converter";
+import { normalizarRegistros } from "@/lib/prospeccao";
 import {
   totais,
   porCanal,
@@ -64,6 +64,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
   const { toast } = useApp();
 
   const [regs, setRegs] = useState<LeadRegistro[]>(registrosInicial);
+  useEffect(() => setRegs(registrosInicial), [registrosInicial]);
   const [periodo, setPeriodo] = useState<Periodo>("mes");
   const hoje = new Date();
   const [customIni, setCustomIni] = useState(iso(new Date(hoje.getFullYear(), hoje.getMonth(), 1)));
@@ -123,10 +124,10 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
       return;
     }
     if (existente) {
-      setRegs((prev) => prev.map((r) => (r.id === existente.id ? { ...r, ...payload } : r)));
+      setRegs((prev) => normalizarRegistros(prev.map((r) => (r.id === existente.id ? { ...r, ...payload } : r)), canais));
       toast("✓ Registro atualizado");
     } else if (data) {
-      setRegs((prev) => [data as LeadRegistro, ...prev].sort((a, b) => b.data.localeCompare(a.data)));
+      setRegs((prev) => normalizarRegistros([data as LeadRegistro, ...prev], canais).sort((a, b) => b.data.localeCompare(a.data)));
       toast("✓ Registro de prospecção criado");
     }
     setDialogReg(null);
@@ -254,10 +255,10 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
     <div className="flex flex-col gap-3">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Leads</h1>
+        <h2 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">Resultados da prospecção</h2>
         <span className="text-[12.5px] text-mut">inteligência comercial da sua prospecção</span>
         <div className="ml-auto flex items-center gap-1.5">
-          <LeadConverter canais={canais} />
+          
           <button
             onClick={() => setDialogReg("novo")}
             className="rounded-lg bg-brand px-3.5 py-[7px] text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark"

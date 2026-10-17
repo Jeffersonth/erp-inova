@@ -52,7 +52,7 @@ export type CanalStats = Totais & { canalId: string; nome: string };
 export function porCanal(regs: LeadRegistro[], canais: LeadCanal[]): CanalStats[] {
   return canais
     .map((c) => ({ canalId: c.id, nome: c.nome, ...totais(regs.filter((r) => r.canal_id === c.id)) }))
-    .filter((c) => c.contatos > 0 || c.vendas > 0 || c.receita > 0);
+    .filter((c) => c.contatos > 0 || c.respostas > 0 || c.propostas > 0 || c.vendas > 0 || c.receita > 0);
 }
 
 export type Ranking = {

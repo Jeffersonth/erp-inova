@@ -1,3 +1,4 @@
+import { normalizarRegistros } from "@/lib/prospeccao";
 import { Suspense } from "react";
 import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
@@ -114,9 +115,9 @@ export default async function DashboardPage() {
 
   const horasFocoMes = (focoMes ?? []).reduce((s, r) => s + Number(r.duracao_seg), 0);
 
-  // Prospecção do mês (módulo Leads) — funil + melhor canal
-  const leadsMes = totaisLeads((leadsRegs ?? []) as LeadRegistro[]);
-  const melhorCanalMes = leadsPorCanal((leadsRegs ?? []) as LeadRegistro[], (leadsCanais ?? []) as LeadCanal[])
+  // Prospecção do mês (módulo Prospecção) — funil + melhor canal
+  const leadsMes = totaisLeads(normalizarRegistros((leadsRegs ?? []) as LeadRegistro[], (leadsCanais ?? []) as LeadCanal[]));
+  const melhorCanalMes = leadsPorCanal(normalizarRegistros((leadsRegs ?? []) as LeadRegistro[], (leadsCanais ?? []) as LeadCanal[]), (leadsCanais ?? []) as LeadCanal[])
     .sort((a, b) => b.receita - a.receita || b.vendas - a.vendas || b.contatos - a.contatos)[0];
 
   // Receita + previsão — recebido (valor_pago BRL) por mês nos últimos 5 meses
@@ -328,21 +329,21 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Prospecção do mês (módulo Leads) */}
+      {/* Prospecção do mês (módulo Prospecção) */}
       <div className={`${card} px-3.5 py-3`}>
         <div className="flex items-center gap-2">
           <b className="text-[13.5px] text-ink">Prospecção · mês</b>
-          <span className="text-[12px] text-mut">funil do módulo Leads</span>
+          <span className="text-[12px] text-mut">funil do módulo Prospecção</span>
           <Link
-            href="/leads"
+            href="/prospeccao"
             className="ml-auto flex-none rounded-lg border border-line px-2.5 py-[5px] text-[12.5px] font-semibold text-ink transition-colors hover:border-brand"
           >
-            Abrir Leads
+            Abrir Prospecção
           </Link>
         </div>
         {leadsMes.contatos === 0 ? (
           <div className="mt-2 text-[12.5px] text-mut">
-            Nenhum registro de prospecção neste mês — registre em <b className="text-ink">Leads</b> e o funil aparece aqui.
+            Nenhum registro de prospecção neste mês — registre em <b className="text-ink">Prospecção</b> e o funil aparece aqui.
           </div>
         ) : (
           <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[13px]">

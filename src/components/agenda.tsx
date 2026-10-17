@@ -81,17 +81,18 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     </div>
     <p className="text-xs text-mut">Os valores a receber vêm do Financeiro. Cadastre aqui suas contas a pagar e datas importantes.</p>
     {message && <p role="status" className="text-sm text-mut">{message}</p>}
+    <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
     <section aria-label="Calendário" className="overflow-hidden erp-card">
-      <div className="overflow-x-auto"><div className={view === "dia" ? "" : "min-w-[630px]"}>
+      <div className="overflow-x-auto"><div className={view === "dia" ? "" : view === "semana" ? "min-w-[560px]" : "min-w-[420px]"}>
         {view !== "dia" && <div className="grid grid-cols-7 bg-soft text-center text-xs font-semibold text-mut">{weekdays.map(day => <div key={day} className="p-2">{day}</div>)}</div>}
         <div className={view === "dia" ? "" : "grid grid-cols-7"}>{days.map(day => {
-          const key = ymd(day); const dayItems = agendaNoPeriodo(items, key, key); const shown = view === "mes" ? dayItems.slice(0, 3) : dayItems;
-          return <div key={key} className={`min-h-[110px] min-w-0 border-b border-r border-line p-2 ${key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
-            <button aria-label={`Ver dia ${day.toLocaleDateString("pt-BR")}`} onClick={() => { go(key); setView("dia"); }} className={`mb-2 flex size-7 items-center justify-center rounded-full text-xs font-bold ${key === today ? "bg-brand text-white" : "text-ink hover:bg-soft"}`}>{day.getDate()}</button>
+          const key = ymd(day); const dayItems = agendaNoPeriodo(items, key, key); const shown = view === "mes" ? dayItems.slice(0, 1) : dayItems;
+          return <div key={key} className={`${view === "mes" ? "h-[76px] overflow-hidden p-1.5 xl:h-[clamp(48px,calc((100dvh-350px)/6),76px)]" : "min-h-[110px] p-2"} min-w-0 border-b border-r border-line ${key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
+            <button aria-label={`Ver dia ${day.toLocaleDateString("pt-BR")}`} onClick={() => { go(key); setView("dia"); }} className={`mb-1 flex size-[22px] items-center justify-center rounded-full text-[11px] font-bold ${key === today ? "bg-brand text-white" : "text-ink hover:bg-soft"}`}>{day.getDate()}</button>
             <div className="space-y-1">{shown.map(item => {
               const meta = AGENDA_TIPOS[item.tipo];
-              const content = <><span className="block truncate">{item.horario !== "Dia inteiro" ? `${item.horario} ` : ""}{item.concluido ? "✓ " : ""}{item.titulo}</span>{item.valor !== null && <span className="block text-[10px] font-bold">{agendaMoney(item.valor, item.moeda)}</span>}</>;
-              const cls = `block w-full rounded px-1.5 py-1 text-left text-[11px] ${item.concluido ? "opacity-60" : ""}`;
+              const content = <><span className="block truncate">{item.horario !== "Dia inteiro" ? `${item.horario} ` : ""}{item.concluido ? "✓ " : ""}{item.titulo}{view === "mes" && item.valor !== null ? ` · ${agendaMoney(item.valor, item.moeda)}` : ""}</span>{view !== "mes" && item.valor !== null && <span className="block text-[10px] font-bold">{agendaMoney(item.valor, item.moeda)}</span>}</>;
+              const cls = `block w-full rounded px-1.5 ${view === "mes" ? "py-0.5 text-[10px]" : "py-1 text-[11px]"} text-left ${item.concluido ? "opacity-60" : ""}`;
               return item.origem === "evento" ? <button key={item.id} title={`${meta.label}: ${item.titulo}`} className={cls} style={{ background: meta.tint, color: meta.cor }} onClick={() => edit(item)}>{content}</button> : <Link key={item.id} title={item.titulo} className={cls} style={{ background: meta.tint, color: meta.cor }} href={item.origem === "recebimento" ? "/financeiro" : "/tarefas"}>{content}</Link>;
             })}</div>
             {dayItems.length > shown.length && <button className="mt-1 text-xs font-semibold text-brand" onClick={() => { go(key); setView("dia"); }}>+{dayItems.length - shown.length} itens</button>}
@@ -100,11 +101,12 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
         })}</div>
       </div></div>
     </section>
-    <section aria-label="Lista da agenda" className="erp-card p-4">
+    <section aria-label="Lista da agenda" className="erp-card flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-320px)]">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-bold text-ink">Lista do período</h2><span className="text-xs text-mut">{periodItems.length} item(ns)</span></div>
       {!groups.length && <p className="py-5 text-center text-sm text-mut">Nenhuma data ou pagamento neste período.</p>}
-      <div className="space-y-4">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>
+      <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>
     </section>
+    </div>
     {editing && <EventoDialog key={`${editing.ev?.id ?? "novo"}-${editing.dia}-${editing.tipo}`} state={editing} projetos={projetos} onClose={() => setEditing(null)} onSaved={ev => { setEvents(old => old.some(e => e.id === ev.id) ? old.map(e => e.id === ev.id ? ev : e) : [...old, ev]); setEditing(null); setMessage("Item salvo na agenda e na tela Hoje."); router.refresh(); }} onDeleted={id => { setEvents(old => old.filter(e => e.id !== id)); setEditing(null); router.refresh(); }} />}
   </div>;
 }

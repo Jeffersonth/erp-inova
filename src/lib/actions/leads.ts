@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
+import { revalidatePath } from "next/cache";
+import { validAgendaDate } from "@/lib/agenda-items";
+import { isWorkana } from "@/lib/prospeccao";
 import { DEFAULT_ETAPAS } from "@/lib/etapas-padrao";
 
 export type LeadRegistroInput = {
@@ -17,25 +20,17 @@ export type LeadRegistroInput = {
 
 export async function salvarLeadRegistro(id: string | null, input: LeadRegistroInput) {
   const supabase = createClient();
-
-  if (id) {
-    const { error } = await supabase.from("leads_registros").update(input).eq("id", id);
-    if (error) return { data: null, error: "Não foi possível salvar o registro." };
-    return { data: null, error: null };
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { data: null, error: "Sessão expirada — faça login novamente." };
-
-  const { data, error } = await supabase
-    .from("leads_registros")
-    .insert({ ...input, user_id: user.id })
-    .select("id, canal_id, data, contatos, respostas, propostas, vendas, valor_vendido, observacoes")
-    .single();
-  if (error || !data) return { data: null, error: "Não foi possível criar o registro." };
-  return { data, error: null };
+  if (!input || !validAgendaDate(input.data) || [input.contatos,input.respostas,input.propostas,input.vendas].some(n => !Number.isInteger(n) || n < 0 || n > 1000000) || !Number.isFinite(input.valor_vendido) || input.valor_vendido < 0 || input.valor_vendido > 9999999999.99 || (input.observacoes !== null && (typeof input.observacoes !== "string" || input.observacoes.length > 5000))) return { data:null,error:"Confira a data e os valores do registro." };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { data:null,error:"Sessão expirada. Faça login novamente." };
+  const { data: canal } = await supabase.from("leads_canais").select("id,nome").eq("id",input.canal_id).eq("user_id",user.id).single();
+  if (!canal) return { data:null,error:"Escolha um canal válido." };
+  const payload = { ...input, contatos: isWorkana(canal.nome) ? Math.max(input.contatos,input.propostas) : input.contatos };
+  const query = id ? supabase.from("leads_registros").update(payload).eq("id",id).eq("user_id",user.id) : supabase.from("leads_registros").insert({ ...payload,user_id:user.id });
+  const { data,error } = await query.select("id,canal_id,data,contatos,respostas,propostas,vendas,valor_vendido,observacoes").single();
+  if (error || !data) return { data:null,error:"Não foi possível salvar o registro." };
+  revalidatePath("/prospeccao"); revalidatePath("/dashboard");
+  return { data,error:null };
 }
 
 export async function excluirLeadRegistro(id: string) {
