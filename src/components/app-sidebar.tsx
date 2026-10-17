@@ -14,6 +14,7 @@ import {
   Wallet,
   Timer,
   StickyNote,
+  BookOpen,
   Settings,
   Menu,
   X,
@@ -34,6 +35,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
+  { href: "/regras", label: "Regras", icon: BookOpen },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tracker", label: "Time Tracker", icon: Timer },
 ];
@@ -51,6 +53,7 @@ const mobileTitles: Record<string, [string, string]> = {
   "/agenda": ["Agenda", "mês · semana · dia"],
   "/assistente": ["Assistente IA", "toda ação vira rascunho"],
   "/anotacoes": ["Anotações", "a IA detecta o prazo"],
+  "/regras": ["Regras", "seus princípios por categoria"],
   "/dashboard": ["Painel", "visão do negócio"],
   "/configuracoes": ["Configurações", "perfil e integrações"],
 };

@@ -6,7 +6,7 @@ import { CalendarDays, ChevronRight, Timer } from "lucide-react";
 const labels: Record<string, string> = {
   hoje: "Hoje", tarefas: "Tarefas do dia", "projetos-pessoais": "Projetos - Pessoal",
   projetos: "Projetos - Trabalho", leads: "Prospecção", prospeccao: "Prospecção", crm: "Clientes", financeiro: "Financeiro",
-  agenda: "Agenda", anotacoes: "Anotações", dashboard: "Dashboard", tracker: "Time Tracker",
+  agenda: "Agenda", regras: "Regras", anotacoes: "Anotações", dashboard: "Dashboard", tracker: "Time Tracker",
   configuracoes: "Configurações", assistente: "Assistente IA",
 };
 export function AppTopbar({ date }: { date: string }) {
