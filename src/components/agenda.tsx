@@ -44,7 +44,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
   const end = view === "mes" ? ymd(monthEnd) : view === "semana" ? ymd(addDays(weekStart, 6)) : ymd(cursor);
   const periodItems = agendaNoPeriodo(items, start, end);
   const periodLabel = view === "mes" ? cursor.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : view === "dia" ? cursor.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : `${fromDay(start).toLocaleDateString("pt-BR")} a ${fromDay(end).toLocaleDateString("pt-BR")}`;
-  const days = view === "dia" ? [cursor] : view === "semana" ? Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)) : Array.from({ length: 42 }, (_, i) => addDays(monthStart, i - monthStart.getDay()));
+  const days = view === "dia" ? [cursor] : view === "semana" ? Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)) : Array.from({ length: Math.ceil((monthStart.getDay() + monthEnd.getDate()) / 7) * 7 }, (_, i) => addDays(monthStart, i - monthStart.getDay()));
   const groups = Array.from(new Set(periodItems.map(item => item.data < start ? start : item.data))).sort();
   function go(day: string) { setCursor(fromDay(day)); setSelectedDay(day); }
   function navigate(direction: number) {
@@ -82,26 +82,25 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     <p className="text-xs text-mut">Os valores a receber vêm do Financeiro. Cadastre aqui suas contas a pagar e datas importantes.</p>
     {message && <p role="status" className="text-sm text-mut">{message}</p>}
     <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-    <section aria-label="Calendário" className="overflow-hidden erp-card">
+    <section aria-label="Calendário" className="erp-card min-w-0 overflow-hidden xl:max-h-[calc(100dvh-340px)] xl:overflow-y-auto">
       <div className="overflow-x-auto"><div className={view === "dia" ? "" : view === "semana" ? "min-w-[560px]" : "min-w-[420px]"}>
         {view !== "dia" && <div className="grid grid-cols-7 bg-soft text-center text-xs font-semibold text-mut">{weekdays.map(day => <div key={day} className="p-2">{day}</div>)}</div>}
         <div className={view === "dia" ? "" : "grid grid-cols-7"}>{days.map(day => {
           const key = ymd(day); const dayItems = agendaNoPeriodo(items, key, key); const shown = view === "mes" ? dayItems.slice(0, 1) : dayItems;
-          return <div key={key} className={`${view === "mes" ? "h-[76px] overflow-hidden p-1.5 xl:h-[clamp(48px,calc((100dvh-350px)/6),76px)]" : "min-h-[110px] p-2"} min-w-0 border-b border-r border-line ${key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
-            <button aria-label={`Ver dia ${day.toLocaleDateString("pt-BR")}`} onClick={() => { go(key); setView("dia"); }} className={`mb-1 flex size-[22px] items-center justify-center rounded-full text-[11px] font-bold ${key === today ? "bg-brand text-white" : "text-ink hover:bg-soft"}`}>{day.getDate()}</button>
+          return <div key={key} className={`${view === "mes" ? "h-[76px] overflow-hidden p-1 xl:h-[clamp(48px,calc((100dvh-380px)/6),76px)]" : "min-h-[110px] p-2"} min-w-0 border-b border-r border-line ${key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
+            <div className="mb-1 flex items-center justify-between gap-1"><button aria-label={`Ver dia ${day.toLocaleDateString("pt-BR")}`} onClick={() => { go(key); setView("dia"); }} className={`flex size-[22px] items-center justify-center rounded-full text-[11px] font-bold ${key === today ? "bg-brand text-white" : "text-ink hover:bg-soft"}`}>{day.getDate()}</button>{dayItems.length > shown.length && <button title={`Ver todos os ${dayItems.length} itens do dia`} aria-label={`Ver mais ${dayItems.length - shown.length} itens de ${day.toLocaleDateString("pt-BR")}`} className="text-[9px] font-semibold text-brand" onClick={() => { go(key); setView("dia"); }}>+{dayItems.length - shown.length}</button>}</div>
             <div className="space-y-1">{shown.map(item => {
               const meta = AGENDA_TIPOS[item.tipo];
               const content = <><span className="block truncate">{item.horario !== "Dia inteiro" ? `${item.horario} ` : ""}{item.concluido ? "✓ " : ""}{item.titulo}{view === "mes" && item.valor !== null ? ` · ${agendaMoney(item.valor, item.moeda)}` : ""}</span>{view !== "mes" && item.valor !== null && <span className="block text-[10px] font-bold">{agendaMoney(item.valor, item.moeda)}</span>}</>;
               const cls = `block w-full rounded px-1.5 ${view === "mes" ? "py-0.5 text-[10px]" : "py-1 text-[11px]"} text-left ${item.concluido ? "opacity-60" : ""}`;
               return item.origem === "evento" ? <button key={item.id} title={`${meta.label}: ${item.titulo}`} className={cls} style={{ background: meta.tint, color: meta.cor }} onClick={() => edit(item)}>{content}</button> : <Link key={item.id} title={item.titulo} className={cls} style={{ background: meta.tint, color: meta.cor }} href={item.origem === "recebimento" ? "/financeiro" : "/tarefas"}>{content}</Link>;
             })}</div>
-            {dayItems.length > shown.length && <button className="mt-1 text-xs font-semibold text-brand" onClick={() => { go(key); setView("dia"); }}>+{dayItems.length - shown.length} itens</button>}
             {view === "dia" && !dayItems.length && <p className="py-5 text-sm text-mut">Nenhum item para este dia.</p>}
           </div>;
         })}</div>
       </div></div>
     </section>
-    <section aria-label="Lista da agenda" className="erp-card flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-320px)]">
+    <section aria-label="Lista da agenda" className="erp-card flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-340px)]">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-bold text-ink">Lista do período</h2><span className="text-xs text-mut">{periodItems.length} item(ns)</span></div>
       {!groups.length && <p className="py-5 text-center text-sm text-mut">Nenhuma data ou pagamento neste período.</p>}
       <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>
