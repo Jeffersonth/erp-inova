@@ -180,7 +180,7 @@ export function DayTasks({ initialTasks }: { initialTasks: DayTask[] }) {
   return (
     <div className="flex flex-col gap-3">
       {/* Adicionar tarefa */}
-      <form onSubmit={addTask} className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-card px-3 py-2.5">
+      <form onSubmit={addTask} className="flex flex-wrap items-center gap-2 erp-card px-3 py-2.5">
         <input
           value={novoTitulo}
           onChange={(e) => setNovoTitulo(e.target.value)}
@@ -202,7 +202,7 @@ export function DayTasks({ initialTasks }: { initialTasks: DayTask[] }) {
       {/* Ativas */}
       <div className="flex flex-col gap-1.5">
         {ativas.length === 0 && concluidas.length === 0 && (
-          <div className="rounded-xl border border-line bg-card px-3.5 py-10 text-center">
+          <div className="erp-card px-3.5 py-10 text-center">
             <div className="text-[14px] font-semibold text-ink">Nenhuma tarefa ainda</div>
             <div className="mt-1 text-[13px] text-mut">Adicione a primeira tarefa do seu dia acima.</div>
           </div>

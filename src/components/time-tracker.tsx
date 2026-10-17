@@ -70,7 +70,7 @@ export function TimeTracker({
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1.1fr]">
       {/* Timer */}
-      <div className="rounded-xl border border-line bg-card px-3.5 py-4">
+      <div className="erp-card px-3.5 py-4">
         <div className="flex justify-center gap-1">
           {(Object.keys(PRESETS) as Preset[]).map((p) => (
             <button
@@ -100,7 +100,7 @@ export function TimeTracker({
 
         <div className="relative mx-auto mt-4 flex size-[188px] items-center justify-center">
           <svg width="188" height="188" viewBox="0 0 188 188" className="-rotate-90">
-            <circle cx="94" cy="94" r={R} fill="none" stroke="#EDF2F9" strokeWidth="10" />
+            <circle cx="94" cy="94" r={R} fill="none" stroke="#F3EEF7" strokeWidth="10" />
             <circle
               cx="94"
               cy="94"
@@ -181,7 +181,7 @@ export function TimeTracker({
       </div>
 
       {/* Histórico */}
-      <div className="rounded-xl border border-line bg-card px-3.5 py-3">
+      <div className="erp-card px-3.5 py-3">
         <div className="flex items-center gap-2">
           <b className="text-[13.5px] text-ink">Histórico de sessões</b>
           <span className="ml-auto text-[12px] text-mut">{historico.length} registradas</span>

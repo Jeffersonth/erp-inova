@@ -8,7 +8,7 @@ import { flagEmoji, relativeInteraction } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 const cols =
   "grid-cols-[1.7fr_0.6fr_0.9fr_0.9fr_0.7fr_0.9fr_1.6fr_0.8fr]";
 

@@ -12,7 +12,7 @@ import type { Recomendacao, RadarItem } from "@/lib/central";
 import { AgendaHoje } from "@/components/agenda-hoje";
 import type { AgendaItem } from "@/lib/agenda-items";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 const POMO_SEG = 25 * 60;
 
 export type PrioTarefa = { id: string; titulo: string; status: "pendente" | "em_andamento" | "concluida"; ordem: number };
@@ -183,7 +183,7 @@ export function CentralHoje({
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-soft">
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, background: "linear-gradient(90deg,#1D5BFF,#00D1FF)" }}
+            style={{ width: `${pct}%`, background: "linear-gradient(90deg,#C51E72,#FF7939)" }}
           />
         </div>
         <b className="text-[13.5px] text-ink">{pct}%</b>
@@ -243,24 +243,24 @@ export function CentralHoje({
 
           {/* Sessão de foco */}
           <div
-            className="flex items-center gap-3.5 rounded-[14px] border border-[#1C3560] p-3.5 text-soft"
-            style={{ background: "linear-gradient(160deg,#0A1A33,#0E2547)" }}
+            className="flex items-center gap-3.5 rounded-[14px] border border-[#443052] p-3.5 text-soft"
+            style={{ background: "linear-gradient(160deg,#140D24,#2A1639)" }}
           >
             <div
               className="flex size-[78px] flex-none items-center justify-center rounded-full"
-              style={{ background: `conic-gradient(#00D1FF ${ringDeg}deg, rgba(244,247,251,.12) ${ringDeg}deg)` }}
+              style={{ background: `conic-gradient(#FF7939 ${ringDeg}deg, rgba(244,247,251,.12) ${ringDeg}deg)` }}
             >
-              <div className="flex size-[66px] items-center justify-center rounded-full bg-[#0A1A33] text-[16px] font-extrabold tabular-nums">
+              <div className="flex size-[66px] items-center justify-center rounded-full bg-[#140D24] text-[16px] font-extrabold tabular-nums">
                 {mmss(restante)}
               </div>
             </div>
             <div className="min-w-0 flex-1">
               <b className="text-[13.5px]">Sessão de foco</b>
-              <div className="mt-0.5 flex items-center gap-1 text-[11.5px] text-[#8DA2C0]">
+              <div className="mt-0.5 flex items-center gap-1 text-[11.5px] text-[#B8AEC9]">
                 <select
                   value={projetoId}
                   onChange={(e) => setProjetoId(e.target.value)}
-                  className="max-w-[45%] cursor-pointer truncate border-none bg-transparent text-[11.5px] text-[#8DA2C0] outline-none"
+                  className="max-w-[45%] cursor-pointer truncate border-none bg-transparent text-[11.5px] text-[#B8AEC9] outline-none"
                 >
                   <option value="">Sem projeto</option>
                   {projetosAtivos.map((p) => (
@@ -274,14 +274,14 @@ export function CentralHoje({
                   value={rotulo}
                   onChange={(e) => setRotulo(e.target.value)}
                   placeholder="no que vai focar?"
-                  className="min-w-0 flex-1 border-none bg-transparent text-[11.5px] text-[#B9C6DC] outline-none placeholder:text-[#8DA2C0]"
+                  className="min-w-0 flex-1 border-none bg-transparent text-[11.5px] text-[#B9C6DC] outline-none placeholder:text-[#B8AEC9]"
                 />
               </div>
               <div className="mt-2 flex items-center gap-1.5">
                 <button
                   onClick={toggleFoco}
                   className="min-h-[36px] rounded-lg px-4 py-2 text-[13px] font-bold text-white"
-                  style={{ background: "linear-gradient(135deg,#1D5BFF,#00D1FF)" }}
+                  style={{ background: "linear-gradient(135deg,#C51E72,#FF7939)" }}
                 >
                   {rodando ? "❚❚ Pausar" : restante === POMO_SEG ? "▶ Iniciar" : "▶ Retomar"}
                 </button>

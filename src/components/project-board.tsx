@@ -259,10 +259,10 @@ export function ProjectBoard({
                       if (dragging.current) return;
                       setEditing({ etapaId: col.id, card: t });
                     }}
-                    className="cursor-grab rounded-[8px] border p-2 shadow-[0_1px_2px_rgba(10,26,51,.05)] transition-colors active:cursor-grabbing"
+                    className="cursor-grab rounded-[8px] border p-2 shadow-[0_1px_2px_rgba(20,13,36,.05)] transition-colors active:cursor-grabbing"
                     style={
                       t.concluida
-                        ? { background: "#F4F7FB", borderColor: "#DCE4F0" }
+                        ? { background: "#FAF8FC", borderColor: "#EBE5EF" }
                         : { background: meta.tint, borderColor: meta.border }
                     }
                   >
@@ -286,7 +286,7 @@ export function ProjectBoard({
                       </button>
                       <span
                         className="rounded-full bg-card px-1.5 py-px text-[11px] font-semibold"
-                        style={{ color: t.concluida ? "#8DA2C0" : meta.text }}
+                        style={{ color: t.concluida ? "#B8AEC9" : meta.text }}
                       >
                         {meta.label}
                       </span>
@@ -434,7 +434,7 @@ function AddCardForm({
               style={
                 active
                   ? { background: meta.tint, borderColor: meta.border, color: meta.text }
-                  : { background: "transparent", borderColor: "#DCE4F0", color: "#8DA2C0" }
+                  : { background: "transparent", borderColor: "#EBE5EF", color: "#B8AEC9" }
               }
             >
               {meta.label}

@@ -179,7 +179,7 @@ export function NotesBoard({ initial }: { initial: NoteRow[] }) {
                   return (
                     <div
                       key={n.id}
-                      className={`flex flex-col gap-2 rounded-xl border p-3 shadow-[0_1px_2px_rgba(10,26,51,.05)] transition-colors ${
+                      className={`flex flex-col gap-2 rounded-xl border p-3 shadow-[0_1px_2px_rgba(20,13,36,.05)] transition-colors ${
                         n.done
                           ? "border-line bg-soft opacity-75"
                           : atrasada

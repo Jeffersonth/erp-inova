@@ -20,11 +20,11 @@ export const AGENDA_TIPOS: Record<AgendaItem["tipo"], { label: string; cor: stri
   data_importante: { label: "Data importante", cor: "#BE185D", tint: "#FDF2F8" },
   pagamento: { label: "A pagar", cor: "#C77700", tint: "#FFFBEB" },
   recebimento: { label: "A receber", cor: "#0E9F6E", tint: "#ECFDF5" },
-  reuniao: { label: "Reunião", cor: "#1D5BFF", tint: "#EFF6FF" },
+  reuniao: { label: "Reunião", cor: "#C51E72", tint: "#EFF6FF" },
   lembrete: { label: "Lembrete", cor: "#C77700", tint: "#FFFBEB" },
   bloco: { label: "Bloco de tempo", cor: "#7A5AF8", tint: "#F5F3FF" },
   entrega: { label: "Entrega", cor: "#0E9F6E", tint: "#ECFDF5" },
-  tarefa: { label: "Tarefa", cor: "#64748B", tint: "#F4F7FB" },
+  tarefa: { label: "Tarefa", cor: "#64748B", tint: "#FAF8FC" },
 };
 export function agendaDate(value: Date | string = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: AGENDA_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(value));

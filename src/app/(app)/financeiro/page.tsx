@@ -12,7 +12,7 @@ import { pagamentoInfo } from "@/lib/recebimento";
 import { getStripeResumo } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 const recCols = "grid-cols-[1.7fr_0.9fr_0.9fr_0.9fr_0.8fr_0.9fr_0.7fr]";
 
 export default async function FinanceiroPage() {
@@ -129,7 +129,7 @@ export default async function FinanceiroPage() {
             <div className="mt-1.5 h-[9px] overflow-hidden rounded-full bg-soft">
               <div
                 className="h-full rounded-full"
-                style={{ width: `${Math.min(100, pctMeta)}%`, background: "linear-gradient(90deg,#1D5BFF,#00D1FF)" }}
+                style={{ width: `${Math.min(100, pctMeta)}%`, background: "linear-gradient(90deg,#C51E72,#FF7939)" }}
               />
             </div>
             {aReceber > 0 && pctSeReceber > pctMeta && (

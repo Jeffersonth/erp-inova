@@ -45,7 +45,7 @@ export function MetaMesCard({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-card px-3.5 py-3">
+    <div className="erp-card px-3.5 py-3">
       <div className="flex items-center gap-2">
         <b className="text-[13.5px] text-ink">Meta financeira · {mesLabel}</b>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -100,7 +100,7 @@ export function MetaMesCard({
           <div className="mt-1.5 h-2 overflow-hidden rounded-full border border-line bg-soft-2">
             <div
               className="h-full rounded-full transition-all"
-              style={{ width: `${pct}%`, background: bateu ? "#0E9F6E" : "#1D5BFF" }}
+              style={{ width: `${pct}%`, background: bateu ? "#0E9F6E" : "#C51E72" }}
             />
           </div>
           <div className="mt-1.5 text-[12.5px] font-semibold">

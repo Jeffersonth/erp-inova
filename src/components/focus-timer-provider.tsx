@@ -24,17 +24,17 @@ export const PRESETS: Record<Preset, { label: string; config: Record<Modo, { lab
   classico: {
     label: "25 + 5 min",
     config: {
-      foco: { label: "Foco", min: 25, cor: "#1D5BFF" },
+      foco: { label: "Foco", min: 25, cor: "#C51E72" },
       pausa_curta: { label: "Pausa curta", min: 5, cor: "#0E9F6E" },
-      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
+      pausa_longa: { label: "Pausa longa", min: 15, cor: "#FF7939" },
     },
   },
   estendido: {
     label: "50 + 10 min",
     config: {
-      foco: { label: "Foco", min: 50, cor: "#1D5BFF" },
+      foco: { label: "Foco", min: 50, cor: "#C51E72" },
       pausa_curta: { label: "Descanso", min: 10, cor: "#0E9F6E" },
-      pausa_longa: { label: "Pausa longa", min: 15, cor: "#00D1FF" },
+      pausa_longa: { label: "Pausa longa", min: 15, cor: "#FF7939" },
     },
   },
 };

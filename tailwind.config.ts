@@ -28,18 +28,18 @@ const config: Config = {
         popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
 
-        // Inova Labs raw palette (design tokens from ERP Pessoal.dc.html)
-        brand: { DEFAULT: "#1D5BFF", dark: "#1848CC" },
-        aqua: "#00D1FF",
+        // Identidade solar — contraste de texto preservado nas superfícies claras.
+        brand: { DEFAULT: "#C51E72", dark: "#A81760" },
+        aqua: "#C2410C",
         ok: "#0E9F6E",
         danger: "#E5484D",
         warn: "#C77700",
-        ia: "#0083A8",
-        navy: "#0A1A33",
-        ink: "#0B1220",
-        mut: { DEFAULT: "#64748B", soft: "#8DA2C0" },
-        line: "#DCE4F0",
-        soft: { DEFAULT: "#F4F7FB", 2: "#EDF2F9" },
+        ia: "#B42369",
+        navy: "#140D24",
+        ink: "#20182D",
+        mut: { DEFAULT: "#796A85", soft: "#8C7B98" },
+        line: "#EBE5EF",
+        soft: { DEFAULT: "#FAF8FC", 2: "#F3EEF7" },
       },
       borderRadius: {
         lg: "var(--radius)",

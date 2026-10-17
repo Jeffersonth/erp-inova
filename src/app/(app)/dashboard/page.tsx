@@ -19,7 +19,7 @@ import { getStripeResumo } from "@/lib/stripe";
 import { gerarAnaliseInsights, type NarrativaInput } from "@/lib/ai/insights-narrativa";
 import type { Enums } from "@/lib/supabase/database.types";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 const leadsAtivosStatus = ["lead", "qualificado", "proposta", "negociacao"] as const;
 
 function riscoTone(r: number) {
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
   const maiorPrev = Math.max(prev.otimista, 1);
   const cenarios = [
     { label: "Otimista", v: prev.otimista, cor: "#0E9F6E" },
-    { label: "Base", v: prev.base, cor: "#1D5BFF" },
+    { label: "Base", v: prev.base, cor: "#C51E72" },
     { label: "Pessimista", v: prev.pessimista, cor: "#E5484D" },
   ];
   const lucroTop = lucros[0];
@@ -303,11 +303,11 @@ export default async function DashboardPage() {
           aria-label={`Receita recebida por mês nos últimos 5 meses e previsão de ${formatMoney(previsao)} para ${proxLabel}`}
           className="mt-2"
         >
-          <line x1="0" y1="90" x2="340" y2="90" stroke="#DCE4F0" />
-          <path d={areaPath} fill="rgba(29,91,255,.07)" />
-          <path d={histPath} fill="none" stroke="#1D5BFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={prevPath} fill="none" stroke="#00D1FF" strokeWidth="2.5" strokeDasharray="6 5" strokeLinecap="round" />
-          <circle cx={chartX(4)} cy={chartY(serie[4])} r="3.5" fill="#1D5BFF" />
+          <line x1="0" y1="90" x2="340" y2="90" stroke="#EBE5EF" />
+          <path d={areaPath} fill="rgba(197,30,114,.07)" />
+          <path d={histPath} fill="none" stroke="#C51E72" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={prevPath} fill="none" stroke="#FF7939" strokeWidth="2.5" strokeDasharray="6 5" strokeLinecap="round" />
+          <circle cx={chartX(4)} cy={chartY(serie[4])} r="3.5" fill="#C51E72" />
           {serie.map((v, i) => (
             <circle key={i} cx={chartX(i)} cy={chartY(v)} r="9" fill="transparent">
               <title>{`${mesesRef[i].label}: ${formatMoney(v)}`}</title>

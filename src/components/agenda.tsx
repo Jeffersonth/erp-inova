@@ -81,7 +81,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     </div>
     <p className="text-xs text-mut">Os valores a receber vêm do Financeiro. Cadastre aqui suas contas a pagar e datas importantes.</p>
     {message && <p role="status" className="text-sm text-mut">{message}</p>}
-    <section aria-label="Calendário" className="overflow-hidden rounded-xl border border-line bg-card">
+    <section aria-label="Calendário" className="overflow-hidden erp-card">
       <div className="overflow-x-auto"><div className={view === "dia" ? "" : "min-w-[630px]"}>
         {view !== "dia" && <div className="grid grid-cols-7 bg-soft text-center text-xs font-semibold text-mut">{weekdays.map(day => <div key={day} className="p-2">{day}</div>)}</div>}
         <div className={view === "dia" ? "" : "grid grid-cols-7"}>{days.map(day => {
@@ -100,7 +100,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
         })}</div>
       </div></div>
     </section>
-    <section aria-label="Lista da agenda" className="rounded-xl border border-line bg-card p-4">
+    <section aria-label="Lista da agenda" className="erp-card p-4">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-bold text-ink">Lista do período</h2><span className="text-xs text-mut">{periodItems.length} item(ns)</span></div>
       {!groups.length && <p className="py-5 text-center text-sm text-mut">Nenhuma data ou pagamento neste período.</p>}
       <div className="space-y-4">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>

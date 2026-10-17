@@ -8,7 +8,7 @@ import { formatMoney, relativeDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/database.types";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 
 export default async function ProjetosPage({
   searchParams,

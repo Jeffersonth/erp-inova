@@ -136,7 +136,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       </Dialog>
 
       {toastMsg && (
-        <div className="animate-toast-in fixed bottom-[22px] left-1/2 z-[60] flex -translate-x-1/2 items-center gap-2 rounded-[10px] bg-navy px-[18px] py-2.5 text-[13.5px] font-semibold text-soft shadow-[0_10px_30px_rgba(10,26,51,.35)]">
+        <div className="animate-toast-in fixed bottom-[22px] left-1/2 z-[60] flex -translate-x-1/2 items-center gap-2 rounded-[10px] bg-navy px-[18px] py-2.5 text-[13.5px] font-semibold text-soft shadow-[0_10px_30px_rgba(20,13,36,.35)]">
           <span className="text-aqua">✓</span> {toastMsg}
         </div>
       )}

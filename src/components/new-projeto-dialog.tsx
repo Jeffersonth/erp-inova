@@ -181,7 +181,7 @@ export function NewProjetoDialog({
                     style={
                       active
                         ? { background: meta.tint, borderColor: meta.border, color: meta.text }
-                        : { background: "transparent", borderColor: "#DCE4F0", color: "#8DA2C0" }
+                        : { background: "transparent", borderColor: "#EBE5EF", color: "#B8AEC9" }
                     }
                   >
                     {meta.label}

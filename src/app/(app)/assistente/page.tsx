@@ -85,7 +85,7 @@ export default function AssistentePage() {
 
       <div
         ref={logRef}
-        className="thin-scroll flex flex-1 flex-col gap-3 overflow-y-auto rounded-xl border border-line bg-card p-4"
+        className="thin-scroll flex flex-1 flex-col gap-3 overflow-y-auto erp-card p-4"
       >
         {msgs.map((m, i) =>
           m.who === "user" ? (

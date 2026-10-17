@@ -4,27 +4,28 @@
 
 @layer base {
   :root {
-    /* shadcn/ui semantic tokens — Inova Labs light theme */
-    --background: 216 43% 97%;
-    --foreground: 222 49% 8%;
+    /* Identidade solar em superfícies brancas. */
+    --background: 0 0% 100%;
+    --foreground: 263 30% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 222 49% 8%;
+    --card-foreground: 263 30% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 49% 8%;
-    --primary: 224 100% 56%;
+    --popover-foreground: 263 30% 14%;
+    --primary: 330 74% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 216 43% 97%;
-    --secondary-foreground: 222 49% 8%;
-    --muted: 214 33% 92%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 49% 8%;
+    --secondary: 270 40% 98%;
+    --secondary-foreground: 263 30% 14%;
+    --muted: 273 36% 95%;
+    --muted-foreground: 272 11% 47%;
+    --accent: 329 70% 97%;
+    --accent-foreground: 330 74% 40%;
     --destructive: 359 74% 59%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 33% 90%;
-    --input: 214 33% 90%;
-    --ring: 224 100% 56%;
-    --radius: 0.75rem;
+    --border: 276 24% 92%;
+    --input: 276 24% 88%;
+    --ring: 330 74% 45%;
+    --radius: 0.875rem;
+    --solar-gradient: linear-gradient(110deg, #C51E72 0%, #C44922 100%);
   }
 }
 
@@ -46,10 +47,103 @@
     width: 8px;
   }
   .thin-scroll::-webkit-scrollbar-thumb {
-    background: #cdd7e6;
+    background: #D8CDDF;
     border-radius: 99px;
   }
   .thin-scroll::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+
+@layer base {
+  ::selection { background: #FCE1EE; color: #811247; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button, a { touch-action: manipulation; }
+  :where(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid #C51E72;
+    outline-offset: 3px;
+  }
+  :where(input, select, textarea) { transition: border-color .18s ease, box-shadow .18s ease; }
+  :where(input, textarea, select):focus { box-shadow: 0 0 0 3px rgb(197 30 114 / .09); }
+  input[type="checkbox"], input[type="radio"] { accent-color: #C51E72; }
+  select option { background: white; color: #20182D; }
+}
+
+@layer components {
+  .erp-shell { isolation: isolate; background: #fff; }
+  .erp-page { width: 100%; min-width: 0; }
+  .erp-card {
+    border: 1px solid #EBE5EF;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 3px 18px -10px rgb(43 21 63 / .12);
+    transition: border-color .22s ease, box-shadow .22s ease;
+  }
+  .erp-page h1 { letter-spacing: -.035em; font-size: 24px; line-height: 1.25; }
+  .erp-page > div > :first-child { margin-bottom: 5px; }
+  .erp-shell :where(button, a) {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: .18s;
+    transition-timing-function: ease;
+  }
+  .erp-shell :where(button.bg-brand, a.bg-brand, button.bg-primary, a.bg-primary), [role="dialog"] :where(button.bg-brand, a.bg-brand, button.bg-primary, a.bg-primary) {
+    background-image: var(--solar-gradient);
+    box-shadow: 0 4px 12px -5px rgb(197 30 114 / .4);
+  }
+  .erp-sidebar {
+    background: radial-gradient(ellipse at 0 0, rgb(239 43 145 / .13), transparent 45%),
+      radial-gradient(ellipse at 100% 100%, rgb(255 121 57 / .06), transparent 45%), #140D24;
+  }
+  .erp-nav-link { position: relative; border: 1px solid transparent; color: #C8BED6; }
+  .erp-nav-link:hover { color: #fff; background: rgb(255 255 255 / .045); }
+  .erp-nav-link[aria-current="page"] {
+    color: #fff;
+    border-color: rgb(239 43 145 / .28);
+    background: linear-gradient(110deg, rgb(239 43 145 / .22), rgb(255 121 57 / .07));
+    box-shadow: inset 3px 0 #EF2B91, 0 4px 16px rgb(0 0 0 / .08);
+  }
+  .erp-nav-link[aria-current="page"] .erp-nav-icon { background: rgb(239 43 145 / .16); color: #FF8ABD; }
+  .erp-nav-link .erp-nav-icon { transition: background .2s, color .2s, transform .2s; }
+  .erp-bottom-tab[aria-current="page"] { color: #FF8ABD; background: rgb(239 43 145 / .1); }
+  .erp-bottom-tab[aria-current="page"]::before {
+    content: ""; position: absolute; top: 0; width: 22px; height: 2px;
+    border-radius: 10px; background: linear-gradient(90deg, #EF2B91, #FF7939);
+  }
+  .erp-topbar { background: rgb(255 255 255 / .94); backdrop-filter: blur(16px); }
+  .erp-skip-link { position: fixed; left: 16px; top: -60px; z-index: 100; border-radius: 10px; background: #140D24; color: white; padding: 10px 16px; }
+  .erp-skip-link:focus { top: 12px; }
+  .erp-table-row { transition: background-color .16s; }
+  .erp-table-row:hover { background: #FCF7FA; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .erp-card:hover { border-color: #DFD2E5; box-shadow: 0 8px 26px -16px rgb(59 22 68 / .26); }
+  .erp-nav-link:hover .erp-nav-icon { transform: translateY(-1px); }
+  .erp-shell button.bg-brand:hover, .erp-shell a.bg-brand:hover,
+  [role="dialog"] button.bg-brand:hover { box-shadow: 0 7px 18px -7px rgb(197 30 114 / .55); transform: translateY(-1px); }
+  .erp-shell button:active:not(:disabled):not([draggable="true"]) { transform: translateY(1px); }
+}
+
+@keyframes pageReveal {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .erp-page { animation: pageReveal .35s cubic-bezier(.16, 1, .3, 1) both; }
+  .erp-page > div > :nth-child(-n+8) { animation: pageReveal .42s cubic-bezier(.16, 1, .3, 1) both; }
+  .erp-page > div > :nth-child(2) { animation-delay: 35ms; }
+  .erp-page > div > :nth-child(3) { animation-delay: 65ms; }
+  .erp-page > div > :nth-child(4) { animation-delay: 95ms; }
+  .erp-page > div > :nth-child(5) { animation-delay: 125ms; }
+  .erp-page > div > :nth-child(6) { animation-delay: 155ms; }
+  .erp-page > div > :nth-child(7) { animation-delay: 175ms; }
+  .erp-page > div > :nth-child(8) { animation-delay: 195ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
   }
 }

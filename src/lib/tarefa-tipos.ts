@@ -12,7 +12,7 @@ export type TipoMeta = {
 
 /** Metadados visuais de cada tipo de tarefa — cores no espírito da paleta Inova Labs. */
 export const TIPO_META: Record<TarefaTipo, TipoMeta> = {
-  dev: { label: "Dev", color: "#1D5BFF", text: "#1848CC", tint: "rgba(29,91,255,.07)", border: "rgba(29,91,255,.28)" },
+  dev: { label: "Dev", color: "#C51E72", text: "#A81760", tint: "rgba(197,30,114,.07)", border: "rgba(197,30,114,.28)" },
   design: { label: "Design", color: "#7A5AF8", text: "#5B3FD1", tint: "rgba(122,90,248,.09)", border: "rgba(122,90,248,.30)" },
   conteudo: { label: "Conteúdo", color: "#0E9F6E", text: "#0B7D57", tint: "rgba(14,159,110,.09)", border: "rgba(14,159,110,.30)" },
   reuniao: { label: "Reunião", color: "#C77700", text: "#A66300", tint: "rgba(199,119,0,.09)", border: "rgba(199,119,0,.30)" },

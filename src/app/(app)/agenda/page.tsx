@@ -10,7 +10,7 @@ export default async function AgendaPage({ searchParams }: { searchParams: { dia
     db.from<{ id: string; titulo: string }>("projetos").select("id, titulo").order("created_at"),
     db.from<AgendaRecebimento>("recebimentos").select("id, descricao, valor, valor_pago, moeda, status, vencimento, clientes(nome)").not("vencimento", "is", null),
   ]);
-  if (eventos.error || tarefas.error || recebimentos.error) return <p role="alert" className="rounded-xl border border-line bg-card p-5 text-sm text-mut">Não foi possível carregar a agenda. Atualize a página para tentar novamente.</p>;
+  if (eventos.error || tarefas.error || recebimentos.error) return <p role="alert" className="erp-card p-5 text-sm text-mut">Não foi possível carregar a agenda. Atualize a página para tentar novamente.</p>;
   return <div className="flex flex-col gap-3">
     <div><h1 className="text-[18px] font-extrabold text-ink">Agenda</h1><p className="mt-1 text-[13px] text-mut">Datas importantes e pagamentos organizados por dia, semana e mês.</p></div>
     <Agenda eventosIniciais={eventos.data ?? []} tarefasIniciais={tarefas.data ?? []} recebimentos={recebimentos.data ?? []} projetos={projetos.data ?? []} initialDay={searchParams.dia && validAgendaDate(searchParams.dia) ? searchParams.dia : agendaDate()} initialItem={searchParams.item} />

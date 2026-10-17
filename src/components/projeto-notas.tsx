@@ -50,7 +50,7 @@ export function ProjetoNotas({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-card px-3.5 py-3">
+    <div className="erp-card px-3.5 py-3">
       <div className="mb-2 flex items-center gap-2">
         <b className="text-[13.5px] text-ink">Anotações importantes</b>
         <span className="text-[12px] text-mut">lembretes do projeto · prioridade sobe pro topo</span>

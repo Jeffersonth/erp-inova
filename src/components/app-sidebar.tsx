@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   LogOut,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -55,12 +56,12 @@ const mobileTitles: Record<string, [string, string]> = {
 };
 
 // Bottom nav mobile — 5 atalhos do design (glifos do próprio design)
-const bottomTabs: { href: string; icon: string; label: string }[] = [
-  { href: "/hoje", icon: "◎", label: "Hoje" },
-  { href: "/dashboard", icon: "▣", label: "Painel" },
-  { href: "/assistente", icon: "✦", label: "IA" },
-  { href: "/anotacoes", icon: "✎", label: "Notas" },
-  { href: "/financeiro", icon: "$", label: "Finanças" },
+const bottomTabs: { href: string; icon: LucideIcon; label: string }[] = [
+  { href: "/hoje", icon: Target, label: "Hoje" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Painel" },
+  { href: "/assistente", icon: Sparkles, label: "IA" },
+  { href: "/anotacoes", icon: StickyNote, label: "Notas" },
+  { href: "/financeiro", icon: Wallet, label: "Finanças" },
 ];
 
 function Logo() {
@@ -84,6 +85,15 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", escape);
+    return () => { document.body.style.overflow = previous; document.removeEventListener("keydown", escape); };
+  }, [open]);
+
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
@@ -98,7 +108,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
   return (
     <>
       {/* Barra superior — só mobile/tablet (header do design) */}
-      <div className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-white/10 bg-[#140D24] px-3 py-2.5 text-soft md:hidden">
+      <div className="erp-sidebar sticky top-0 z-30 flex items-center gap-3 border-b border-white/10 px-4 py-3 text-soft md:hidden">
         <button
           onClick={() => setOpen(true)}
           aria-label="Abrir menu"
@@ -115,7 +125,7 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
         </Link>
         <div className="min-w-0">
           <div className="truncate text-[14px] font-extrabold tracking-[-0.01em]">{titulo}</div>
-          <div className="truncate text-[10.5px] text-[#8DA2C0]">{subtitulo}</div>
+          <div className="truncate text-[10.5px] text-[#B8AEC9]">{subtitulo}</div>
         </div>
         <Link href="/configuracoes" className="ml-auto flex-none" aria-label="Perfil">
           {avatarUrl ? (
@@ -133,19 +143,20 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-[#140D24]/60 backdrop-blur-[1px] md:hidden"
+          className="fixed inset-0 z-40 bg-[#140D24]/60 backdrop-blur-sm md:hidden"
         />
       )}
 
       {/* Sidebar: drawer off-canvas no mobile, coluna fixa a partir de md */}
       <nav
+        aria-label="Menu principal"
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[212px] flex-col gap-0.5 bg-[#140D24] px-3 py-4 text-soft transition-transform duration-200 ease-out",
-          "md:sticky md:top-0 md:z-auto md:h-screen md:flex-none md:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full",
+          "erp-sidebar fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[248px] flex-col gap-0.5 px-4 py-5 text-soft shadow-2xl shadow-navy/10 transition-transform duration-300 ease-out",
+          "md:sticky md:top-0 md:z-auto md:flex-none md:translate-x-0",
+          open ? "visible translate-x-0" : "invisible -translate-x-full md:visible",
         )}
       >
-        <div className="flex items-center justify-between px-2.5 pb-[18px] pt-1">
+        <div className="mb-5 flex items-center justify-between border-b border-white/[0.08] px-1 pb-6 pt-1">
           <Link href="/hoje">
             <Logo />
           </Link>
@@ -158,10 +169,10 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
           </button>
         </div>
 
-        <div className="px-2.5 pb-2 text-[10px] font-semibold tracking-[0.08em] text-white/70">
-          ERP PESSOAL
+        <div className="px-3 pb-3 text-[9px] font-semibold tracking-[0.18em] text-[#B8AEC9]/70">
+          SEU ESPAÇO
         </div>
-
+        <div className="thin-scroll min-h-0 flex-1 space-y-1 overflow-y-auto pb-4">
         {nav.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -170,18 +181,19 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-white transition-colors",
-                active ? "bg-white/10 font-semibold" : "hover:bg-white/[0.08]",
+                "erp-nav-link flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[12.5px]",
+                active ? "font-semibold" : "font-medium",
               )}
             >
-              <Icon className="size-[15px]" strokeWidth={2} />
+              <span className="erp-nav-icon flex size-7 shrink-0 items-center justify-center rounded-lg"><Icon className="size-[16px]" strokeWidth={1.8} /></span>
               {item.label}
             </Link>
           );
         })}
-
-        <div className="mt-auto flex items-center gap-1.5 border-t border-white/10 px-2.5 pb-1 pt-3">
+        </div>
+        <div className="mt-auto flex shrink-0 items-center gap-1.5 border-t border-white/10 px-1 pb-1 pt-4">
           <Link href="/configuracoes" className="flex min-w-0 flex-1 items-center gap-2">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -221,21 +233,22 @@ export function AppSidebar({ nome, funcao, avatarUrl, iniciais }: AppSidebarProp
 
       {/* Bottom nav — só mobile (5 atalhos do design) */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#1C3560] bg-navy px-1 pt-1.5 md:hidden"
+        className="erp-sidebar fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 gap-1 border-t border-white/10 px-2 pt-1.5 shadow-[0_-8px_30px_rgba(20,13,36,.1)] md:hidden"
         style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
       >
         {bottomTabs.map((t) => {
           const ativo = pathname === t.href || pathname.startsWith(t.href + "/");
+          const Icon = t.icon;
           return (
             <Link
               key={t.href}
               href={t.href}
+              aria-current={ativo ? "page" : undefined}
               className={cn(
-                "flex min-h-[48px] flex-col items-center justify-center gap-[3px] py-1.5",
-                ativo ? "text-aqua" : "text-[#8DA2C0]",
+                "erp-bottom-tab relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[#B8AEC9]",
               )}
             >
-              <span className="text-[17px] leading-none">{t.icon}</span>
+              <Icon className="size-[19px]" strokeWidth={1.8} />
               <span className="text-[9.5px] font-semibold">{t.label}</span>
             </Link>
           );

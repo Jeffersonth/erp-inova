@@ -3,7 +3,7 @@ import { IaBadge } from "@/components/ia-badge";
 import { PerfilForm } from "@/components/perfil-form";
 import { createClient } from "@/lib/supabase/server";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 
 export default async function ConfiguracoesPage() {
   const supabase = createClient();

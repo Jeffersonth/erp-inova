@@ -30,7 +30,7 @@ import {
   type LeadMetaMetrica,
 } from "@/lib/leads";
 
-const card = "rounded-xl border border-line bg-card";
+const card = "erp-card";
 
 /* ---------------- datas (fuso local do navegador) ---------------- */
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -327,7 +327,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
                   <div className="h-4 overflow-hidden rounded-md bg-soft">
                     <div
                       className="flex h-full items-center rounded-md pl-1.5 text-[11px] font-bold text-white"
-                      style={{ width: `${Math.max(e.pctDoTopo, e.valor > 0 ? 8 : 0)}%`, background: `rgba(29,91,255,${funilOpacidade[i]})` }}
+                      style={{ width: `${Math.max(e.pctDoTopo, e.valor > 0 ? 8 : 0)}%`, background: `rgba(197,30,114,${funilOpacidade[i]})` }}
                     >
                       {e.valor > 0 ? e.valor : ""}
                     </div>
@@ -382,13 +382,13 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
             <span className="text-[11.5px] text-mut">últimos 30 dias · contatos (azul) e vendas (verde)</span>
           </div>
           <svg width="100%" height="96" viewBox="0 0 340 96" preserveAspectRatio="none" className="mt-2" role="img" aria-label="Contatos por dia nos últimos 30 dias">
-            <line x1="0" y1="86" x2="340" y2="86" stroke="#DCE4F0" />
+            <line x1="0" y1="86" x2="340" y2="86" stroke="#EBE5EF" />
             {serie30.map((d, i) => {
               const bw = 340 / 30;
               const h = Math.round((d.contatos / max30) * 70);
               return (
                 <g key={d.data}>
-                  <rect x={i * bw + 1.5} y={86 - h} width={bw - 3} height={Math.max(h, d.contatos > 0 ? 2 : 0)} rx="1.5" fill="#1D5BFF">
+                  <rect x={i * bw + 1.5} y={86 - h} width={bw - 3} height={Math.max(h, d.contatos > 0 ? 2 : 0)} rx="1.5" fill="#C51E72">
                     <title>{`${fmtCurto(d.data)}: ${d.contatos} contato(s) · ${d.vendas} venda(s)`}</title>
                   </rect>
                   {d.vendas > 0 && <circle cx={i * bw + bw / 2} cy={86 - h - 5} r="2.5" fill="#0E9F6E" />}
@@ -408,17 +408,17 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
             <span className="text-[11.5px] text-mut">comparativo · 6 meses</span>
           </div>
           <svg width="100%" height="96" viewBox="0 0 340 96" preserveAspectRatio="none" className="mt-2" role="img" aria-label="Contatos por mês nos últimos 6 meses">
-            <line x1="0" y1="86" x2="340" y2="86" stroke="#DCE4F0" />
+            <line x1="0" y1="86" x2="340" y2="86" stroke="#EBE5EF" />
             {meses6.map((m, i) => {
               const bw = 340 / 6;
               const h = Math.round((m.contatos / maxMes) * 66);
               return (
                 <g key={m.iso}>
-                  <rect x={i * bw + 8} y={86 - h} width={bw - 16} height={Math.max(h, m.contatos > 0 ? 2 : 0)} rx="2" fill={i === meses6.length - 1 ? "#1D5BFF" : "rgba(29,91,255,.45)"}>
+                  <rect x={i * bw + 8} y={86 - h} width={bw - 16} height={Math.max(h, m.contatos > 0 ? 2 : 0)} rx="2" fill={i === meses6.length - 1 ? "#C51E72" : "rgba(197,30,114,.45)"}>
                     <title>{`${m.label}: ${m.contatos} contato(s) · ${m.vendas} venda(s) · ${formatMoney(m.receita)}`}</title>
                   </rect>
                   {m.contatos > 0 && (
-                    <text x={i * bw + bw / 2} y={82 - h} textAnchor="middle" fontSize="10" fontWeight="700" fill="#0B1220">
+                    <text x={i * bw + bw / 2} y={82 - h} textAnchor="middle" fontSize="10" fontWeight="700" fill="#20182D">
                       {m.contatos}
                     </text>
                   )}
@@ -475,7 +475,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
                   <div className="h-3 overflow-hidden rounded-full bg-soft">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${Math.round((c.receita / maxReceitaCanal) * 100)}%`, background: "linear-gradient(90deg,#1D5BFF,#00D1FF)" }}
+                      style={{ width: `${Math.round((c.receita / maxReceitaCanal) * 100)}%`, background: "linear-gradient(90deg,#C51E72,#FF7939)" }}
                     />
                   </div>
                   <b className="text-right text-ink">{formatMoney(c.receita)}</b>
@@ -543,7 +543,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
                       className="h-full rounded-full transition-all"
                       style={{
                         width: `${Math.min(100, pctM)}%`,
-                        background: pctM >= 100 ? "#0E9F6E" : "linear-gradient(90deg,#1D5BFF,#00D1FF)",
+                        background: pctM >= 100 ? "#0E9F6E" : "linear-gradient(90deg,#C51E72,#FF7939)",
                       }}
                     />
                   </div>
@@ -571,7 +571,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
               <div key={i} className="flex items-start gap-2.5">
                 <span
                   className="mt-[5px] size-2 flex-none rounded-full"
-                  style={{ background: a.tone === "ok" ? "#0E9F6E" : a.tone === "warn" ? "#C77700" : "#1D5BFF" }}
+                  style={{ background: a.tone === "ok" ? "#0E9F6E" : a.tone === "warn" ? "#C77700" : "#C51E72" }}
                 />
                 <span className="min-w-0 text-ink">
                   <RichText text={a.texto} />
@@ -625,7 +625,7 @@ export function LeadsBoard({ canais, registrosInicial, metasInicial, mesInicioIs
                   className={`relative flex h-9 flex-col items-center justify-center rounded-lg border text-[12px] transition-colors ${
                     sel ? "border-brand bg-brand/[0.08] font-bold text-brand" : "border-line text-ink hover:border-brand"
                   }`}
-                  style={c.contatos > 0 && !sel ? { background: `rgba(29,91,255,${0.06 + c.intensidade * 0.22})` } : undefined}
+                  style={c.contatos > 0 && !sel ? { background: `rgba(197,30,114,${0.06 + c.intensidade * 0.22})` } : undefined}
                   title={c.contatos > 0 ? `${c.contatos} contato(s) · ${c.vendas} venda(s)` : undefined}
                 >
                   {c.dia}
