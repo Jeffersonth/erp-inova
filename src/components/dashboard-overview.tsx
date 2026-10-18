@@ -37,6 +37,7 @@ import type { RotinaItem } from "@/lib/rotina";
 import { rotinaHorarioOrdem } from "@/lib/rotina";
 import type { CanalStats } from "@/lib/leads";
 import { formatDuracao } from "@/lib/format";
+import { projetosEmRisco } from "@/lib/insights";
 
 function Panel({
   title,
@@ -245,6 +246,7 @@ export async function DashboardOverview({
       Number(a.status === "concluido") - Number(b.status === "concluido") ||
       (a.data_entrega || "9999").localeCompare(b.data_entrega || "9999"),
   );
+  const workRisks = projetosEmRisco(work.data ?? []);
   const areas = [
     {
       label: "Tarefas pendentes",
@@ -745,7 +747,7 @@ export async function DashboardOverview({
                   concluídos
                 </p>
                 <div className="divide-y divide-line">
-                  {workItems.slice(0, 4).map((item) => (
+                  {workItems.slice(0, 5).map((item) => (
                     <Link
                       href={`/projetos?p=${item.id}`}
                       key={item.id}
@@ -772,6 +774,23 @@ export async function DashboardOverview({
                             ? `Entrega ${dateLabel(item.data_entrega)}`
                             : "Sem data de entrega"}
                       </p>
+                      {workRisks.find((r) => r.id === item.id) && (
+                        <div className="mt-2 rounded-lg bg-soft p-2">
+                          <p className="text-[11px] text-mut">
+                            Risco de atraso:{" "}
+                            <b className="text-ink">
+                              {workRisks.find((r) => r.id === item.id)!.risco}%
+                            </b>{" "}
+                            · {workRisks.find((r) => r.id === item.id)!.motivo}
+                          </p>
+                          <Progress
+                            value={
+                              workRisks.find((r) => r.id === item.id)!.risco
+                            }
+                            label={`Risco de atraso de ${item.titulo}`}
+                          />
+                        </div>
+                      )}
                     </Link>
                   ))}
                 </div>
