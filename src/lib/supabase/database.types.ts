@@ -911,6 +911,7 @@ export type Database = {
           id: string
           ordem: number
           status: Database["public"]["Enums"]["tarefa_dia_status"]
+          descricao: string
           titulo: string
           user_id: string
         }
@@ -921,6 +922,7 @@ export type Database = {
           id?: string
           ordem?: number
           status?: Database["public"]["Enums"]["tarefa_dia_status"]
+          descricao?: string
           titulo: string
           user_id: string
         }
@@ -931,6 +933,7 @@ export type Database = {
           id?: string
           ordem?: number
           status?: Database["public"]["Enums"]["tarefa_dia_status"]
+          descricao?: string
           titulo?: string
           user_id?: string
         }
