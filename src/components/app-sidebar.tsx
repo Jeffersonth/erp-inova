@@ -57,7 +57,7 @@ const mobileTitles: Record<string, [string, string]> = {
   "/anotacoes": ["Anotações", "a IA detecta o prazo"],
   "/rotina-dieta": ["Rotina e Dieta", "seus horários e refeições"],
   "/regras": ["Regras", "seus princípios por categoria"],
-  "/dashboard": ["Painel", "visão do negócio"],
+  "/dashboard": ["Painel", "pessoal · comercial · financeiro"],
   "/configuracoes": ["Configurações", "perfil e integrações"],
 };
 

@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
-  agendaDate,
   agendaNoPeriodo,
   montarAgenda,
   AGENDA_TIPOS,
@@ -58,7 +57,7 @@ function Panel({
         <span className="text-brand" aria-hidden="true">
           {icon}
         </span>
-        <h2 className="text-sm font-bold text-ink">{title}</h2>
+        <h3 className="text-sm font-bold text-ink">{title}</h3>
         <Link
           href={href}
           aria-label={`Abrir ${title}`}
@@ -287,7 +286,7 @@ export async function DashboardOverview({
             <Link
               key={a.label}
               href={a.href}
-              className={`erp-card dashboard-panel min-w-0 p-4 ${["erp-card--lavender", "erp-card--rose", "erp-card--peach", "erp-card--mint"][i]}`}
+              className={`erp-card dashboard-panel min-w-0 p-4 ${i === 2 ? "col-span-2 xl:col-span-1" : ""} ${["erp-card--lavender", "erp-card--rose", "erp-card--peach"][i]}`}
             >
               <div className="flex items-center justify-between gap-2 text-xs font-semibold text-mut">
                 {a.label}
@@ -615,76 +614,75 @@ export async function DashboardOverview({
               </>
             )}
           </Panel>
+          <Panel
+            title="Anotações e regras"
+            href="/anotacoes"
+            icon={<NotebookPen size={18} />}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                {notes.error ? (
+                  <Unavailable />
+                ) : (
+                  <>
+                    <Link
+                      href="/anotacoes"
+                      className="text-sm font-bold text-ink"
+                    >
+                      Anotações →
+                    </Link>
+                    <p className="mt-2 text-xs text-mut">
+                      {noteDone} concluídas ·{" "}
+                      {(notes.data ?? []).length - noteDone} pendentes
+                    </p>
+                    <Progress
+                      value={percentual(noteDone, (notes.data ?? []).length)}
+                      label="Anotações concluídas"
+                    />
+                    <p className="mt-2 text-xs text-mut">
+                      {
+                        (notes.data ?? []).filter(
+                          (n) => !n.concluida && n.due && n.due < today,
+                        ).length
+                      }{" "}
+                      pendentes com prazo vencido
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="border-line sm:border-l sm:pl-4">
+                {categories.error || rules.error ? (
+                  <Unavailable />
+                ) : (
+                  <>
+                    <Link href="/regras" className="text-sm font-bold text-ink">
+                      Regras →
+                    </Link>
+                    <p className="mt-2 text-xs text-mut">
+                      {(rules.data ?? []).length} tópicos em{" "}
+                      {(categories.data ?? []).length} categorias
+                    </p>
+                    <p className="mt-2 text-xs text-mut">
+                      {
+                        (categories.data ?? []).filter(
+                          (c) =>
+                            !(rules.data ?? []).some(
+                              (r) => r.categoria_id === c.id,
+                            ),
+                        ).length
+                      }{" "}
+                      categorias aguardando regras
+                    </p>
+                    <p className="mt-2 text-[11px] text-mut">
+                      Consulte seus princípios e mantenha suas categorias
+                      organizadas.
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </Panel>
         </div>
-        <Panel
-          title="Anotações e regras"
-          href="/anotacoes"
-          icon={<NotebookPen size={18} />}
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              {notes.error ? (
-                <Unavailable />
-              ) : (
-                <>
-                  <Link
-                    href="/anotacoes"
-                    className="text-sm font-bold text-ink"
-                  >
-                    Anotações →
-                  </Link>
-                  <p className="mt-2 text-xs text-mut">
-                    {noteDone} concluídas ·{" "}
-                    {(notes.data ?? []).length - noteDone} pendentes
-                  </p>
-                  <Progress
-                    value={percentual(noteDone, (notes.data ?? []).length)}
-                    label="Anotações concluídas"
-                  />
-                  <p className="mt-2 text-xs text-mut">
-                    {
-                      (notes.data ?? []).filter(
-                        (n) =>
-                          !n.concluida && n.due && agendaDate(n.due) < today,
-                      ).length
-                    }{" "}
-                    pendentes com prazo vencido
-                  </p>
-                </>
-              )}
-            </div>
-            <div className="border-line sm:border-l sm:pl-4">
-              {categories.error || rules.error ? (
-                <Unavailable />
-              ) : (
-                <>
-                  <Link href="/regras" className="text-sm font-bold text-ink">
-                    Regras →
-                  </Link>
-                  <p className="mt-2 text-xs text-mut">
-                    {(rules.data ?? []).length} tópicos em{" "}
-                    {(categories.data ?? []).length} categorias
-                  </p>
-                  <p className="mt-2 text-xs text-mut">
-                    {
-                      (categories.data ?? []).filter(
-                        (c) =>
-                          !(rules.data ?? []).some(
-                            (r) => r.categoria_id === c.id,
-                          ),
-                      ).length
-                    }{" "}
-                    categorias aguardando regras
-                  </p>
-                  <p className="mt-2 text-[11px] text-mut">
-                    Consulte seus princípios e mantenha suas categorias
-                    organizadas.
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        </Panel>
       </section>
       <section
         id="comercial"
