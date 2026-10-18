@@ -243,49 +243,28 @@ export function DayTasks({ initialTasks }: { initialTasks: DayTask[] }) {
   return (
     <div className="flex flex-col gap-3">
       {/* Adicionar tarefa */}
-      <form onSubmit={addTask} className="erp-card flex flex-col gap-3 p-4">
-        <div>
-          <label
-            htmlFor="nova-tarefa-titulo"
-            className="text-xs font-semibold text-ink"
-          >
-            Título da tarefa
-          </label>
-          <input
-            id="nova-tarefa-titulo"
-            value={novoTitulo}
-            onChange={(e) => setNovoTitulo(e.target.value)}
-            required
-            placeholder="O que você precisa fazer?"
-            className={`mt-1 w-full ${field}`}
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="nova-tarefa-descricao"
-            className="text-xs font-semibold text-ink"
-          >
-            Pequeno texto{" "}
-            <span className="font-normal text-mut">(opcional)</span>
-          </label>
-          <textarea
-            id="nova-tarefa-descricao"
-            value={novaDescricao}
-            onChange={(e) => setNovaDescricao(e.target.value)}
-            maxLength={500}
-            rows={2}
-            placeholder="Descreva o que fazer ou o resultado esperado…"
-            className={`mt-1 w-full resize-y ${field}`}
-          />
-          <p className="text-right text-[11px] text-mut">
-            {novaDescricao.length}/500
-          </p>
-        </div>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
+      <form onSubmit={addTask} className="erp-card flex flex-col gap-2 p-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 sm:grid-cols-[minmax(0,1fr)_145px_auto]">
+          <div className="col-span-2 min-w-0 sm:col-span-1">
+            <label
+              htmlFor="nova-tarefa-titulo"
+              className="mb-1 block text-[11px] font-semibold text-ink"
+            >
+              Título da tarefa
+            </label>
+            <input
+              id="nova-tarefa-titulo"
+              value={novoTitulo}
+              onChange={(e) => setNovoTitulo(e.target.value)}
+              required
+              placeholder="O que você precisa fazer?"
+              className={`w-full !py-1.5 ${field}`}
+            />
+          </div>
+          <div className="min-w-0">
             <label
               htmlFor="nova-tarefa-data"
-              className="mb-1 block text-xs font-semibold text-mut"
+              className="mb-1 block text-[11px] font-semibold text-mut"
             >
               Finalizar até
             </label>
@@ -294,16 +273,35 @@ export function DayTasks({ initialTasks }: { initialTasks: DayTask[] }) {
               type="date"
               value={novaData}
               onChange={(e) => setNovaData(e.target.value)}
-              className={field}
+              className={`w-full min-w-0 !py-1.5 ${field}`}
             />
           </div>
           <button
             type="submit"
             disabled={adding}
-            className="rounded-lg bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
+            className="h-[34px] whitespace-nowrap rounded-lg bg-brand px-3 text-[12px] font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
           >
-            {adding ? "Adicionando…" : "+ Adicionar tarefa"}
+            {adding ? "Adicionando…" : "+ Adicionar"}
           </button>
+        </div>
+        <div className="relative">
+          <label htmlFor="nova-tarefa-descricao" className="sr-only">
+            Pequeno texto (opcional)
+          </label>
+          <textarea
+            id="nova-tarefa-descricao"
+            value={novaDescricao}
+            onChange={(e) => setNovaDescricao(e.target.value)}
+            maxLength={500}
+            rows={1}
+            placeholder="Descrição curta (opcional)…"
+            className={`block min-h-[34px] w-full resize-y !py-1.5 !pr-16 ${field}`}
+          />
+          {novaDescricao.length > 0 && (
+            <span className="pointer-events-none absolute right-3 top-2 text-[10px] text-mut">
+              {novaDescricao.length}/500
+            </span>
+          )}
         </div>
       </form>
 
