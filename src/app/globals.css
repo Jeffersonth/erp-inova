@@ -113,7 +113,6 @@
     content: ""; position: absolute; top: 0; width: 22px; height: 2px;
     border-radius: 10px; background: linear-gradient(90deg, #EF2B91, #FF7939);
   }
-  .erp-topbar { background: rgb(255 255 255 / .94); backdrop-filter: blur(16px); }
   .erp-skip-link { position: fixed; left: 16px; top: -60px; z-index: 100; border-radius: 10px; background: #140D24; color: white; padding: 10px 16px; }
   .erp-skip-link:focus { top: 12px; }
   .erp-table-row { transition: background-color .16s; }

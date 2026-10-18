@@ -3,7 +3,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { AppProviders } from "@/components/app-providers";
 import { FocusTimerProvider } from "@/components/focus-timer-provider";
 import { createClient } from "@/lib/supabase/server";
-import { AppTopbar } from "@/components/app-topbar";
 import { PageTransition } from "@/components/page-transition";
 
 export default async function AppLayout({
@@ -43,8 +42,7 @@ export default async function AppLayout({
             iniciais={iniciais || "?"}
           />
           <div className="flex min-w-0 flex-1 flex-col">
-            <AppTopbar date={new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Fortaleza", day: "numeric", month: "long" }).format(new Date())} />
-            <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1680px] min-w-0 flex-1 px-4 pb-[96px] pt-5 text-[14px] leading-[1.5] outline-none md:px-7 md:pb-9 md:pt-7 lg:px-8">
+            <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1680px] min-w-0 flex-1 px-4 pb-[96px] pt-5 text-[14px] leading-[1.5] outline-none md:px-7 md:pb-9 lg:px-8">
               <PageTransition>{children}</PageTransition>
             </main>
           </div>
