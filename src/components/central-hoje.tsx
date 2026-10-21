@@ -1,21 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { IaBadge } from "@/components/ia-badge";
 import { RichText } from "@/components/rich-text";
 import { useApp } from "@/components/app-providers";
 import { criarTarefaDia, atualizarTarefaDia } from "@/lib/actions/tarefas-dia";
-import { registrarSessaoFoco } from "@/lib/actions/tracker";
+import { useFocusTimer, PRESETS } from "@/components/focus-timer-provider";
 import { formatDuracao } from "@/lib/format";
 import type { Recomendacao, RadarItem } from "@/lib/central";
 import { AgendaHoje } from "@/components/agenda-hoje";
 import type { AgendaItem } from "@/lib/agenda-items";
 
 const card = "erp-card";
-const POMO_SEG = 25 * 60;
 
-export type PrioTarefa = { id: string; titulo: string; status: "pendente" | "em_andamento" | "concluida"; ordem: number };
+export type PrioTarefa = {
+  id: string;
+  titulo: string;
+  status: "pendente" | "em_andamento" | "concluida";
+  ordem: number;
+};
 
 type Props = {
   nome: string;
@@ -35,7 +39,6 @@ type Props = {
 function mmss(seg: number) {
   return `${String(Math.floor(seg / 60)).padStart(2, "0")}:${String(seg % 60).padStart(2, "0")}`;
 }
-
 
 function metaLabel(h: number) {
   const inteiro = Math.floor(h);
@@ -69,22 +72,35 @@ export function CentralHoje({
   const [tarefas, setTarefas] = useState<PrioTarefa[]>(tarefasInicial);
   const [novaPrio, setNovaPrio] = useState("");
   const concluidas = tarefas.filter((t) => t.status === "concluida").length;
-  const pct = tarefas.length ? Math.round((concluidas / tarefas.length) * 100) : 0;
+  const pct = tarefas.length
+    ? Math.round((concluidas / tarefas.length) * 100)
+    : 0;
 
   async function togglePrio(id: string) {
     const t = tarefas.find((x) => x.id === id);
     if (!t) return;
     const novo = t.status === "concluida" ? "pendente" : "concluida";
-    setTarefas((prev) => prev.map((x) => (x.id === id ? { ...x, status: novo } : x)));
-    await atualizarTarefaDia(id, { status: novo, concluida_em: novo === "concluida" ? new Date().toISOString() : null });
+    setTarefas((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, status: novo } : x)),
+    );
+    await atualizarTarefaDia(id, {
+      status: novo,
+      concluida_em: novo === "concluida" ? new Date().toISOString() : null,
+    });
   }
 
   async function addPrio(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const titulo = novaPrio.trim();
     if (!titulo) return;
-    const ordem = tarefas.length ? Math.max(...tarefas.map((t) => t.ordem)) + 1 : 0;
-    const { data, error } = await criarTarefaDia({ titulo, data_finalizar: null, ordem });
+    const ordem = tarefas.length
+      ? Math.max(...tarefas.map((t) => t.ordem)) + 1
+      : 0;
+    const { data, error } = await criarTarefaDia({
+      titulo,
+      data_finalizar: null,
+      ordem,
+    });
     if (error || !data) {
       toast("Não foi possível criar a prioridade.");
       return;
@@ -93,67 +109,26 @@ export function CentralHoje({
     setNovaPrio("");
   }
 
-  /* ---------------- sessão de foco (pomodoro 25min) ---------------- */
-  const [restante, setRestante] = useState(POMO_SEG);
-  const [rodando, setRodando] = useState(false);
-  const [projetoId, setProjetoId] = useState("");
-  const [rotulo, setRotulo] = useState("");
-  const [focoHoje, setFocoHoje] = useState(focoHojeSegInicial);
-  const inicioRef = useRef<number | null>(null);
-
-  const registrar = useCallback(
-    async (dur: number) => {
-      const inicio = inicioRef.current ? new Date(inicioRef.current) : new Date(Date.now() - dur * 1000);
-      const { error } = await registrarSessaoFoco({
-        projeto_id: projetoId || null,
-        tipo: "foco",
-        categoria: "trabalho",
-        duracao_seg: dur,
-        rotulo: rotulo.trim() || null,
-        iniciada_em: inicio.toISOString(),
-        finalizada_em: new Date().toISOString(),
-      });
-      if (!error) setFocoHoje((h) => h + dur);
-    },
-    [projetoId, rotulo],
+  const {
+    restante,
+    rodando,
+    projetoId,
+    setProjetoId,
+    rotulo,
+    setRotulo,
+    focoHoje,
+    duracaoTotal,
+    iniciarPausar: toggleFoco,
+    parar: finalizarFoco,
+    hidratarHoje,
+    modo,
+    preset,
+  } = useFocusTimer();
+  useEffect(
+    () => hidratarHoje(focoHojeSegInicial),
+    [hidratarHoje, focoHojeSegInicial],
   );
-
-  useEffect(() => {
-    if (!rodando) return;
-    const id = setInterval(() => {
-      setRestante((r) => (r <= 1 ? 0 : r - 1));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [rodando]);
-
-  useEffect(() => {
-    if (rodando && restante === 0) {
-      setRodando(false);
-      registrar(POMO_SEG);
-      inicioRef.current = null;
-      setRestante(POMO_SEG);
-      toast("✓ Sessão de foco concluída!");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restante, rodando]);
-
-  function toggleFoco() {
-    if (!rodando && inicioRef.current === null) inicioRef.current = Date.now();
-    setRodando((r) => !r);
-  }
-
-  async function finalizarFoco() {
-    const decorrido = POMO_SEG - restante;
-    setRodando(false);
-    if (decorrido >= 60) {
-      await registrar(decorrido);
-      toast(`Sessão salva: ${formatDuracao(decorrido)} de foco`);
-    }
-    inicioRef.current = null;
-    setRestante(POMO_SEG);
-  }
-
-  const ringDeg = ((POMO_SEG - restante) / POMO_SEG) * 360;
+  const ringDeg = ((duracaoTotal - restante) / duracaoTotal) * 360;
 
   /* ---------------- recomendação ---------------- */
   function agirRecomendacao() {
@@ -165,7 +140,11 @@ export function CentralHoje({
     );
   }
 
-  const dot: Record<RadarItem["cor"], string> = { danger: "#E5484D", warn: "#C77700", ok: "#0E9F6E" };
+  const dot: Record<RadarItem["cor"], string> = {
+    danger: "#E5484D",
+    warn: "#C77700",
+    ok: "#0E9F6E",
+  };
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -174,16 +153,23 @@ export function CentralHoje({
         <h1 className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">
           {saudacao}, {nome} 👋
         </h1>
-        <span className="text-[12.5px] text-mut">{dataHoje} · sua central de execução</span>
+        <span className="text-[12.5px] text-mut">
+          {dataHoje} · sua central de execução
+        </span>
       </div>
 
       {/* Progresso do dia */}
       <div className={`${card} flex items-center gap-2.5 px-3.5 py-2.5`}>
-        <span className="text-[12.5px] font-semibold text-mut">Progresso do dia</span>
+        <span className="text-[12.5px] font-semibold text-mut">
+          Progresso do dia
+        </span>
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-soft">
           <div
             className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, background: "linear-gradient(90deg,#C51E72,#FF7939)" }}
+            style={{
+              width: `${pct}%`,
+              background: "linear-gradient(90deg,#C51E72,#FF7939)",
+            }}
           />
         </div>
         <b className="text-[13.5px] text-ink">{pct}%</b>
@@ -192,24 +178,36 @@ export function CentralHoje({
       {/* KPIs do dia */}
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         <div className={`${card} px-3.5 py-2.5`}>
-          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">TAREFAS</div>
+          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">
+            TAREFAS
+          </div>
           <b className="text-[19px] text-ink">{tarefas.length}</b>
-          <div className="text-[11.5px] text-mut">{concluidas} concluída(s)</div>
+          <div className="text-[11.5px] text-mut">
+            {concluidas} concluída(s)
+          </div>
         </div>
         <div className={`${card} px-3.5 py-2.5`}>
-          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">A RECEBER</div>
+          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">
+            A RECEBER
+          </div>
           <b className="text-[19px] text-ok">{aReceber.valor}</b>
           <div className="truncate text-[11.5px] text-mut">{aReceber.sub}</div>
         </div>
         <div className={`${card} px-3.5 py-2.5`}>
-          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">REUNIÕES</div>
+          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">
+            REUNIÕES
+          </div>
           <b className="text-[19px] text-ink">{reunioes.total}</b>
           <div className="truncate text-[11.5px] text-mut">{reunioes.sub}</div>
         </div>
         <div className={`${card} px-3.5 py-2.5`}>
-          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">META DE HORAS</div>
+          <div className="text-[11px] font-semibold tracking-[0.06em] text-mut">
+            META DE HORAS
+          </div>
           <b className="text-[19px] text-ink">{formatDuracao(focoHoje)}</b>
-          <div className="text-[11.5px] text-mut">de {metaLabel(metaHorasDia)}</div>
+          <div className="text-[11.5px] text-mut">
+            de {metaLabel(metaHorasDia)}
+          </div>
         </div>
       </div>
 
@@ -248,14 +246,18 @@ export function CentralHoje({
           >
             <div
               className="flex size-[78px] flex-none items-center justify-center rounded-full"
-              style={{ background: `conic-gradient(#FF7939 ${ringDeg}deg, rgba(244,247,251,.12) ${ringDeg}deg)` }}
+              style={{
+                background: `conic-gradient(#FF7939 ${ringDeg}deg, rgba(244,247,251,.12) ${ringDeg}deg)`,
+              }}
             >
               <div className="flex size-[66px] items-center justify-center rounded-full bg-[#140D24] text-[16px] font-extrabold tabular-nums">
                 {mmss(restante)}
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <b className="text-[13.5px]">Sessão de foco</b>
+              <b className="text-[13.5px]">
+                {PRESETS[preset].config[modo].label}
+              </b>
               <div className="mt-0.5 flex items-center gap-1 text-[11.5px] text-[#B8AEC9]">
                 <select
                   value={projetoId}
@@ -272,6 +274,7 @@ export function CentralHoje({
                 ·
                 <input
                   value={rotulo}
+                  maxLength={2000}
                   onChange={(e) => setRotulo(e.target.value)}
                   placeholder="no que vai focar?"
                   className="min-w-0 flex-1 border-none bg-transparent text-[11.5px] text-[#B9C6DC] outline-none placeholder:text-[#B8AEC9]"
@@ -281,13 +284,19 @@ export function CentralHoje({
                 <button
                   onClick={toggleFoco}
                   className="min-h-[36px] rounded-lg px-4 py-2 text-[13px] font-bold text-white"
-                  style={{ background: "linear-gradient(135deg,#C51E72,#FF7939)" }}
+                  style={{
+                    background: "linear-gradient(135deg,#C51E72,#FF7939)",
+                  }}
                 >
-                  {rodando ? "❚❚ Pausar" : restante === POMO_SEG ? "▶ Iniciar" : "▶ Retomar"}
+                  {rodando
+                    ? "❚❚ Pausar"
+                    : restante === duracaoTotal
+                      ? "▶ Iniciar"
+                      : "▶ Retomar"}
                 </button>
                 <button
                   onClick={finalizarFoco}
-                  disabled={restante === POMO_SEG && !rodando}
+                  disabled={restante === duracaoTotal && !rodando}
                   title="Finalizar e salvar sessão"
                   className="min-h-[36px] rounded-lg border border-white/20 px-3 py-2 text-[13px] font-semibold text-[#B9C6DC] transition-colors hover:border-white/50 disabled:opacity-40"
                 >
@@ -303,13 +312,18 @@ export function CentralHoje({
           <div className={`${card} erp-card--rose px-3.5 py-3`}>
             <div className="flex items-center gap-2">
               <b className="text-[13.5px] text-ink">Prioridade máxima</b>
-              <Link href="/tarefas" className="ml-auto text-[12px] font-semibold text-mut transition-colors hover:text-brand">
+              <Link
+                href="/tarefas"
+                className="ml-auto text-[12px] font-semibold text-mut transition-colors hover:text-brand"
+              >
                 Ver todas →
               </Link>
             </div>
             <div className="mt-2.5 flex flex-col gap-2.5">
               {tarefas.length === 0 && (
-                <div className="py-1 text-[13px] text-mut">Nenhuma prioridade ainda — adicione a primeira abaixo.</div>
+                <div className="py-1 text-[13px] text-mut">
+                  Nenhuma prioridade ainda — adicione a primeira abaixo.
+                </div>
               )}
               {tarefas.slice(0, 6).map((t) => {
                 const done = t.status === "concluida";
@@ -319,19 +333,26 @@ export function CentralHoje({
                       onClick={() => togglePrio(t.id)}
                       aria-label={done ? "Reabrir" : "Concluir"}
                       className={`flex size-[22px] flex-none items-center justify-center rounded-[7px] border text-[13px] font-bold transition-colors ${
-                        done ? "border-ok bg-ok text-white" : "border-line bg-card text-transparent hover:border-brand"
+                        done
+                          ? "border-ok bg-ok text-white"
+                          : "border-line bg-card text-transparent hover:border-brand"
                       }`}
                     >
                       ✓
                     </button>
-                    <span className={`min-w-0 flex-1 truncate text-[13.5px] ${done ? "text-mut line-through" : "text-ink"}`}>
+                    <span
+                      className={`min-w-0 flex-1 truncate text-[13.5px] ${done ? "text-mut line-through" : "text-ink"}`}
+                    >
                       {t.titulo}
                     </span>
                   </div>
                 );
               })}
             </div>
-            <form onSubmit={addPrio} className="mt-2.5 flex gap-1.5 border-t border-dashed border-line pt-2.5">
+            <form
+              onSubmit={addPrio}
+              className="mt-2.5 flex gap-1.5 border-t border-dashed border-line pt-2.5"
+            >
               <input
                 value={novaPrio}
                 onChange={(e) => setNovaPrio(e.target.value)}
@@ -351,10 +372,17 @@ export function CentralHoje({
           <div className={`${card} erp-card--peach px-3.5 py-3`}>
             <b className="text-[13.5px] text-ink">Radar</b>
             <div className="mt-2 flex flex-col gap-2 text-[13px]">
-              {radar.length === 0 && <div className="py-1 text-mut">Nada no radar — tudo sob controle. 🎉</div>}
+              {radar.length === 0 && (
+                <div className="py-1 text-mut">
+                  Nada no radar — tudo sob controle. 🎉
+                </div>
+              )}
               {radar.map((r, i) => (
                 <div key={i} className="flex items-center gap-2.5">
-                  <span className="size-2 flex-none rounded-full" style={{ background: dot[r.cor] }} />
+                  <span
+                    className="size-2 flex-none rounded-full"
+                    style={{ background: dot[r.cor] }}
+                  />
                   <span className="min-w-0 text-ink">
                     <RichText text={r.texto} />
                   </span>

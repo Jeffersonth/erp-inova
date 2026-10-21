@@ -11,7 +11,9 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
 
@@ -32,9 +34,11 @@ export default async function AppLayout({
 
   return (
     <AppProviders>
-      <FocusTimerProvider>
+      <FocusTimerProvider userId={user.id} key={user.id}>
         <div className="erp-shell min-h-screen bg-background text-ink md:flex">
-          <a className="erp-skip-link" href="#conteudo">Pular para o conteúdo</a>
+          <a className="erp-skip-link" href="#conteudo">
+            Pular para o conteúdo
+          </a>
           <AppSidebar
             nome={nome}
             funcao={perfil?.funcao ?? "Dev freelancer"}
@@ -42,7 +46,11 @@ export default async function AppLayout({
             iniciais={iniciais || "?"}
           />
           <div className="flex min-w-0 flex-1 flex-col">
-            <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1680px] min-w-0 flex-1 px-4 pb-[96px] pt-5 text-[14px] leading-[1.5] outline-none md:px-7 md:pb-9 lg:px-8">
+            <main
+              id="conteudo"
+              tabIndex={-1}
+              className="mx-auto w-full max-w-[1680px] min-w-0 flex-1 px-4 pb-[96px] pt-5 text-[14px] leading-[1.5] outline-none md:px-7 md:pb-9 lg:px-8"
+            >
               <PageTransition>{children}</PageTransition>
             </main>
           </div>
