@@ -21,6 +21,7 @@ import {
   X,
   LogOut,
   Sparkles,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/prospeccao", label: "Prospecção", icon: Megaphone },
   { href: "/crm", label: "Clientes", icon: Users },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
+  { href: "/do-zero-ao-milhao", label: "Do zero ao milhão", icon: Trophy },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
   { href: "/rotina-dieta", label: "Rotina e Dieta", icon: Utensils },
@@ -51,6 +53,7 @@ const mobileTitles: Record<string, [string, string]> = {
   "/projetos-pessoais": ["Projetos - Pessoal", "suas ideias em andamento"],
   "/projetos": ["Projetos - Trabalho", "quadro de tarefas"],
   "/financeiro": ["Finanças", "R$ · US$ · €"],
+  "/do-zero-ao-milhao": ["Do zero ao milhão", "seus ganhos e conquistas"],
   "/tracker": ["Time Tracker", "foco, pausas e histórico"],
   "/agenda": ["Agenda", "mês · semana · dia"],
   "/assistente": ["Assistente IA", "toda ação vira rascunho"],
