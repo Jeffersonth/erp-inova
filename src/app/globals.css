@@ -170,7 +170,7 @@
   }
 }
 
-@media (max-height: 680px) {
+@media (max-height: 760px) {
   .erp-sidebar[aria-label="Menu principal"] .erp-nav-link { padding-top: 3px; padding-bottom: 3px; }
   .erp-sidebar[aria-label="Menu principal"] .erp-nav-link + .erp-nav-link { margin-top: 2px; }
 }
