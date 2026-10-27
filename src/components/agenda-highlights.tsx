@@ -50,7 +50,7 @@ export function AgendaHighlights({
             {hoje.length}
           </span>
         </header>
-        <div className="thin-scroll max-h-[360px] overflow-y-auto p-4 lg:max-h-[420px]">
+        <div className="min-h-[360px] p-4 lg:min-h-[560px]">
           {hoje.length ? (
             <AgendaItemList
               items={hoje}
@@ -96,7 +96,7 @@ export function AgendaHighlights({
             Novo
           </button>
         </header>
-        <div className="thin-scroll max-h-[360px] overflow-y-auto p-4 lg:max-h-[420px]">
+        <div className="min-h-[360px] p-4 lg:min-h-[560px]">
           {lembretes.length ? (
             <AgendaItemList
               items={lembretes}
