@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AgendaItemList } from "@/components/agenda-item-list";
+import { AgendaHighlights } from "@/components/agenda-highlights";
 import { salvarEvento, excluirEvento, marcarPagamentoAgenda, type EventoInput } from "@/lib/actions/agenda";
 import { AGENDA_TIPOS, agendaDate, agendaTime, agendaMoney, montarAgenda, agendaNoPeriodo, validAgendaDate, type AgendaEvent, type AgendaTask, type AgendaRecebimento, type AgendaItem, type EventoTipo } from "@/lib/agenda-items";
 
@@ -36,7 +37,13 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
   });
   const all = useMemo(() => montarAgenda(events, tarefasIniciais, recebimentos), [events, tarefasIniciais, recebimentos]);
   const items = all.filter(item => filter === "todos" || (filter === "pagamentos" ? ["pagamento", "recebimento"].includes(item.tipo) : item.tipo === filter));
-  const today = agendaDate();
+  const [today, setToday] = useState(() => agendaDate());
+  useEffect(() => {
+    const update = () => setToday(agendaDate());
+    const interval = setInterval(update, 60000);
+    document.addEventListener("visibilitychange", update);
+    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", update); };
+  }, []);
   const weekStart = addDays(cursor, -cursor.getDay());
   const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1, 12);
   const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0, 12);
@@ -68,13 +75,14 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     finally { setBusy(false); }
   }
   return <div className="flex flex-col gap-4">
+    <AgendaHighlights items={all} today={today} onEdit={edit} onPago={paid} busy={busy} onAdd={() => setEditing({ ev: null, dia: today, tipo: "lembrete" })}/>
     <div className="flex flex-wrap items-center gap-2">
       <button aria-label="Período anterior" className={button} onClick={() => navigate(-1)}>‹</button><button className={button} onClick={() => go(today)}>Hoje</button><button aria-label="Próximo período" className={button} onClick={() => navigate(1)}>›</button>
       <h2 className="text-sm font-bold capitalize text-ink">{periodLabel}</h2>
       <div className="ml-auto flex rounded-lg border border-line p-1">{(["dia", "semana", "mes"] as const).map(v => <button key={v} aria-pressed={view === v} className={`rounded-md px-3 py-1 text-xs font-semibold ${view === v ? "bg-brand text-white" : "text-mut"}`} onClick={() => setView(v)}>{v === "mes" ? "Mês" : v === "dia" ? "Dia" : "Semana"}</button>)}</div>
     </div>
     <div className="flex flex-wrap items-center gap-2">
-      <label className="text-xs text-mut">Mostrar <select className="ml-1 rounded-lg border border-line bg-card px-2 py-2 text-ink" value={filter} onChange={e => setFilter(e.target.value)}><option value="todos">Tudo</option><option value="data_importante">Datas importantes</option><option value="pagamentos">Pagamentos e recebimentos</option><option value="reuniao">Reuniões</option><option value="tarefa">Tarefas</option></select></label>
+      <label className="text-xs text-mut">Mostrar <select className="ml-1 rounded-lg border border-line bg-card px-2 py-2 text-ink" value={filter} onChange={e => setFilter(e.target.value)}><option value="todos">Tudo</option><option value="data_importante">Datas importantes</option><option value="pagamentos">Pagamentos e recebimentos</option><option value="lembrete">Lembretes</option><option value="reuniao">Reuniões</option><option value="tarefa">Tarefas</option></select></label>
       <button disabled={busy} className={`${button} ml-auto bg-brand text-white`} onClick={() => setEditing({ ev: null, dia: selectedDay, tipo: "data_importante" })}>+ Data importante</button>
       <button disabled={busy} className={button} onClick={() => setEditing({ ev: null, dia: selectedDay, tipo: "pagamento" })}>+ Pagamento</button>
       <button disabled={busy} className={button} onClick={() => setEditing({ ev: null, dia: selectedDay, tipo: "reuniao" })}>+ Compromisso</button>
@@ -87,7 +95,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
         {view !== "dia" && <div className="grid grid-cols-7 bg-soft text-center text-xs font-semibold text-mut">{weekdays.map(day => <div key={day} className="p-2">{day}</div>)}</div>}
         <div className={view === "dia" ? "" : "grid grid-cols-7"}>{days.map(day => {
           const key = ymd(day); const dayItems = agendaNoPeriodo(items, key, key); const shown = view === "mes" ? dayItems.slice(0, 1) : dayItems;
-          return <div key={key} className={`${view === "mes" ? "h-[76px] overflow-hidden p-1 xl:h-[clamp(48px,calc((100dvh-380px)/6),76px)]" : "min-h-[110px] p-2"} min-w-0 border-b border-r border-line ${key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
+          return <div key={key} className={`${view === "mes" ? "h-[76px] overflow-hidden p-1 xl:h-[clamp(48px,calc((100dvh-380px)/6),76px)]" : "min-h-[110px] p-2"} min-w-0 border-b border-r border-line ${key === today ? "bg-[#FCE9F2] ring-2 ring-inset ring-brand/50" : key === selectedDay ? "bg-brand/[0.04] ring-1 ring-inset ring-brand/30" : day.getMonth() !== cursor.getMonth() && view === "mes" ? "bg-soft" : ""}`}>
             <div className="mb-1 flex items-center justify-between gap-1"><button aria-label={`Ver dia ${day.toLocaleDateString("pt-BR")}`} onClick={() => { go(key); setView("dia"); }} className={`flex size-[22px] items-center justify-center rounded-full text-[11px] font-bold ${key === today ? "bg-brand text-white" : "text-ink hover:bg-soft"}`}>{day.getDate()}</button>{dayItems.length > shown.length && <button title={`Ver todos os ${dayItems.length} itens do dia`} aria-label={`Ver mais ${dayItems.length - shown.length} itens de ${day.toLocaleDateString("pt-BR")}`} className="text-[9px] font-semibold text-brand" onClick={() => { go(key); setView("dia"); }}>+{dayItems.length - shown.length}</button>}</div>
             <div className="space-y-1">{shown.map(item => {
               const meta = AGENDA_TIPOS[item.tipo];
@@ -103,7 +111,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     <section aria-label="Lista da agenda" className="erp-card erp-card--lavender flex min-w-0 flex-col p-4 xl:max-h-[calc(100dvh-340px)]">
       <div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-bold text-ink">Lista do período</h2><span className="text-xs text-mut">{periodItems.length} item(ns)</span></div>
       {!groups.length && <p className="py-5 text-center text-sm text-mut">Nenhuma data ou pagamento neste período.</p>}
-      <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className="mb-2 text-xs font-bold capitalize text-mut">{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} /></div>)}</div>
+      <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className={`mb-2 text-xs font-bold capitalize ${day === today ? "text-brand" : "text-mut"}`}>{day === today && <span className="mr-2 rounded-full bg-brand px-2 py-0.5 text-[10px] uppercase text-white">Hoje</span>}{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} highlightDay={today} /></div>)}</div>
     </section>
     </div>
     {editing && <EventoDialog key={`${editing.ev?.id ?? "novo"}-${editing.dia}-${editing.tipo}`} state={editing} projetos={projetos} onClose={() => setEditing(null)} onSaved={ev => { setEvents(old => old.some(e => e.id === ev.id) ? old.map(e => e.id === ev.id ? ev : e) : [...old, ev]); setEditing(null); setMessage("Item salvo na agenda e na tela Hoje."); router.refresh(); }} onDeleted={id => { setEvents(old => old.filter(e => e.id !== id)); setEditing(null); router.refresh(); }} />}
@@ -159,7 +167,7 @@ function EventoDialog({ state, projetos, onClose, onSaved, onDeleted }: {
     catch { setError("Não foi possível excluir. Tente novamente."); } finally { setBusy(false); }
   }
   return <Dialog open onOpenChange={open => { if (!open) close(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
-    <DialogTitle>{ev ? "Editar item" : tipo === "pagamento" ? "Novo pagamento" : "Nova data ou compromisso"}</DialogTitle><DialogDescription>O item também aparece no Hoje na data escolhida.</DialogDescription>
+    <DialogTitle>{ev ? "Editar item" : tipo === "pagamento" ? "Novo pagamento" : tipo === "lembrete" ? "Novo lembrete" : "Nova data ou compromisso"}</DialogTitle><DialogDescription>O item também aparece no Hoje na data escolhida.</DialogDescription>
     <form onSubmit={submit} onChange={() => setDirty(true)} className="space-y-3"><fieldset disabled={busy} className="space-y-3">
       <label className="block text-xs font-semibold text-mut">Título<input name="titulo" required autoFocus maxLength={200} defaultValue={ev?.titulo} className={field} placeholder={tipo === "pagamento" ? "Ex.: Internet, aluguel, assinatura…" : "Ex.: Aniversário, renovação, reunião…"} /></label>
       <label className="block text-xs font-semibold text-mut">Tipo<select name="tipo" className={field} value={tipo} onChange={e => setTipo(e.target.value as EventoTipo)}>{eventTypes.map(type => <option key={type} value={type}>{type === "pagamento" ? "Pagamento a fazer" : AGENDA_TIPOS[type].label}</option>)}</select></label>

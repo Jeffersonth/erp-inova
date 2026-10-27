@@ -74,3 +74,12 @@ export function agendaNoPeriodo(items: AgendaItem[], inicio: string, fim: string
   return items.filter(item => item.data <= fim && item.ate >= inicio)
     .map(item => item.data < inicio ? { ...item, horario: "Em andamento" } : item);
 }
+
+// These highlights intentionally use the whole agenda, independently of its visible period/filter.
+export function agendaDestaques(items: AgendaItem[], today: string) {
+  const hoje = agendaNoPeriodo(items, today, today);
+  const rank = (item: AgendaItem) => item.data <= today && item.ate >= today ? 0 : item.data > today ? 1 : 2;
+  const lembretes = items.filter(item => item.origem === "evento" && ["lembrete", "data_importante"].includes(item.tipo))
+    .sort((a, b) => rank(a) - rank(b) || (rank(a) === 2 ? b.data.localeCompare(a.data) : a.data.localeCompare(b.data)) || (a.horario === "Dia inteiro" ? "00:00" : a.horario).localeCompare(b.horario === "Dia inteiro" ? "00:00" : b.horario) || a.titulo.localeCompare(b.titulo));
+  return { hoje, lembretes };
+}
