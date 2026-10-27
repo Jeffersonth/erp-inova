@@ -22,6 +22,7 @@ import {
   LogOut,
   Sparkles,
   Trophy,
+  Sprout,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ const nav: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/anotacoes", label: "Anotações", icon: StickyNote },
   { href: "/rotina-dieta", label: "Rotina e Dieta", icon: Utensils },
+  { href: "/habitos", label: "Hábitos", icon: Sprout },
   { href: "/regras", label: "Regras", icon: BookOpen },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tracker", label: "Time Tracker", icon: Timer },
@@ -59,6 +61,7 @@ const mobileTitles: Record<string, [string, string]> = {
   "/assistente": ["Assistente IA", "toda ação vira rascunho"],
   "/anotacoes": ["Anotações", "a IA detecta o prazo"],
   "/rotina-dieta": ["Rotina e Dieta", "seus horários e refeições"],
+  "/habitos": ["Hábitos", "seu jardim de constância"],
   "/regras": ["Regras", "seus princípios por categoria"],
   "/dashboard": ["Painel", "pessoal · comercial · financeiro"],
   "/configuracoes": ["Configurações", "perfil e integrações"],
