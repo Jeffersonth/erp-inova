@@ -26,20 +26,20 @@ export function AgendaHighlights({
     month: "long",
   }).format(new Date(today + "T12:00:00Z"));
   return (
-    <div className="grid min-w-0 gap-3 lg:grid-cols-2">
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2">
       <section
         aria-label="Destaques de hoje"
         className="min-w-0 overflow-hidden rounded-2xl border-2 border-brand/35 bg-[#FCE9F2] shadow-[0_6px_20px_-14px_rgba(197,30,114,.5)]"
       >
-        <header className="flex items-center gap-2 border-b border-brand/15 bg-brand/[.07] px-3 py-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
+        <header className="flex items-center gap-2 border-b border-brand/15 bg-brand/[.07] px-4 py-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
             <Sun size={18} />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-extrabold text-[#8C164F]">
+            <h2 className="text-base font-extrabold text-[#8C164F]">
               Hoje merece sua atenção
             </h2>
-            <p className="text-[10px] text-[#8C164F]">
+            <p className="text-xs text-[#8C164F]">
               {todayLabel} · compromissos, tarefas e pagamentos
             </p>
           </div>
@@ -50,7 +50,7 @@ export function AgendaHighlights({
             {hoje.length}
           </span>
         </header>
-        <div className="thin-scroll max-h-[180px] overflow-y-auto p-3 lg:max-h-[154px]">
+        <div className="thin-scroll max-h-[360px] overflow-y-auto p-4 lg:max-h-[420px]">
           {hoje.length ? (
             <AgendaItemList
               items={hoje}
@@ -60,7 +60,7 @@ export function AgendaHighlights({
               highlightDay={today}
             />
           ) : (
-            <p className="flex items-center gap-2 py-3 text-xs text-[#8C164F]">
+            <p className="flex items-center gap-2 py-5 text-sm text-[#8C164F]">
               <CalendarDays size={16} className="shrink-0" />
               Nenhum item agendado para hoje. Seu dia está livre na agenda.
             </p>
@@ -71,18 +71,18 @@ export function AgendaHighlights({
         aria-label="Todos os lembretes"
         className="min-w-0 overflow-hidden rounded-2xl border border-[#E2C784] bg-[#FFF7E4]"
       >
-        <header className="flex flex-wrap items-center gap-2 border-b border-[#E2C784]/60 bg-[#F7E8BC]/50 px-3 py-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-[#F2D58E] text-[#795315]">
+        <header className="flex flex-wrap items-center gap-2 border-b border-[#E2C784]/60 bg-[#F7E8BC]/50 px-4 py-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#F2D58E] text-[#795315]">
             <Bell size={17} />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-extrabold text-[#795315]">
+            <h2 className="text-base font-extrabold text-[#795315]">
               Seus lembretes{" "}
               <span className="ml-1 text-xs font-semibold">
                 ({lembretes.length})
               </span>
             </h2>
-            <p className="text-[10px] text-[#795315]">
+            <p className="text-xs text-[#795315]">
               Lembretes e datas importantes · todos os períodos
             </p>
           </div>
@@ -96,7 +96,7 @@ export function AgendaHighlights({
             Novo
           </button>
         </header>
-        <div className="thin-scroll max-h-[180px] overflow-y-auto p-3 lg:max-h-[154px]">
+        <div className="thin-scroll max-h-[360px] overflow-y-auto p-4 lg:max-h-[420px]">
           {lembretes.length ? (
             <AgendaItemList
               items={lembretes}
@@ -106,7 +106,7 @@ export function AgendaHighlights({
               showDate
             />
           ) : (
-            <p className="py-3 text-xs text-[#795315]">
+            <p className="py-5 text-sm text-[#795315]">
               Nenhum lembrete cadastrado. Use “Novo” para adicionar o primeiro.
             </p>
           )}

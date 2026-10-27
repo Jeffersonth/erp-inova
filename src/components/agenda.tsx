@@ -75,7 +75,6 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
     finally { setBusy(false); }
   }
   return <div className="flex flex-col gap-4">
-    <AgendaHighlights items={all} today={today} onEdit={edit} onPago={paid} busy={busy} onAdd={() => setEditing({ ev: null, dia: today, tipo: "lembrete" })}/>
     <div className="flex flex-wrap items-center gap-2">
       <button aria-label="Período anterior" className={button} onClick={() => navigate(-1)}>‹</button><button className={button} onClick={() => go(today)}>Hoje</button><button aria-label="Próximo período" className={button} onClick={() => navigate(1)}>›</button>
       <h2 className="text-sm font-bold capitalize text-ink">{periodLabel}</h2>
@@ -114,6 +113,7 @@ export function Agenda({ eventosIniciais, tarefasIniciais, recebimentos, projeto
       <div className="thin-scroll min-h-0 space-y-4 xl:overflow-y-auto xl:pr-1">{groups.map(day => <div key={day}><h3 className={`mb-2 text-xs font-bold capitalize ${day === today ? "text-brand" : "text-mut"}`}>{day === today && <span className="mr-2 rounded-full bg-brand px-2 py-0.5 text-[10px] uppercase text-white">Hoje</span>}{fromDay(day).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</h3><AgendaItemList items={periodItems.filter(item => (item.data < start ? start : item.data) === day)} onEdit={edit} onPago={paid} busy={busy} highlightDay={today} /></div>)}</div>
     </section>
     </div>
+    <AgendaHighlights items={all} today={today} onEdit={edit} onPago={paid} busy={busy} onAdd={() => setEditing({ ev: null, dia: today, tipo: "lembrete" })}/>
     {editing && <EventoDialog key={`${editing.ev?.id ?? "novo"}-${editing.dia}-${editing.tipo}`} state={editing} projetos={projetos} onClose={() => setEditing(null)} onSaved={ev => { setEvents(old => old.some(e => e.id === ev.id) ? old.map(e => e.id === ev.id ? ev : e) : [...old, ev]); setEditing(null); setMessage("Item salvo na agenda e na tela Hoje."); router.refresh(); }} onDeleted={id => { setEvents(old => old.filter(e => e.id !== id)); setEditing(null); router.refresh(); }} />}
   </div>;
 }
